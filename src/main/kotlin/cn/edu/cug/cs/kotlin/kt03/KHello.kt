@@ -8,5 +8,6 @@ object  KHello {
         println("KHello")
         val s = Student(10L, "Vincen")
         println(s)
+        s.name = "H"
     }
 }

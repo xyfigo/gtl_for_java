@@ -2,6 +2,7 @@ package gtl.index.itree;
 
 import gtl.geom.Interval;
 import gtl.geom.Vector;
+import gtl.geom.VectorImpl;
 import gtl.index.shape.IsoscelesRightTriangleShape;
 
 import java.util.ArrayList;
@@ -10,36 +11,6 @@ import java.util.ArrayList;
  * Created by ZhenwenHe on 2017/3/27.
  */
 public class TriangleTree {
-    /**
-     * 树节点类，如果intervals==null，则为内部节点，
-     * 否则为外部节点或叶子节点；
-     * 当为内部节点的时候，left指向左子树节点，
-     * right指向右子树节点；
-     * parent指向父节点，如果父节点为空，则为根节点；
-     * triangle是节点覆盖的三角形范围。
-     */
-    public class TreeNode {
-        IsoscelesRightTriangleShape triangle;
-        TreeNode parent;
-        TreeNode left;
-        TreeNode right;
-        /**
-         * if null, internal node
-         * else external node , or leaf
-         */
-        ArrayList<Interval> intervals;
-
-        public TreeNode() {
-            this.triangle = null;
-            this.parent = null;
-            this.left = null;
-            this.right = null;
-            this.intervals = null;
-        }
-
-        boolean isLeafNode(){ return intervals==null;}
-    }
-
     /**
      *树的根节点，其所包含的三角形范围为baseTriangle
      */
@@ -58,13 +29,12 @@ public class TriangleTree {
      */
     int leafNodeCapacity;
 
-
     /**
      *
      * @param baseTriangle
      * @param leafNodeCapacity
      */
-    public TriangleTree(IsoscelesRightTriangleShape baseTriangle,int leafNodeCapacity) {
+    public TriangleTree(IsoscelesRightTriangleShape baseTriangle, int leafNodeCapacity) {
         this.baseTriangle = (IsoscelesRightTriangleShape) baseTriangle.clone();
         this.leafNodeCapacity=leafNodeCapacity;
         this.rootNode=new TreeNode();
@@ -73,6 +43,7 @@ public class TriangleTree {
 
     /**
      * 算法描述：
+     * 1）如果不在本范围内，则调用extend方法进行三角形范围扩展
      * 1）调用findTreeNode查找i 要插入的节点tn（必定是叶子节点）
      * 2）如果tn的间隔数据对象个数小于leafNodeCapacity，则直接加入该节点
      * 3）如果tn中的间隔数据对象等于leafNodeCapacity，
@@ -82,11 +53,15 @@ public class TriangleTree {
      * @return
      */
     public boolean insert(Interval i){
+        if (test(this.baseTriangle, i) == 0) {
+            this.rootNode = extend(i);
+            this.baseTriangle = this.rootNode.triangle;
+        }
+
         TreeNode tn = findTreeNode(i);
         if(tn.intervals.size()<leafNodeCapacity){
             tn.intervals.add(i);
-        }
-        else {
+        } else {
             return splitTreeNode(i,tn);
         }
         return true;
@@ -133,8 +108,7 @@ public class TriangleTree {
                 return null;
             else if(testResult==1){
                 p = p.left;
-            }
-            else {//=2
+            } else {//=2
                 p=p.right;
             }
             if(p.isLeafNode())
@@ -151,27 +125,139 @@ public class TriangleTree {
      * @return the new root node
      */
     TreeNode extend(Interval i){
-        Vector V0 = rootNode.triangle.getVertex(0);
-        if(i.getLowerBound()<=V0.getX())
-            return leftExtension(rootNode);
-        else if(i.getUpperBound()>=V0.getY())
-            return rightExtension(rootNode);
-        else
-            return this.rootNode;
+        TreeNode newRoot = this.rootNode;
+        IsoscelesRightTriangleShape newBaseTriangle = this.rootNode.triangle;
+        Vector V0 = null;
+        while (test(newBaseTriangle, i) == 0) {
+            V0 = newRoot.triangle.getVertex(0);
+            if (i.getLowerBound() <= V0.getX())
+                newRoot = leftExtension(newRoot);
+            else
+                newRoot = rightExtension(newRoot);
+            newBaseTriangle = newRoot.triangle;
+        }
+        this.rootNode = newRoot;
+        this.baseTriangle = newBaseTriangle;
+        return newRoot;
     }
 
-
     /**
-     * 以传入的节点为基准三角形，进行范围扩展，
-     * 并返回扩展后的父节点
+     * 以传入的节点为基准三角形，进行范围扩展， 并返回扩展后的父节点
+     * 图形参考 spatio-temporal query.vsox->extension->left extension
+     *                                  newRoot
+     *                         left              right
+     *                                    rootNode     right
      * @param tn
      * @return
      */
-    TreeNode leftExtension(TreeNode tn){
-        return null;
+    public TreeNode leftExtension(TreeNode tn) {
+        IsoscelesRightTriangleShape baseT = tn.triangle;
+        Vector[] vertices = baseT.getVertices();
+        Vector V0 = new VectorImpl(vertices[0].getX() - (vertices[1].getX() - vertices[0].getX()),
+                vertices[0].getY(), 0.0);
+        Vector V1 = vertices[1];
+        Vector V2 = new VectorImpl(V0.getX(),
+                V0.getY() - 2 * (vertices[0].getY() - vertices[2].getY()), 0.0);
+        baseT = new IsoscelesRightTriangleShape(V0, V1, V2);
+        TreeNode newRootNode = new TreeNode();
+        newRootNode.triangle = baseT;
+
+        newRootNode.left = new TreeNode();
+        newRootNode.left.parent = newRootNode;
+        newRootNode.left.intervals = new ArrayList<>();
+        newRootNode.left.triangle = new IsoscelesRightTriangleShape(baseT.leftTriangle().getVertices());
+
+        newRootNode.right = new TreeNode();
+        newRootNode.right.parent = newRootNode;
+        newRootNode.right.triangle = new IsoscelesRightTriangleShape(baseT.rightTriangle().getVertices());
+
+        TreeNode p = newRootNode.right;
+        p.right = new TreeNode();
+        p.right.parent = p;
+        p.right.triangle = new IsoscelesRightTriangleShape(
+                p.triangle.rightTriangle().getVertices());
+        p.right.intervals = new ArrayList<>();
+
+        p.left = tn;
+        p.left.parent = p;
+
+        return newRootNode;
     }
 
+    /**
+     * 以传入的节点为基准三角形，进行范围扩展， 并返回扩展后的父节点
+     * 图形参考 spatio-temporal query.vsox->extension->right extension
+     * newRoot
+     * left              right(leaf)
+     * left（leaf)  rootNode
+     *
+     * @param tn
+     * @return
+     */
     TreeNode rightExtension(TreeNode tn){
-        return null;
+        IsoscelesRightTriangleShape baseT = tn.triangle;
+        Vector[] vertices = baseT.getVertices();
+        Vector V0 = new VectorImpl(vertices[0].getX(),
+                vertices[0].getY() + (vertices[0].getY() - vertices[2].getY()), 0.0);
+        Vector V2 = vertices[2];
+        Vector V1 = new VectorImpl(vertices[1].getX() + vertices[1].getX() - vertices[0].getX(),
+                V0.getY(), 0.0);
+        baseT = new IsoscelesRightTriangleShape(V0, V1, V2);
+        TreeNode newRootNode = new TreeNode();
+        newRootNode.triangle = baseT;
+
+        newRootNode.right = new TreeNode();
+        newRootNode.right.parent = newRootNode;
+        newRootNode.right.intervals = new ArrayList<>();
+        newRootNode.right.triangle = new IsoscelesRightTriangleShape(baseT.rightTriangle().getVertices());
+
+        newRootNode.left = new TreeNode();
+        newRootNode.left.parent = newRootNode;
+        newRootNode.left.triangle = new IsoscelesRightTriangleShape(baseT.leftTriangle().getVertices());
+
+        TreeNode p = newRootNode.left;
+        p.left = new TreeNode();
+        p.left.parent = p;
+        p.left.triangle = new IsoscelesRightTriangleShape(
+                p.triangle.leftTriangle().getVertices());
+        p.left.intervals = new ArrayList<>();
+
+        p.right = tn;
+        p.right.parent = p;
+
+        return newRootNode;
     }
+
+    /**
+     * 树节点类，如果intervals==null，则为内部节点，
+     * 否则为外部节点或叶子节点；
+     * 当为内部节点的时候，left指向左子树节点，
+     * right指向右子树节点；
+     * parent指向父节点，如果父节点为空，则为根节点；
+     * triangle是节点覆盖的三角形范围。
+     */
+    public class TreeNode {
+        IsoscelesRightTriangleShape triangle;
+        TreeNode parent;
+        TreeNode left;
+        TreeNode right;
+        /**
+         * if null, internal node
+         * else external node , or leaf
+         */
+        ArrayList<Interval> intervals;
+
+        public TreeNode() {
+            this.triangle = null;
+            this.parent = null;
+            this.left = null;
+            this.right = null;
+            this.intervals = null;
+        }
+
+        boolean isLeafNode() {
+            return intervals == null;
+        }
+    }
+
 }

@@ -1,7 +1,5 @@
 package gtl.geom;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -33,6 +31,22 @@ public class PackedVectorSequence implements VectorSequence {
 
         this.dimension = dimension;
         this.coordinates = Arrays.copyOf(coordinates,coordinates.length);
+    }
+
+    public PackedVectorSequence(Vector[] vv) {
+        int dimension = vv[0].getDimension();
+        if (dimension < 2) {
+            throw new IllegalArgumentException("Must have at least 2 dimensions");
+        }
+        this.dimension = dimension;
+        this.coordinates = new double[dimension * vv.length];
+        int j = 0;
+        for (Vector v : vv) {
+            for (int i = 0; i < dimension; ++i) {
+                this.coordinates[j] = v.getOrdinate(i);
+                ++j;
+            }
+        }
     }
     public PackedVectorSequence( ) {
         this.dimension = 3;

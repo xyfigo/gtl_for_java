@@ -1,6 +1,6 @@
 package gtl.geom;
 
-import junit.framework.Assert;
+
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
@@ -88,7 +88,7 @@ public class VectorImplTest extends TestCase {
         v.setZ(10);
         Double x= v.getX();
         x=20.0;
-        Assert.assertEquals(v.getX(),10.0);
+        assertEquals(v.getX(), 10.0);
     }
 
     public void testGetY() throws Exception {
@@ -211,7 +211,7 @@ public class VectorImplTest extends TestCase {
         v.setY(10);
         v.setZ(10);
         v.getCoordinates()[0]=20.0;
-        Assert.assertEquals(v.getX(),20.0);
+        assertEquals(v.getX(), 20.0);
     }
 
 }

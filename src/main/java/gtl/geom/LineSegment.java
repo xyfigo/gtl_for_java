@@ -95,4 +95,13 @@ public class LineSegment implements gtl.io.Serializable, Comparable<LineSegment>
     public Vector getCenter() {
         return this.startPoint.add(this.endPoint).divide(2);
     }
+
+    public LineSegment flap() {
+        Vector2D s = startPoint.flap();
+        Vector2D e = endPoint.flap();
+        if (s.equals(e)) {
+            return null;
+        }
+        return new LineSegment(s, e);
+    }
 }

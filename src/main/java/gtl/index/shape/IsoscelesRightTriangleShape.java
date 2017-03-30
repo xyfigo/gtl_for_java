@@ -2,11 +2,24 @@ package gtl.index.shape;
 
 import gtl.geom.Envelope;
 import gtl.geom.IsoscelesRightTriangle;
+import gtl.geom.Vector;
 
 /**
  * Created by ZhenwenHe on 2017/3/27.
  */
 public class IsoscelesRightTriangleShape extends IsoscelesRightTriangle implements Shape {
+
+    public IsoscelesRightTriangleShape(Vector v0, Vector v1, Vector v2) {
+        super(v0, v1, v2);
+    }
+
+    public IsoscelesRightTriangleShape() {
+    }
+
+    public IsoscelesRightTriangleShape(Vector[] vertices) {
+        super(vertices);
+    }
+
     @Override
     public boolean intersectsShape(Shape in) {
         return false;

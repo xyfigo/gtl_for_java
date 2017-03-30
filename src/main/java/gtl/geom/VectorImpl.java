@@ -1,6 +1,8 @@
 package gtl.geom;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -94,13 +96,28 @@ public class VectorImpl implements Vector {
     }
 
     @Override
+    public void setX(double x) {
+        this.coordinates[0] = x;
+    }
+
+    @Override
     public double getY() {
          return this.coordinates[1];
     }
 
     @Override
+    public void setY(double y) {
+        this.coordinates[1] = y;
+    }
+
+    @Override
     public double getZ() {
         return this.coordinates[2];
+    }
+
+    @Override
+    public void setZ(double z) {
+        this.coordinates[2] = z;
     }
 
     @Override
@@ -121,25 +138,10 @@ public class VectorImpl implements Vector {
             dos.writeDouble(d);
         return true;
     }
+
     @Override
     public long getByteArraySize(){
         return getDimension()*8+4;
-    }
-
-
-    @Override
-    public void setX(double x) {
-        this.coordinates[0]=x;
-    }
-
-    @Override
-    public void setY(double y) {
-        this.coordinates[1]=y;
-    }
-
-    @Override
-    public void setZ(double z) {
-        this.coordinates[2]=z;
     }
 
     @Override
@@ -325,5 +327,20 @@ public class VectorImpl implements Vector {
     @Override
     public Vector2D flap(){
         return new Vector2D(this.coordinates[0],this.coordinates[1]);
+    }
+
+    @Override
+    public Vector2D flapXY() {
+        return new Vector2D(this.coordinates[0], this.coordinates[1]);
+    }
+
+    @Override
+    public Vector2D flapYZ() {
+        return new Vector2D(this.coordinates[1], this.coordinates[2]);
+    }
+
+    @Override
+    public Vector2D flapXZ() {
+        return new Vector2D(this.coordinates[0], this.coordinates[2]);
     }
 }

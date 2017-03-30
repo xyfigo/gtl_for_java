@@ -1,5 +1,7 @@
 package gtl.geom;
 
+import gtl.exception.WarningException;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -90,5 +92,18 @@ public class Ray implements gtl.io.Serializable, Comparable<Ray>{
 
     public InfiniteLine extend(){
         return new InfiniteLine(startPoint,endPoint);
+    }
+
+    public Ray flap() {
+        try {
+            Ray r = new Ray(startPoint.flap(), endPoint.flap());
+            if (r.startPoint.equals(r.endPoint)) {
+                throw new WarningException("Ray flap operation: the return object will be a point");
+            }
+            return r;
+        } catch (Exception w) {
+            w.printStackTrace();
+        }
+        return null;
     }
 }

@@ -8,6 +8,12 @@ import gtl.io.Serializable;
 public interface Triangle extends Serializable {
     Vector getVertex(int i);
     Vector[] getVertices();
+
+    VectorSequence getVectorSequence();
+
+    Vector[] getClockwiseVertices();
+
+    VectorSequence getClockwiseVectorSequence();
     double getAngle(int i);
     LineSegment getEdge(int s, int e);
     double getHeight(int v);//"height" is measured at right angles  from vertex(v) to its base edge
@@ -35,5 +41,7 @@ public interface Triangle extends Serializable {
     boolean isRightAngledTriangle();
     boolean isIsoscelesRightTriangle();
     boolean isScaleneTriangle();
+
+    Triangle flap();
 
 }

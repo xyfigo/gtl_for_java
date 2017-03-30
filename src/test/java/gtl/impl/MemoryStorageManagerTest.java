@@ -4,7 +4,6 @@ import gtl.common.CommonSuits;
 import gtl.common.Identifier;
 import gtl.io.storage.StorageManager;
 import gtl.io.storage.StorageSuits;
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -50,12 +49,12 @@ public class MemoryStorageManagerTest extends TestCase {
             Identifier id=it.next();
             System.out.println(id);
             data=dsm.loadByteArray(id);
-            Assert.assertEquals(data.length,dataSize);
+            assertEquals(data.length, dataSize);
             System.out.println(data.length);
             System.out.println(data[0]);
-            Assert.assertEquals(k,data[0]);
+            assertEquals(k, data[0]);
             System.out.println(data[data.length-1]);
-            Assert.assertEquals(k,data[data.length-1]);
+            assertEquals(k, data[data.length - 1]);
             k++;
         }
         dsm.close();

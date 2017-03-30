@@ -20,10 +20,15 @@ public interface Vector extends Serializable {
     int getDimension();
 
     double getX();
-    double getY();
-    double getZ();
+
     void setX(double x);
+
+    double getY();
+
     void setY(double y);
+
+    double getZ();
+
     void setZ(double z);
 
     void makeInfinite(int dimension);
@@ -44,5 +49,15 @@ public interface Vector extends Serializable {
     Vector divide(Scalar s);
     Vector divide(double s);
 
+    //ignore Z;
     Vector2D flap();
+
+    //ignore Z
+    Vector2D flapXY();
+
+    //ignore X
+    Vector2D flapYZ();
+
+    //ignore Y
+    Vector2D flapXZ();
 }

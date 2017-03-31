@@ -37,17 +37,82 @@ public class InfiniteLine implements gtl.io.Serializable, Comparable<InfiniteLin
         this.endPoint =new VectorImpl(0.0,0.0,0.0);
     }
 
+    /**
+     * 测试点与线的位置关系,3D空间，则只有在线上或不在线上
+     * The condition for three points v, v0,and v1,
+     * to be collinear can also be expressed as the statement
+     * that the distance between any one point and the line
+     * determined by the other two is zero.
+     * | (v1-v0)x（v-v0)|
+     * -------------------------  = d
+     * |v1-v0|
+     *
+     * @param v 待测试的点
+     * @return 0- 点在线上，也即是三点共线
+     * 非0都表示在线外
+     */
+    public static int test3D(Vector v, Vector v0, Vector v1) {
+        double d = v1.subtract(v0).crossProduct(v.subtract(v0)).length();
+        if (Math.abs(d) < MathSuits.EPSILON)
+            return 0;
+        else
+            return -1;
+    }
+
+    /**
+     * 测试2D平面(XOY)上点与线的位置关系
+     *
+     * @param v  测试点
+     * @param v0 直线起点，方向从v0指向v1
+     * @param v1 直线终点， 方向从v0指向v1
+     * @return 0- 点在线上，也即是三点共线
+     * -1 - 点在线的左边
+     * 1 - 点在线的右边
+     */
+    public static int test2D(Vector v, Vector v0, Vector v1) {
+        double[] P0;
+        double[] P1;
+        double[] P2;
+        double d;
+        P0 = v0.getCoordinates();
+        P1 = v1.getCoordinates();
+        P2 = v.getCoordinates();
+
+        d = (P1[0] - P0[0]) * (P2[1] - P0[1]) - (P2[0] - P0[0]) * (P1[1] - P0[1]);
+
+        if (Math.abs(d) < MathSuits.EPSILON) return 0;
+        if (d > 0) return -1;
+        if (d < 0) return 1;
+        return 0;
+    }
+
+    /**
+     * 测试2D平面(XOY)上点与线的位置关系
+     *
+     * @param v  测试点
+     * @param v0 直线起点，方向从v0指向v1
+     * @param v1 直线终点， 方向从v0指向v1
+     * @return 0- 点在线上，也即是三点共线
+     * -1 - 点在线的左边
+     * 1 - 点在线的右边
+     */
+    public static int test2D(double[] v, double[] v0, double[] v1) {
+        double d = (v1[0] - v0[0]) * (v[1] - v0[1]) - (v[0] - v0[0]) * (v1[1] - v0[1]);
+        if (Math.abs(d) < MathSuits.EPSILON) return 0;
+        if (d > 0) return -1;
+        if (d < 0) return 1;
+        return 0;
+    }
+
     @Override
     public Object clone() {
         return new InfiniteLine(this.startPoint,this.endPoint);
     }
 
-
     public void reset(Vector s, Vector e) {
         this.startPoint = (Vector) startPoint.clone();
         this.endPoint =(Vector)  endPoint.clone();
     }
-
 
     public void reset(double[] s, double[] e) {
         this.startPoint = new VectorImpl(s);
@@ -62,11 +127,9 @@ public class InfiniteLine implements gtl.io.Serializable, Comparable<InfiniteLin
         }
     }
 
-
     public Vector getStartPoint() {
         return this.startPoint;
     }
-
 
     public Vector getEndPoint() {
         return this.endPoint;
@@ -98,74 +161,29 @@ public class InfiniteLine implements gtl.io.Serializable, Comparable<InfiniteLin
 
     /**
      * 测试2D平面(XOY)上点与线的位置关系
-     *
-     * @param v
-     * @return 0- 点在线上，也即是三点共线
-     * -1- 点在线的左边
-     * 1 - 点在线的右边
+     * 如果是3D空间，则只有在线上或不在线上
+     * @param v 待测试的点
+     * @return
+     *      如果是2D空间，则
+     *          0- 点在线上，也即是三点共线
+     *          -1- 点在线的左边
+     *          1 - 点在线的右边
+     * 如果是3D空间，则
+     *          0- 点在线上，也即是三点共线
+     *          -1，1都表示在线外
      */
     public int test(Vector v) {
-        double[] P0;
-        double[] P1;
-        double[] P2;
-        double d;
-        Vector2D s, e;
-        if (v.getDimension() == 2) {
-            P0 = startPoint.getCoordinates();
-            P1 = endPoint.getCoordinates();
-            P2 = v.getCoordinates();
-
-            d = (P1[0] - P0[0]) * (P2[1] - P0[1]) - (P2[0] - P0[0]) * (P1[1] - P0[1]);
-
-            if (Math.abs(d) < MathSuits.EPSILON) return 0;
-            if (d > 0) return -1;
-            if (d < 0) return 1;
-            return 0;
+        if(v.getDimension()==2){
+            return InfiniteLine.test2D(v, startPoint, endPoint);
         } else {
-            //XY
-            s = startPoint.flapXY();
-            e = endPoint.flapXY();
-            if (s.equals(e)) {
-                //XZ
-                s = startPoint.flapXZ();
-                e = endPoint.flapXZ();
-                if (s.equals(e)) {//YZ
-                    s = startPoint.flapYZ();
-                    e = endPoint.flapYZ();
-                    P0 = s.getCoordinates();
-                    P1 = e.getCoordinates();
-                    P2 = v.flapYZ().getCoordinates();
-                    d = (P1[0] - P0[0]) * (P2[1] - P0[1]) - (P2[0] - P0[0]) * (P1[1] - P0[1]);
-
-                    if (Math.abs(d) < MathSuits.EPSILON) return 0;
-                    if (d > 0) return -1;
-                    if (d < 0) return 1;
-                    return 0;
-                } else {//XZ
-                    P0 = s.getCoordinates();
-                    P1 = e.getCoordinates();
-                    P2 = v.flapXZ().getCoordinates();
-                    d = (P1[0] - P0[0]) * (P2[1] - P0[1]) - (P2[0] - P0[0]) * (P1[1] - P0[1]);
-
-                    if (Math.abs(d) < MathSuits.EPSILON) return 0;
-                    if (d > 0) return -1;
-                    if (d < 0) return 1;
-                    return 0;
-                }
-            } else {//XY
-                P0 = s.getCoordinates();
-                P1 = e.getCoordinates();
-                P2 = v.flapXY().getCoordinates();
-                d = (P1[0] - P0[0]) * (P2[1] - P0[1]) - (P2[0] - P0[0]) * (P1[1] - P0[1]);
-
-                if (Math.abs(d) < MathSuits.EPSILON) return 0;
-                if (d > 0) return -1;
-                if (d < 0) return 1;
-                return 0;
-            }
+            return InfiniteLine.test3D(v, startPoint, endPoint);
         }
     }
 
+    /**
+     * 投影到XOY的2D平面上
+     * @return
+     */
     public InfiniteLine flap() {
         Vector2D s = startPoint.flap();
         Vector2D e = endPoint.flap();

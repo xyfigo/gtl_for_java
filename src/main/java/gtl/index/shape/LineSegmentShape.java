@@ -1,11 +1,11 @@
 package gtl.index.shape;
 
 
+import gtl.geom.Envelope;
+import gtl.geom.Geom3DSuits;
 import gtl.geom.LineSegment;
 import gtl.geom.Vector;
 import gtl.math.MathSuits;
-import gtl.geom.Envelope;
-import gtl.geom.Geom3DSuits;
 
 /**
  * Created by ZhenwenHe on 2016/12/8.
@@ -23,6 +23,65 @@ public class LineSegmentShape extends LineSegment implements Shape {
 
     public LineSegmentShape(Vector startPoint, Vector endPoint) {
         super(startPoint,endPoint);
+    }
+
+    //some helpers for intersects methods
+    protected static double doubleAreaTriangle(PointShape a, PointShape b, PointShape c) {
+        double[] pA = a.getCoordinates();
+        double[] pB = b.getCoordinates();
+        double[] pC = c.getCoordinates();
+
+        return (((pB[0] - pA[0]) * (pC[1] - pA[1])) - ((pC[0] - pA[0]) * (pB[1] - pA[1])));
+    }
+
+    protected static boolean leftOf(PointShape a, PointShape b, PointShape c) {
+        return (doubleAreaTriangle(a, b, c) > 0);
+    }
+
+    protected static boolean collinear(PointShape a, PointShape b, PointShape c) {
+        return (doubleAreaTriangle(a, b, c) == 0);
+    }
+
+    protected static boolean between(PointShape a, PointShape b, PointShape c) {
+
+        if (!collinear(a, b, c)) {
+            return false;
+        }
+        double[] pA = a.getCoordinates();
+        double[] pB = b.getCoordinates();
+        double[] pC = c.getCoordinates();
+        if (pA[0] != pB[0]) { // a & b are not on the same vertical, compare on x axis
+            return between(pA[0], pB[0], pC[0]);
+        } else { // a & b are a vertical segment, we need to compare on y axis
+            return between(pA[1], pB[1], pC[1]);
+        }
+    }
+
+    protected static boolean between(double a, double b, double c) {
+        return (((a <= c) && (c <= b)) || ((a >= c) && (c >= b)));
+    }
+
+    protected static boolean intersectsProper(PointShape a, PointShape b, PointShape c, PointShape d) {
+
+        if (collinear(a, b, c) || collinear(a, b, d) ||
+                collinear(c, d, a) || collinear(c, d, b)) {
+            return false;
+        }
+
+        return ((leftOf(a, b, c) ^ leftOf(a, b, d)) && (leftOf(c, d, a) ^ leftOf(c, d, b)));
+    }
+
+    protected static boolean intersects(PointShape a, PointShape b, PointShape c, PointShape d) {
+
+        if (intersectsProper(a, b, c, d)) {
+            return true;
+        } else if (between(a, b, c) || between(a, b, d) ||
+                between(c, d, a) || between(c, d, b)) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     public boolean intersectsLineSegment(LineSegmentShape l) {
@@ -47,7 +106,6 @@ public class LineSegmentShape extends LineSegment implements Shape {
         return false;
     }
 
-
     public boolean intersectsRegion(RegionShape p) {
         assert this.getDimension()==2;
         return p.intersectsLineSegment((this));
@@ -63,7 +121,6 @@ public class LineSegmentShape extends LineSegment implements Shape {
 
         return false;
     }
-
 
     public double getMinimumDistance(PointShape p) {
         assert this.getDimension()==2;
@@ -86,6 +143,7 @@ public class LineSegmentShape extends LineSegment implements Shape {
 
         return Math.abs((x2 - x1) * (y1 - y0) - (x1 - x0) * (y2 - y1)) / (Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
     }
+
     public double getRelativeMinimumDistance(PointShape p) {
         assert getDimension()==2;
         double [] startCoordinates = this.getStartCoordinates();
@@ -115,8 +173,6 @@ public class LineSegmentShape extends LineSegment implements Shape {
         return ((x1 - x0) * (y2 - y1) - (x2 - x1) * (y1 - y0)) / (Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
     }
 
-
-
     @Override
     public int getDimension() {
         return Math.min(this.getStartPoint().getDimension(),this.getEndPoint().getDimension());
@@ -136,7 +192,6 @@ public class LineSegmentShape extends LineSegment implements Shape {
 
         return Geom3DSuits.createEnvelope(low,high);
     }
-
 
     public double getRelativeMaximumDistance(RegionShape r) {
          assert this.getDimension()==2;
@@ -174,7 +229,6 @@ public class LineSegmentShape extends LineSegment implements Shape {
         return Double.MAX_VALUE;
     }
 
-
     public double getAngleOfPerpendicularRay() {
         assert this.getDimension()==2;
         double [] startCoordinates = this.getStartCoordinates();
@@ -195,7 +249,6 @@ public class LineSegmentShape extends LineSegment implements Shape {
         return new LineSegmentShape(getStartPoint(),getEndPoint());
     }
 
-
     public void makeInfinite(int dimension) {
         this.makeDimension(dimension);
         double [] startCoordinates = this.getStartCoordinates();
@@ -205,7 +258,6 @@ public class LineSegmentShape extends LineSegment implements Shape {
             endCoordinates[cIndex] = Double.MAX_VALUE;
         }
     }
-
 
     public void makeDimension(int dimension) {
         if(dimension!=this.getDimension()){
@@ -222,78 +274,24 @@ public class LineSegmentShape extends LineSegment implements Shape {
         }
     }
 
-
     public double[] getStartCoordinates() {
         return super.getStartPoint().getCoordinates();
     }
-
 
     public double[] getEndCoordinates() {
         return super.getEndPoint().getCoordinates();
     }
 
-
     public double getStartCoordinate(int i) {
         return super.getStartPoint().getOrdinate(i);
     }
-
 
     public double getEndCoordinate(int i) {
         return super.getEndPoint().getOrdinate(i);
     }
 
-    //some helpers for intersects methods
-    protected static double doubleAreaTriangle(PointShape a, PointShape b, PointShape c){
-        double [] pA=a.getCoordinates();
-        double[] pB=b.getCoordinates();
-        double [] pC=c.getCoordinates();
-
-        return (((pB[0] - pA[0]) * (pC[1] - pA[1])) - ((pC[0] - pA[0]) * (pB[1] - pA[1])));
-    }
-    protected static boolean leftOf(PointShape a, PointShape b, PointShape c){
-        return (doubleAreaTriangle(a, b, c) > 0);
-    }
-    protected static boolean collinear(PointShape a, PointShape b, PointShape c){
-        return (doubleAreaTriangle(a, b, c) == 0);
-    }
-    protected static boolean between(PointShape a, PointShape b, PointShape c){
-
-		if ( !collinear(a, b, c) ) {
-            return false;
-        }
-        double [] pA=a.getCoordinates();
-        double[] pB=b.getCoordinates();
-        double [] pC=c.getCoordinates();
-        if ( pA[0] != pB[0] ) { // a & b are not on the same vertical, compare on x axis
-            return  between(pA[0], pB[0], pC[0]);
-        } else { // a & b are a vertical segment, we need to compare on y axis
-            return between(pA[1], pB[1], pC[1]);
-        }
-    }
-    protected static boolean between(double a, double b, double c){
-        return ( ((a <= c) && (c <= b)) || ((a >= c) && (c >= b)) );
-    }
-    protected static boolean intersectsProper(PointShape a, PointShape b, PointShape c, PointShape d){
-
-        if ( collinear(a, b, c) || collinear(a, b, d) ||
-         collinear(c, d, a) || collinear(c, d, b)) {
-			return false;
-		}
-
-		return ((leftOf(a, b, c) ^ leftOf(a, b, d)) && (leftOf(c, d, a) ^ leftOf(c, d, b)));
-    }
-    protected static boolean intersects(PointShape a, PointShape b, PointShape c, PointShape d){
-
-		if (intersectsProper(a, b, c, d)) {
-			return true;
-		} 
-		else if ( between(a, b, c) || between(a, b, d) ||
-				  between(c, d, a) || between(c, d, b) ) { 
-			return true;
-		}
-		else { 
-			return false;
-		}
-
+    @Override
+    public Vector getCenter() {
+        return null;
     }
 }

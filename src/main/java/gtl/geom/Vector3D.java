@@ -15,6 +15,4 @@ public class Vector3D extends VectorImpl{
     public Vector3D(double []ca, int beginPosition){
         super(ca,beginPosition,3);
     }
-
-
 }

@@ -1,8 +1,6 @@
 package gtl.index.shape;
 
-import gtl.geom.Envelope;
-import gtl.geom.IsoscelesRightTriangle;
-import gtl.geom.Vector;
+import gtl.geom.*;
 
 /**
  * Created by ZhenwenHe on 2017/3/27.
@@ -14,6 +12,11 @@ public class IsoscelesRightTriangleShape extends IsoscelesRightTriangle implemen
     }
 
     public IsoscelesRightTriangleShape() {
+        super();
+    }
+
+    public IsoscelesRightTriangleShape(Triangle t) {
+        this(t.getVertices());
     }
 
     public IsoscelesRightTriangleShape(Vector[] vertices) {
@@ -43,5 +46,9 @@ public class IsoscelesRightTriangleShape extends IsoscelesRightTriangle implemen
     @Override
     public double getMinimumDistance(Shape in) {
         return 0;
+    }
+
+    public boolean contains(Interval i) {
+        return this.contains(new Vector2D(i.getLowerBound(), i.getUpperBound()));
     }
 }

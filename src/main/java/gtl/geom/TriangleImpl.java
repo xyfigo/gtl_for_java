@@ -236,11 +236,18 @@ class TriangleImpl implements Triangle {
         return false;
     }
 
+    /**
+     * 点P是否在三角形内
+     *
+     * @param p
+     * @return
+     */
     @Override
     public boolean contains(Vector p) {
-
-        return false;
+        //需要测试在边上时候的情况
+        return Geom3DSuits.pointInTriangle(p, vertices[0], vertices[2], vertices[1]);
     }
+
 
     @Override
     public boolean isEquilateralTriangle() {

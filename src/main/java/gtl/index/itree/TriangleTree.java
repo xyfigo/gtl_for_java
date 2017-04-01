@@ -1,8 +1,6 @@
 package gtl.index.itree;
 
-import gtl.geom.Interval;
-import gtl.geom.Vector;
-import gtl.geom.VectorImpl;
+import gtl.geom.*;
 import gtl.index.shape.IsoscelesRightTriangleShape;
 
 import java.util.ArrayList;
@@ -77,14 +75,76 @@ public class TriangleTree {
      * @return 0- out of triangle
      *          1-left sub triangle
      *          2- right sub triangle
-     *          3- on one of the edges of this triangle
      */
     public int test(IsoscelesRightTriangleShape triangle, Interval i){
-
-        return 0;
+        Vector2D v = new Vector2D(i.getLowerBound(), i.getUpperBound());
+        if (!triangle.contains(v)) {
+            return 0;
+        }
+        Triangle left = triangle.leftTriangle();
+        if (left.contains(v))
+            return 1;
+        else
+            return 2;
     }
 
-    public boolean splitTreeNode(Interval i , TreeNode tn){
+    /**
+     * tn 是一个子节点，其中包含的间隔数据对象个数达到leafNodeCapacity
+     * 在该节点中药插入i，则需要进行节点分裂,算法步骤如下：
+     * 1)生成一个新的内部节点p,设置p的父节点为tn的父节点
+     *
+     * @param i
+     * @param tn
+     * @return
+     */
+    public boolean splitTreeNode(Interval i , TreeNode tn) {
+
+        ArrayList<Interval> intervals = tn.intervals;
+        ArrayList<Interval> leftIntervals = new ArrayList<>(0);
+        ArrayList<Interval> rightIntervals = new ArrayList<>(0);
+        IsoscelesRightTriangleShape leftTriangleShape, rightTriangleShape;
+        tn.intervals = null;
+        intervals.add(i);
+        TreeNode p = tn;
+        TreeNode left, right;
+        boolean loopFlag = true;
+
+        while (loopFlag) {
+            left = new TreeNode();
+            left.parent = p;
+            p.left = left;
+            leftTriangleShape = new IsoscelesRightTriangleShape(p.triangle.leftTriangle());
+            left.triangle = leftTriangleShape;
+
+            right = new TreeNode();
+            right.parent = p;
+            p.right = right;
+            rightTriangleShape = new IsoscelesRightTriangleShape(p.triangle.rightTriangle());
+            right.triangle = rightTriangleShape;
+
+            for (Interval it : intervals) {
+                if (leftTriangleShape.contains(i)) {//在三角形外
+                    leftIntervals.add(it);
+                } else
+                    rightIntervals.add(it);
+            }
+            //全部插入到左边三角形了，需要分解后重插
+            if (leftIntervals.size() == intervals.size()) {
+                leftIntervals.clear();
+                p = left;
+            }
+            //全部插入到右边三角形了，需要分解后重插
+            else if (rightIntervals.size() == intervals.size()) {
+                rightIntervals.clear();
+                p = right;
+            }
+            //分解完毕
+            else {
+                left.intervals = leftIntervals;
+                right.intervals = rightIntervals;
+                loopFlag = false;
+            }
+        }
 
         return true;
     }

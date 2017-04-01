@@ -50,51 +50,6 @@ public class Geom3DSuits extends GeomSuits {
     /**
      *
      * @param P
-     * @param L
-     * @return return the foot of perpendicular to L
-     */
-    public Vector perpendicularFoot(Vector P, InfiniteLine L){
-        Vector P0=L.startPoint;
-        Vector P1=L.endPoint;
-        Vector v = P1.subtract(P0);//P1 - P0;
-        Vector w = P.subtract(P0);//P - P0;
-
-        double c1 = w.dotProduct(v);//dot(w,v);
-        double c2 = v.dotProduct(v);//dot(v,v);
-        Scalar b = new Scalar(c1 / c2);
-        //double b = c1 / c2;
-        //PointShape Pb = L.P0 + b * v;
-        Vector Pb = P0.add(b.multiply(v));
-        return Pb;
-    }
-
-    /**
-     *
-     * @param P
-     * @param L
-     * @return return the foot of perpendicular to S
-     */
-    public Vector perpendicularFoot(Vector P , LineSegment S){
-        Vector P0=S.startPoint;
-        Vector P1=S.endPoint;
-        Vector v = P1.subtract(P0);//P1 - P0;
-        Vector w = P.subtract(P0);//P - P0;
-
-        double c1 = w.dotProduct(v);//dot(w,v);
-        double c2 = v.dotProduct(v);//dot(v,v);
-        Scalar b = new Scalar(c1 / c2);
-        //double b = c1 / c2;
-        //PointShape Pb = S.P0 + b * v;
-        Vector Pb = P0.add(b.multiply(v));
-
-        //TODO : Pb is on S
-
-        return Pb;
-    }
-
-    /**
-     *
-     * @param P
      * @param PL
      * @return return the foot of perpendicular to PL
      */
@@ -370,6 +325,7 @@ public class Geom3DSuits extends GeomSuits {
     public static double dotProduct(Vector v, Vector v2){
         return v.dotProduct(v2);
     }
+
     /**
      * Computes the dot product of the 3D vectors AB and CD.
      *
@@ -384,7 +340,6 @@ public class Geom3DSuits extends GeomSuits {
         Vector v2=D.subtract(C);
         return v1.dotProduct(v2);
     }
-
 
     /**
      * // a X  b
@@ -674,6 +629,7 @@ public class Geom3DSuits extends GeomSuits {
     public static int intersection(InfiniteLine L1, InfiniteLine L2, Vector outPoint){
         return 0;
     }
+
     /**
      *
      * @param S1
@@ -687,5 +643,141 @@ public class Geom3DSuits extends GeomSuits {
     public static int intersection(LineSegment S1, LineSegment S2,Vector outPoint){
 
         return 0;
+    }
+
+    /**
+     * point in triangle with Barycentric Technique
+     * abc are the three points of a triangle ,
+     * their direction is clockwise.
+     * It will also work with clockwise and anticlockwise triangles.
+     * It will not work with collinear triangles. So the collinear
+     * test should  execute before this.
+     *
+     * @param p
+     * @param a
+     * @param b
+     * @param c
+     * @return ref : http://blackpawn.com/texts/pointinpoly/default.html
+     * ref : http://www.cnblogs.com/graphics/archive/2010/08/05/1793393.html
+     */
+    public static boolean pointInTriangle(Vector p, Vector a, Vector b, Vector c) {
+
+        // Compute vectors
+        //v0 = C - A
+        Vector v0 = subtract(c, a);
+        //v1 = B - A
+        Vector v1 = subtract(b, a);
+        //v2 = P - A
+        Vector v2 = subtract(p, a);
+
+        // Compute dot products
+        double dot00 = dotProduct(v0, v0);
+        double dot01 = dotProduct(v0, v1);
+        double dot02 = dotProduct(v0, v2);
+        double dot11 = dotProduct(v1, v1);
+        double dot12 = dotProduct(v1, v2);
+
+        // Compute barycentric coordinates
+        double invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+        double u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+        if (u < 0 || u > 1) { // if u out of range, return directly
+            return false;
+        }
+        double v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+        if (v < 0 || v > 1) { // if v out of range, return directly
+            return false;
+        }
+        // Check if point is in triangle
+        return (u >= 0) && (v >= 0) && (u + v < 1);
+    }
+
+    /**
+     * point in triangle with Same Side Technique
+     * abc are the three points of a triangle ,
+     * the vertices direction is clockwise.
+     *
+     * @param p
+     * @param a
+     * @param b
+     * @param c
+     * @return ref : http://blackpawn.com/texts/pointinpoly/default.html
+     * function SameSide(p1,p2, a,b)
+     * cp1 = CrossProduct(b-a, p1-a)
+     * cp2 = CrossProduct(b-a, p2-a)
+     * if DotProduct(cp1, cp2) >= 0 then return true
+     * else return false
+     * <p>
+     * function PointInTriangle(p, a,b,c)
+     * if SameSide(p,a, b,c) and SameSide(p,b, a,c)
+     * and SameSide(p,c, a,b) then return true
+     * else return false
+     * ref : http://www.cnblogs.com/graphics/archive/2010/08/05/1793393.html
+     * 假设点P位于三角形内，会有这样一个规律，
+     * 当我们沿着ABCA的方向在三条边上行走时，
+     * 你会发现点P始终位于边AB，BC和CA的右侧。
+     * 我们就利用这一点，但是如何判断一个点在线段的左侧还是右侧呢？
+     * 我们可以从另一个角度来思考，当选定线段AB时，
+     * 点C位于AB的右侧，同理选定BC时，点A位于BC的右侧，
+     * 最后选定CA时，点B位于CA的右侧，所以当选择某一条边时，
+     * 我们只需验证点P与该边所对的点在同一侧即可。
+     * 问题又来了，如何判断两个点在某条线段的同一侧呢？
+     * 可以通过叉积来实现，连接PA，将PA和AB做叉积，
+     * 再将CA和AB做叉积，如果两个叉积的结果方向一致，
+     * 那么两个点在同一测。
+     * 判断两个向量的是否同向可以用点积实现，
+     * 如果点积大于0，则两向量夹角是锐角，否则是钝角。
+     */
+    public static boolean pointInTriangle2(Vector p, Vector a, Vector b, Vector c) {
+        return sameSide(p, a, b, c) && sameSide(p, b, a, c)
+                && sameSide(p, c, a, b);
+    }
+
+    private static boolean sameSide(Vector p1, Vector p2, Vector a, Vector b) {
+        Vector cp1 = crossProduct(subtract(b, a), subtract(p1, a));
+        Vector cp2 = crossProduct(subtract(b, a), subtract(p2, a));
+        return dotProduct(cp1, cp2) >= 0;
+    }
+
+    /**
+     * @param P
+     * @param L
+     * @return return the foot of perpendicular to L
+     */
+    public Vector perpendicularFoot(Vector P, InfiniteLine L) {
+        Vector P0 = L.startPoint;
+        Vector P1 = L.endPoint;
+        Vector v = P1.subtract(P0);//P1 - P0;
+        Vector w = P.subtract(P0);//P - P0;
+
+        double c1 = w.dotProduct(v);//dot(w,v);
+        double c2 = v.dotProduct(v);//dot(v,v);
+        Scalar b = new Scalar(c1 / c2);
+        //double b = c1 / c2;
+        //PointShape Pb = L.P0 + b * v;
+        Vector Pb = P0.add(b.multiply(v));
+        return Pb;
+    }
+
+    /**
+     * @param P
+     * @param L
+     * @return return the foot of perpendicular to S
+     */
+    public Vector perpendicularFoot(Vector P, LineSegment S) {
+        Vector P0 = S.startPoint;
+        Vector P1 = S.endPoint;
+        Vector v = P1.subtract(P0);//P1 - P0;
+        Vector w = P.subtract(P0);//P - P0;
+
+        double c1 = w.dotProduct(v);//dot(w,v);
+        double c2 = v.dotProduct(v);//dot(v,v);
+        Scalar b = new Scalar(c1 / c2);
+        //double b = c1 / c2;
+        //PointShape Pb = S.P0 + b * v;
+        Vector Pb = P0.add(b.multiply(v));
+
+        //TODO : Pb is on S
+
+        return Pb;
     }
 }

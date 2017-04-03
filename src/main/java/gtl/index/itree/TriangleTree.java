@@ -89,7 +89,7 @@ public class TriangleTree {
      *          1-left sub triangle
      *          2- right sub triangle
      */
-    public int test(IsoscelesRightTriangleShape triangle, Interval i){
+    int test(IsoscelesRightTriangleShape triangle, Interval i) {
         Vector2D v = new Vector2D(i.getLowerBound(), i.getUpperBound());
         if (!triangle.contains(v)) {
             return 0;
@@ -110,7 +110,7 @@ public class TriangleTree {
      * @param tn
      * @return
      */
-    public boolean splitTreeNode(Interval i , TreeNode tn) {
+    boolean splitTreeNode(Interval i, TreeNode tn) {
 
         ArrayList<Interval> intervals = tn.intervals;
         ArrayList<Interval> leftIntervals = new ArrayList<>(0);
@@ -203,7 +203,7 @@ public class TriangleTree {
      * @param i
      * @return the new root node
      */
-    public TreeNode extend(Interval i) {
+    TreeNode extend(Interval i) {
         TreeNode newRoot = this.rootNode;
         IsoscelesRightTriangleShape newBaseTriangle = this.rootNode.triangle;
         Vector V0;
@@ -230,7 +230,7 @@ public class TriangleTree {
      * @param tn
      * @return
      */
-    public TreeNode leftExtension(TreeNode tn) {
+    TreeNode leftExtension(TreeNode tn) {
         IsoscelesRightTriangleShape baseT = tn.triangle;
 
         Vector[] vertices = baseT.getClockwiseVertices();
@@ -316,7 +316,7 @@ public class TriangleTree {
      * @param f  对于查询结果集合中的每个Interval执行函数f
      * @return 返回查询结果的个数
      */
-    public int pointQuery(PointShape ps, Function<Interval, Boolean> f) {
+    int pointQuery(PointShape ps, Function<Interval, Boolean> f) {
 
         return 0;
     }
@@ -329,7 +329,7 @@ public class TriangleTree {
      * @param f   对于查询结果集合中的每个Interval执行函数f
      * @return 返回查询结果的个数
      */
-    public int lineQuery(LineSegmentShape lsp, Function<Interval, Boolean> f) {
+    int lineQuery(LineSegmentShape lsp, Function<Interval, Boolean> f) {
         return 0;
     }
 
@@ -343,7 +343,7 @@ public class TriangleTree {
      * @param f  对于查询结果集合中的每个Interval执行函数f
      * @return 返回查询结果的个数
      */
-    public int regionQuery(RegionShape rs, Function<Interval, Boolean> f) {
+    int regionQuery(RegionShape rs, Function<Interval, Boolean> f) {
         return 0;
     }
 
@@ -355,7 +355,7 @@ public class TriangleTree {
      * parent指向父节点，如果父节点为空，则为根节点；
      * triangle是节点覆盖的三角形范围。
      */
-    public class TreeNode {
+    class TreeNode {
         IsoscelesRightTriangleShape triangle;
         TreeNode parent;
         TreeNode left;

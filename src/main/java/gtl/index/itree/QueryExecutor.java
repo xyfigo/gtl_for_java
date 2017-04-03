@@ -34,7 +34,6 @@ public class QueryExecutor {
         this.tree = tree;
     }
 
-
     public int equals(Interval q, Function<Interval, Boolean> f) {
         PointShape s = (PointShape) tree.queryShapeGenerator.equals(q);
         return tree.pointQuery(s, f);

@@ -51,4 +51,9 @@ public class IsoscelesRightTriangleShape extends IsoscelesRightTriangle implemen
     public boolean contains(Interval i) {
         return this.contains(new Vector2D(i.getLowerBound(), i.getUpperBound()));
     }
+
+    @Override
+    public Object clone() {
+        return new IsoscelesRightTriangleShape(getVertices());
+    }
 }

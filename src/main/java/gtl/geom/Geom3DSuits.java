@@ -657,7 +657,8 @@ public class Geom3DSuits extends GeomSuits {
      * @param a
      * @param b
      * @param c
-     * @return ref : http://blackpawn.com/texts/pointinpoly/default.html
+     * @return 在三角形内或三角形的边上、顶点，都会返回true，否则返回false
+     * ref : http://blackpawn.com/texts/pointinpoly/default.html
      * ref : http://www.cnblogs.com/graphics/archive/2010/08/05/1793393.html
      */
     public static boolean pointInTriangle(Vector p, Vector a, Vector b, Vector c) {
@@ -687,8 +688,15 @@ public class Geom3DSuits extends GeomSuits {
         if (v < 0 || v > 1) { // if v out of range, return directly
             return false;
         }
-        // Check if point is in triangle
-        return (u >= 0) && (v >= 0) && (u + v < 1);
+        // Check if point is in triangle,
+        // if the point is on one of the edges, u or v should be zero
+        // point in segment ac, v=0, 0<u<1
+        // point in segment ab, u=0, 0<v<1
+        // point in segment bc, u+v=1
+        // point is one of the vertices of triangle, u=0 or v=0 ;
+        //原来的算法是 return (u >= 0) && (v >= 0) && (u + v < 1);
+        //由于p位于bc上的时候，u+v=1,所以返回条件做了修改
+        return (u >= 0) && (v >= 0) && (u + v <= 1);
     }
 
     /**

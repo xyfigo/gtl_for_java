@@ -27,6 +27,10 @@ public class RegionShape implements Shape {
         this.data= Geom3DSuits.createEnvelope(e.getLowCoordinates(), e.getHighCoordinates());
     }
 
+    public RegionShape(Vector leftBottom, Vector rightTop) {
+        this.data = Geom3DSuits.createEnvelope(leftBottom.getCoordinates(), rightTop.getCoordinates());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

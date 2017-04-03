@@ -14,4 +14,11 @@ public class IsoscelesRightTriangle extends IsoscelesTriangle {
     public IsoscelesRightTriangle(Vector[] vertices) {
         super(vertices);
     }
+
+    @Override
+    public Object clone() {
+        return new IsoscelesRightTriangle(vertices);
+    }
+
+
 }

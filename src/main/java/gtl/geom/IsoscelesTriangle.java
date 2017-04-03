@@ -19,11 +19,11 @@ public class IsoscelesTriangle extends TriangleImpl {
     public Triangle leftTriangle(){
         // (V1+V2)/2.0
         Vector m = vertices[1].add(vertices[2]).divide(2.0);
-        return new TriangleImpl(vertices[0],vertices[1],m);
+        return new TriangleImpl(m, vertices[0], vertices[1]);
     }
     public Triangle rightTriangle(){
         // m=(V1+V2)/2.0
         Vector m = vertices[1].add(vertices[2]).divide(2.0);
-        return new TriangleImpl(vertices[0],m,vertices[2]);
+        return new TriangleImpl(m, vertices[2], vertices[0]);
     }
 }

@@ -2,8 +2,12 @@ package gtl.index.itree;
 
 import gtl.geom.*;
 import gtl.index.shape.IsoscelesRightTriangleShape;
+import gtl.index.shape.LineSegmentShape;
+import gtl.index.shape.PointShape;
+import gtl.index.shape.RegionShape;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 /**
  * Created by ZhenwenHe on 2017/3/27.
@@ -28,6 +32,13 @@ public class TriangleTree {
     int leafNodeCapacity;
 
     /**
+     * 将间隔查询转成点、线、面三种类型的空间查询
+     * 如果对基本三角形进行了扩展，生成器中的基本
+     * 三角形要跟着变动
+     */
+    QueryShapeGenerator queryShapeGenerator;
+
+    /**
      *
      * @param baseTriangle
      * @param leafNodeCapacity
@@ -37,6 +48,8 @@ public class TriangleTree {
         this.leafNodeCapacity=leafNodeCapacity;
         this.rootNode=new TreeNode();
         this.rootNode.intervals=new ArrayList<>();
+        rootNode.triangle = this.baseTriangle;
+        queryShapeGenerator = new QueryShapeGenerator(this.baseTriangle);
     }
 
     /**
@@ -123,7 +136,7 @@ public class TriangleTree {
             right.triangle = rightTriangleShape;
 
             for (Interval it : intervals) {
-                if (leftTriangleShape.contains(i)) {//在三角形外
+                if (leftTriangleShape.contains(it)) {//在三角形外
                     leftIntervals.add(it);
                 } else
                     rightIntervals.add(it);
@@ -169,12 +182,16 @@ public class TriangleTree {
             if(testResult==0)
                 return null;
             else if(testResult==1){
-                p = p.left;
+                if (p.isLeafNode())
+                    return p;
+                else
+                    p = p.left;
             } else {//=2
-                p=p.right;
+                if (p.isLeafNode())
+                    return p;
+                else
+                    p = p.right;
             }
-            if(p.isLeafNode())
-                return p;
         }
         return null;
     }
@@ -186,10 +203,10 @@ public class TriangleTree {
      * @param i
      * @return the new root node
      */
-    TreeNode extend(Interval i){
+    public TreeNode extend(Interval i) {
         TreeNode newRoot = this.rootNode;
         IsoscelesRightTriangleShape newBaseTriangle = this.rootNode.triangle;
-        Vector V0 = null;
+        Vector V0;
         while (test(newBaseTriangle, i) == 0) {
             V0 = newRoot.triangle.getVertex(0);
             if (i.getLowerBound() <= V0.getX())
@@ -200,6 +217,7 @@ public class TriangleTree {
         }
         this.rootNode = newRoot;
         this.baseTriangle = newBaseTriangle;
+        this.queryShapeGenerator.baseTriangle = this.baseTriangle;
         return newRoot;
     }
 
@@ -292,6 +310,44 @@ public class TriangleTree {
     }
 
     /**
+     * 点查询，也即是间隔数据的相等查询
+     *
+     * @param ps 由QueryShapeGenerator生成的点状查询图形
+     * @param f  对于查询结果集合中的每个Interval执行函数f
+     * @return 返回查询结果的个数
+     */
+    public int pointQuery(PointShape ps, Function<Interval, Boolean> f) {
+
+        return 0;
+    }
+
+    /**
+     * 线查询，由间隔数据查询转换成的所有的现状图形的查询，
+     * 所有落在线上的点构成查询结果集合
+     *
+     * @param lsp 由QueryShapeGenerator生成的线状查询图形
+     * @param f   对于查询结果集合中的每个Interval执行函数f
+     * @return 返回查询结果的个数
+     */
+    public int lineQuery(LineSegmentShape lsp, Function<Interval, Boolean> f) {
+        return 0;
+    }
+
+    /**
+     * 区域查询，由间隔数据查询转换成的所有的现状图形的查询，
+     * 所有落在线上的点构成查询结果集合
+     *
+     * @param rs 由QueryShapeGenerator生成的三角形（由于e>s，
+     *           所以三角形扩展成矩形也不会影响查询结果，
+     *           这样更加便于相交计算）或矩形查询图形
+     * @param f  对于查询结果集合中的每个Interval执行函数f
+     * @return 返回查询结果的个数
+     */
+    public int regionQuery(RegionShape rs, Function<Interval, Boolean> f) {
+        return 0;
+    }
+
+    /**
      * 树节点类，如果intervals==null，则为内部节点，
      * 否则为外部节点或叶子节点；
      * 当为内部节点的时候，left指向左子树节点，
@@ -319,7 +375,7 @@ public class TriangleTree {
         }
 
         boolean isLeafNode() {
-            return intervals == null;
+            return intervals != null;
         }
     }
 

@@ -18,7 +18,8 @@ public interface Triangle extends Serializable {
     LineSegment getEdge(int s, int e);
     double getHeight(int v);//"height" is measured at right angles  from vertex(v) to its base edge
     double getPerimeter();
-    public double getArea();
+
+    double getArea();
     double getEdgeLength(int s, int e);
     int getDimension();
     Envelope getEnvelope();
@@ -35,6 +36,13 @@ public interface Triangle extends Serializable {
     boolean intersects(Envelope e);
     boolean intersects(Triangle e);
     boolean contains(Vector p);
+
+    boolean contains(LineSegment p);
+
+    boolean contains(Triangle p);
+
+    boolean contains(Envelope p);
+
 
     boolean isEquilateralTriangle();
     boolean isIsoscelesTriangle();

@@ -247,6 +247,21 @@ class TriangleImpl implements Triangle {
         return Geom3DSuits.pointInTriangle(p, vertices[0], vertices[2], vertices[1]);
     }
 
+    @Override
+    public boolean contains(LineSegment p) {
+        return contains(p.getStartPoint()) && contains(p.getEndPoint());
+    }
+
+    @Override
+    public boolean contains(Triangle p) {
+        return contains(p.getVertex(0)) && contains(p.getVertex(1))
+                && contains(p.getVertex(2));
+    }
+
+    @Override
+    public boolean contains(Envelope p) {
+        return contains(p.getLowVector()) && contains(p.getHighVector());
+    }
 
     @Override
     public boolean isEquilateralTriangle() {

@@ -2,7 +2,9 @@ package gtl.geom;
 
 import gtl.math.MathSuits;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -119,6 +121,16 @@ class EnvelopeImpl implements Envelope {
     @Override
     public double[] getHighCoordinates() {
         return this.high;
+    }
+
+    @Override
+    public Vector getLowVector() {
+        return new VectorImpl(this.low);
+    }
+
+    @Override
+    public Vector getHighVector() {
+        return new VectorImpl(this.high);
     }
 
     @Override

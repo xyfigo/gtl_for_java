@@ -102,6 +102,29 @@ public class TriangleTree {
     }
 
     /**
+     * 测试间隔数据对象i是否在基准三角形baseTriangle(直角等腰三角形)里面
+     * 如果返回0，表示在三角形的外面；
+     * 如果返回1，表示在基准三角形的左子三角形里面或边上
+     * 如果返回2，则表示在基准三角形的右子三角形里面或边上；
+     *
+     * @param triangle
+     * @param i
+     * @return 0- out of triangle
+     * 1-left sub triangle
+     * 2- right sub triangle
+     */
+    int test(IsoscelesRightTriangleShape triangle, PointShape i) {
+        Vector2D v = new Vector2D(i.getX(), i.getY());
+        if (!triangle.contains(v)) {
+            return 0;
+        }
+        Triangle left = triangle.leftTriangle();
+        if (left.contains(v))
+            return 1;
+        else
+            return 2;
+    }
+    /**
      * tn 是一个子节点，其中包含的间隔数据对象个数达到leafNodeCapacity
      * 在该节点中药插入i，则需要进行节点分裂,算法步骤如下：
      * 1)生成一个新的内部节点p,设置p的父节点为tn的父节点
@@ -317,8 +340,35 @@ public class TriangleTree {
      * @return 返回查询结果的个数
      */
     int pointQuery(PointShape ps, Function<Interval, Boolean> f) {
-
-        return 0;
+        TreeNode p = this.rootNode;
+        IsoscelesRightTriangleShape pTri;
+        int retVal;
+        int s = 0;
+        while (p != null) {
+            pTri = p.triangle;
+            retVal = test(pTri, ps);
+            if (retVal == 0) {//out
+                return s;
+            } else {//in
+                if (p.isLeafNode()) {
+                    for (Interval v : p.intervals) {
+                        if (v.getLowerBound() == ps.getX()
+                                && v.getUpperBound() == ps.getY()) {
+                            f.apply(v);
+                            s++;
+                        }
+                    }
+                    return s;
+                } else {
+                    if (retVal == 1) {//left
+                        p = p.left;
+                    } else {//right
+                        p = p.right;
+                    }
+                }
+            }
+        }
+        return s;
     }
 
     /**
@@ -330,6 +380,7 @@ public class TriangleTree {
      * @return 返回查询结果的个数
      */
     int lineQuery(LineSegmentShape lsp, Function<Interval, Boolean> f) {
+
         return 0;
     }
 
@@ -377,6 +428,7 @@ public class TriangleTree {
         boolean isLeafNode() {
             return intervals != null;
         }
+
     }
 
 }

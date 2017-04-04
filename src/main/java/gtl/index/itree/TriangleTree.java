@@ -91,14 +91,7 @@ public class TriangleTree {
      */
     int test(IsoscelesRightTriangleShape triangle, Interval i) {
         Vector2D v = new Vector2D(i.getLowerBound(), i.getUpperBound());
-        if (!triangle.contains(v)) {
-            return 0;
-        }
-        Triangle left = triangle.leftTriangle();
-        if (left.contains(v))
-            return 1;
-        else
-            return 2;
+        return test(triangle, v);
     }
 
     /**
@@ -115,6 +108,22 @@ public class TriangleTree {
      */
     int test(IsoscelesRightTriangleShape triangle, PointShape i) {
         Vector2D v = new Vector2D(i.getX(), i.getY());
+        return test(triangle, v);
+    }
+
+    /**
+     * 测试间隔数据对象i是否在基准三角形baseTriangle(直角等腰三角形)里面
+     * 如果返回0，表示在三角形的外面；
+     * 如果返回1，表示在基准三角形的左子三角形里面或边上
+     * 如果返回2，则表示在基准三角形的右子三角形里面或边上；
+     *
+     * @param triangle
+     * @param i
+     * @return 0- out of triangle
+     * 1-left sub triangle
+     * 2- right sub triangle
+     */
+    int test(IsoscelesRightTriangleShape triangle, Vector v) {
         if (!triangle.contains(v)) {
             return 0;
         }
@@ -380,8 +389,44 @@ public class TriangleTree {
      * @return 返回查询结果的个数
      */
     int lineQuery(LineSegmentShape lsp, Function<Interval, Boolean> f) {
+        Vector s = lsp.getStartPoint();
+        Vector e = lsp.getEndPoint();
+        TreeNode p = rootNode;
+        int c = 0;
+        int testS, testE;
 
-        return 0;
+        testE = test(p.triangle, lsp.getEndPoint());
+        testS = test(p.triangle, lsp.getStartPoint());
+
+        //如果线段的两个点都不在三角形内，则直接返回
+        //这里还有一种可能的情况是，线段穿越了三角形，
+        //并且两个端点都在三角形的外面，但是由于该函数
+        //传入的线段都是QueryShapeGenerator生成的,不可
+        //能出现这种情况，所以，这里可以不考虑。
+        if (testE == 0 && testS == 0) return c;
+
+        if (p.isLeafNode()) {
+            for (Interval tv : p.intervals) {
+                //test point on segment
+                f.apply(tv);
+                c++;
+            }
+            return c;
+        } else {
+            //两个点都在左边三角形
+            if (testE == 1 && testS == 1) {
+                p = p.left;
+            }
+            //两个点都在右边三角形
+            else if (testE == 2 && testS == 2) {
+                p = p.right;
+            }
+            //一个点在左边三角形，一个在右边三角形
+            else {
+                return c;
+            }
+        }
+        return c;
     }
 
     /**

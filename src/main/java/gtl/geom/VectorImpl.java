@@ -250,11 +250,20 @@ public class VectorImpl implements Vector {
         return java.lang.Math.sqrt(sum);
     }
 
+    /**
+     * 求向量ao与bo的夹角
+     *
+     * @param a 点坐标
+     * @param b 点坐标
+     * @return 返回弧度
+     */
     @Override
     public double angle(Vector a, Vector b) {
-        double lfRgn =a.dotProduct(b);// AdotB(A,B);
-        double lfLA = a.length();
-        double lfLB = b.length();
+        Vector ao = a.subtract(this);
+        Vector bo = b.subtract(this);
+        double lfRgn = ao.dotProduct(bo);
+        double lfLA = ao.length();
+        double lfLB = bo.length();
         double cosA = lfRgn/(lfLA*lfLB);
         return java.lang.Math.acos(cosA);
     }

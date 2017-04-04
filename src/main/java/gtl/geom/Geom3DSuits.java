@@ -363,6 +363,40 @@ public class Geom3DSuits extends GeomSuits {
     }
 
     /**
+     * 求向量a与b的夹角
+     *
+     * @param a 向量
+     * @param b 向量
+     * @return 返回弧度[-PI,+PI]
+     */
+    public static double angle(Vector a, Vector b) {
+        double lfRgn = a.dotProduct(b);// AdotB(A,B);
+        double lfLA = a.length();
+        double lfLB = b.length();
+        double cosA = lfRgn / (lfLA * lfLB); //[-1,1]
+        return java.lang.Math.acos(cosA);
+    }
+
+    /**
+     * 弧度转换成角度
+     *
+     * @param r 弧度
+     * @return 角度
+     */
+    public static double radianToDegree(double r) {
+        return r * 180 / Math.PI;
+    }
+
+    /**
+     * 角度转换成弧度
+     *
+     * @param d 角度
+     * @return 弧度
+     */
+    public static double degreeToRadian(double d) {
+        return d * Math.PI / 180;
+    }
+    /**
      *
      * @param a
      * @param b
@@ -618,32 +652,6 @@ public class Geom3DSuits extends GeomSuits {
         return 1;// I is in T
     }
 
-    /**
-     *
-     * @param L1
-     * @param L2
-     * @return 0 =  disjoint (no intersect)
-     *          1 =  intersect in unique point outPoint
-     *          2 =  are in the same line
-     */
-    public static int intersection(InfiniteLine L1, InfiniteLine L2, Vector outPoint){
-        return 0;
-    }
-
-    /**
-     *
-     * @param S1
-     * @param S2
-     * @return 0 =  disjoint (no intersect)
-     *          1 =  intersect in unique point outPoint
-     *          2 =  are in the same line
-     *          3 =   in S1 outPoint
-     *          4 =   in S2 outPoint
-     */
-    public static int intersection(LineSegment S1, LineSegment S2,Vector outPoint){
-
-        return 0;
-    }
 
     /**
      * point in triangle with Barycentric Technique
@@ -747,6 +755,236 @@ public class Geom3DSuits extends GeomSuits {
     }
 
     /**
+     * 判断点p是否在直线L上，也即是否共线
+     *
+     * @param p 点
+     * @param L 直线，两点表示V0，V1
+     * @return 如果共线返回true, 否则返回false
+     */
+    public static boolean collinear(Vector p, InfiniteLine L) {
+        return collinear(p, L.getStartPoint(), L.getEndPoint());
+    }
+
+    /**
+     * 判断点p,V1,V0是否共线
+     * 判定的规则是，其中一个点p到直线的距离为0
+     * \ (V1-V0) x (p-V0)\
+     * d = ------------------- =0
+     * \V1-V0\
+     * 也就是 \ (V1-V0) x (p-V0)\ =0
+     *
+     * @param p 点
+     * @param L 直线，两点表示V0，V1
+     * @return 如果共线返回true, 否则返回false
+     * ref:http://mathworld.wolfram.com/Collinear.html
+     */
+    public static boolean collinear(Vector p, Vector v0, Vector v1) {
+        return v1.subtract(v0).crossProduct(p.subtract(v0)).length() < MathSuits.EPSILON;
+    }
+
+    /**
+     * 判断两条直线是否平行
+     * Two vectors  are parallel if their cross product is zero.
+     * that is its length is zero.
+     *
+     * @param L1
+     * @param L2
+     * @return ref:http://mathworld.wolfram.com/ParallelVectors.html
+     */
+    public static boolean parallel(InfiniteLine L1, InfiniteLine L2) {
+        Vector u = L1.getEndPoint().subtract(L1.getStartPoint());
+        Vector v = L2.getEndPoint().subtract(L2.getStartPoint());
+        return crossProduct(u, v).length() < MathSuits.EPSILON;
+    }
+
+    /**
+     * 首先判断是否共线
+     * 如果p在Seg上，则ps与pe的夹角应该是0，
+     *
+     * @param p
+     * @param Seg
+     * @return -1 = p与Seg不线
+     * 0 = p 在 Seg上，并且位于[s,e]之间
+     * 1 = p 在 Seg的s点的外端延长线上
+     * 2 = p 在 Seg的e点的外端延长线上
+     */
+    public static int pointInLineSegment(Vector p, LineSegment Seg) {
+        Vector s = Seg.getStartPoint();
+        Vector e = Seg.getEndPoint();
+        if (collinear(p, s, e) == false) return -1;
+        /*夹角spe如果等于180,则p在 Seg上，并且位于[s,e]之间
+          根据下列求夹角的计算方法
+          double lfRgn =a.dotProduct(b);// AdotB(A,B);
+          double lfLA = a.length();
+          double lfLB = b.length();
+          double cosA = lfRgn/(lfLA*lfLB); //[-1,1]
+          return java.lang.Math.acos(cosA);
+          可以推导出来，在三点共线的情况下，cosA =-1,由于lfLA*lfLB>0
+          所以，只要判断lfRgn<0，就可以判定其夹角为180，因此，只需要计算
+          dot((s-p),(e-p))<0
+         */
+        if (dotProduct(s.subtract(p), e.subtract(p)) < 0)
+            return 0;
+        else {
+            //如果在延长线上，可以通过距离判断在哪一端
+            if (distance(p, s) < distance(e, e))
+                return 1;//在s段的延长线上
+            else
+                return 2;//在e段的延长线上
+        }
+    }
+
+    /**
+     * with the condition that the four points be coplanar,for
+     * L1 (x1,x2)
+     * L2(x3,x4)
+     * a=x2-x1
+     * b=x4-x3
+     * c=x3-x1
+     * (cxb).(axb)
+     * x=x1+a ---------
+     * |axb|的平方
+     *
+     * @param L1
+     * @param L2
+     * @return 0 =  disjoint (no intersect) non-coplanar
+     * 1 =  intersect in unique point outPoint
+     * 2 =  parallel line
+     * 3 =   overlap,same line
+     * ref : http://mathworld.wolfram.com/Line-LineIntersection.html
+     */
+    public static int intersection(InfiniteLine L1, InfiniteLine L2, Vector outPoint) {
+        Vector x1 = L1.getStartPoint();
+        Vector x2 = L1.getEndPoint();
+        Vector x3 = L2.getStartPoint();
+        Vector x4 = L2.getEndPoint();
+        if (coplanar(x1, x2, x3, x4) == false) return 0;
+        if (parallel(L1, L2) == true) {
+            if (perpendicularDistance(x1, L2) < MathSuits.EPSILON)
+                return 3;
+            else
+                return 2;
+        }
+
+        Vector a = subtract(x2, x1);
+        Vector b = subtract(x4, x3);
+        Vector c = subtract(x3, x1);
+        Vector axb = crossProduct(a, b);
+        double sd = dotProduct(crossProduct(c, b), axb);
+        sd = sd / Math.pow(axb.length(), 2);
+        Vector intersectionPoint = a.multiply(sd).add(L1.getStartPoint());
+        if (outPoint != null)
+            outPoint.copyFrom(intersectionPoint);
+        return 1;
+    }
+
+    /**
+     * 判断四个点是否共面,
+     * Coplanarity is equivalent to the statement
+     * that the pair of lines determined by the
+     * four points are not skew, and can be
+     * equivalently stated in vector form as
+     * (x3-x1).[(x2-x1)x(x4-x3)]=0
+     *
+     * @param x1 点
+     * @param x2 点
+     * @param x3 点
+     * @param x4 点
+     * @return 共面返回true，否则返回false
+     * ref :http://mathworld.wolfram.com/Coplanar.html
+     */
+    public static boolean coplanar(Vector x1, Vector x2, Vector x3, Vector x4) {
+        Vector cross = crossProduct(subtract(x2, x1), subtract(x4, x3));
+        double d = dotProduct(subtract(x3, x1), cross);
+        return Math.abs(d) < MathSuits.EPSILON;
+    }
+
+    /**
+     * with the condition that the four points be coplanar,for
+     * S1 (x1,x2)
+     * S2(x3,x4)
+     * a=x2-x1
+     * b=x4-x3
+     * c=x3-x1
+     * (cxb).(axb)
+     * x=x1+a ---------
+     * |axb|的平方
+     *
+     * @param S1
+     * @param S2
+     * @return 0 =  disjoint (no intersect) ,non-coplanar or no intersection
+     * 1 =  intersect in unique point outPoint (when exist)
+     * 2 =  parallel line
+     * 3 =   overlap,same line
+     * ref : http://mathworld.wolfram.com/Line-LineIntersection.html
+     */
+    public static int intersection(LineSegment S1, LineSegment S2, Vector outPoint) {
+        Vector v = (Vector) S2.getEndPoint().clone();
+        int r = intersection(S1.extend(), S2.extend(), v);
+        if (r == 1) {
+            if (pointInLineSegment(v, S1) == 0) {
+                if (outPoint != null)
+                    outPoint.copyFrom(v);
+                return r;
+            } else {
+                return 0;
+            }
+        }
+        return r;
+    }
+
+    /**
+     * find the intersection (LineSegment & Triangle)
+     *
+     * @param S         LineSegment
+     * @param T         Triangle
+     * @param outPoint  intersect point (when it exists)
+     * @param outPoint2 endpoint of intersect segment [I0,I1] (when it exists)
+     * @return 0=disjoint (no intersect)
+     * 1=intersect in unique point outPoint
+     * at lease one point of S in triangle
+     * 2=overlap in segment from outPoint to outPoint2
+     * both points out triangle
+     * 3=both points in triangle,
+     * outPoint=S.startPoint,and
+     * outPoint2=S.endPoint
+     */
+    public static int intersection(LineSegment S, Triangle T,
+                                   Vector outPoint, Vector outPoint2) {
+        boolean testInS = pointInTriangle(S.getStartPoint(),
+                T.getVertex(0), T.getVertex(2), T.getVertex(1));
+        boolean testInE = pointInTriangle(S.getEndPoint(),
+                T.getVertex(0), T.getVertex(2), T.getVertex(1));
+
+        if (testInE && testInS) {//both in triangle
+            if (outPoint != null) outPoint.copyFrom(S.getStartPoint());
+            if (outPoint2 != null) outPoint2.copyFrom(S.getEndPoint());
+            return 3;
+        } else if (testInE == true || testInS == true) {
+            if (intersection(S, T.getEdge(0, 1), outPoint) != 1) {
+                if (intersection(S, T.getEdge(1, 2), outPoint) != 1) {
+                    assert intersection(S, T.getEdge(2, 0), outPoint) == 1;
+                }
+            }
+            return 1;
+        } else {
+            int f01 = intersection(S, T.getEdge(0, 1), outPoint);
+            if (f01 != 1) {
+                if (intersection(S, T.getEdge(1, 2), outPoint) != 1) {
+                    if (intersection(S, T.getEdge(2, 0), outPoint) != 1)
+                        return 0;
+                } else {
+                    intersection(S, T.getEdge(2, 0), outPoint2);
+                }
+            } else {
+                intersection(S, T.getEdge(1, 2), outPoint2);
+                intersection(S, T.getEdge(2, 0), outPoint2);
+            }
+            return 2;
+        }
+    }
+
+    /**
      * @param P
      * @param L
      * @return return the foot of perpendicular to L
@@ -784,8 +1022,16 @@ public class Geom3DSuits extends GeomSuits {
         //PointShape Pb = S.P0 + b * v;
         Vector Pb = P0.add(b.multiply(v));
 
-        //TODO : Pb is on S
-
-        return Pb;
+        /*
+        如果S.startPoint p S.endPoint的夹角为180,则Pb位于S上，
+        否则，在S的延长线上，在共线的情况下，只需要判断两个向量的
+        点集是否为负数即可。
+         */
+        if (dotProduct(S.getStartPoint().subtract(Pb), S.getEndPoint().subtract(Pb)) < 0)
+            return Pb;
+        else//Pb在延长线上，返回空值
+            return null;
     }
+
+
 }

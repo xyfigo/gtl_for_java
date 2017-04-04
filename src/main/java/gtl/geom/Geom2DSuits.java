@@ -1,9 +1,7 @@
 package gtl.geom;
 
-import gtl.math.MathSuits;
 import gtl.math.Float128;
-
-import javax.sound.sampled.Line;
+import gtl.math.MathSuits;
 
 /**
  * Created by hadoop on 17-3-20.
@@ -756,14 +754,14 @@ public class Geom2DSuits extends GeomSuits {
             t1 = t1>1? 1 : t1; // clip to max 1
             if (t0 == t1) { // intersect is a point
                 //*I0 = S2P0 + t0 * v;
-                outPoint0.copyFrom(v.multiply(t0).add((Vector)S2P0));
+                outPoint0.copyFrom(v.multiply(t0).add(S2P0));
                 return 1;
             }
             // they overlap in a valid subsegment
             //*I0 = S2P0 + t0 * v;
-            outPoint0.copyFrom(v.multiply(t0).add((Vector)S2P0));
+            outPoint0.copyFrom(v.multiply(t0).add(S2P0));
             //*I1 = S2.P0 + t1 * v;
-            outPoint1.copyFrom(v.multiply(t1).add((Vector)S2P0));
+            outPoint1.copyFrom(v.multiply(t1).add(S2P0));
             return 2;
         }
 
@@ -777,7 +775,9 @@ public class Geom2DSuits extends GeomSuits {
         if (tI < 0 || tI > 1) // no intersect with S2
             return 0;
         //*I0 = S1.P0 + sI * u; // compute S1 intersect point
-        outPoint0.copyFrom(u.multiply(sI).add((Vector)S1P0));
+        outPoint0.copyFrom(u.multiply(sI).add(S1P0));
         return 1;
     }
+
+
 }

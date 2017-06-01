@@ -2,7 +2,8 @@ package gtl.index.rtree.impl;
 
 import gtl.common.Identifier;
 import gtl.geom.Vector;
-import gtl.index.*;
+import gtl.index.Entry;
+import gtl.index.Node;
 import gtl.index.impl.EntryImpl;
 import gtl.index.impl.NodeImpl;
 import gtl.index.shape.RegionShape;
@@ -194,7 +195,7 @@ public abstract  class RTreeNodeImpl extends NodeImpl {
 
                 this.tree.writeNode(ptrR);
 
-                StatisticsImpl s =(StatisticsImpl) (this.tree.stats);
+                StatisticsImpl s = this.tree.stats;
                 s.setNodeNumberInLevel(level,2L);
                 this.tree.stats.getNodeNumberInLevelArray().add(1L);
                 this.tree.stats.setTreeHeight(level + 2);
@@ -257,7 +258,7 @@ public abstract  class RTreeNodeImpl extends NodeImpl {
         // use this mask array for marking visited entries.
         byte[] mask = new byte[capacity + 1];
         java.util.Arrays.fill(mask,(byte)0);
-        // insert new data in the node for easier manipulation. Data arrays are always
+        // insert new data in the node for easier manipulation. EntryData arrays are always
         // by one larger than node capacity.
         setChildEntry(capacity,e);
         // m_totalDataLength does not need to be increased here.
@@ -559,14 +560,14 @@ public abstract  class RTreeNodeImpl extends NodeImpl {
             case RV_QUADRATIC: {
                 // for each pair of Regions (account for overflow RegionShape too!)
                 for (u32Child = 0; u32Child < capacity; ++u32Child) {
-                    double a = ((RegionShape)getChildShape(u32Child)).getArea();
+                    double a = getChildShape(u32Child).getArea();
 
                     for (cIndex = u32Child + 1; cIndex <= capacity; ++cIndex) {
                         // get the combined MBR of those two entries.
                         RegionShape r= ((RegionShape)getChildShape(u32Child)).getCombinedRegion( ((RegionShape)getChildShape(cIndex)));
 
                         // find the inefficiency of grouping these entries together.
-                        double d = r.getArea() - a - ((RegionShape)getChildShape(u32Child)).getArea();
+                        double d = r.getArea() - a - getChildShape(u32Child).getArea();
 
                         if (d > inefficiency) {
                             inefficiency = d;
@@ -678,7 +679,7 @@ public abstract  class RTreeNodeImpl extends NodeImpl {
             index =v_index;
             sortDim=v_dimension;
         }
-    }; // RstarSplitEntry
+    } // RstarSplitEntry
     class RstarSplitEntryLowComparator implements Comparator<RstarSplitEntry> {
         @Override
         public int compare(RstarSplitEntry pe1, RstarSplitEntry pe2) {
@@ -716,5 +717,5 @@ public abstract  class RTreeNodeImpl extends NodeImpl {
             if (this.dist > pe2.dist) return 1;
             return 0;
         }
-    };
+    }
 }

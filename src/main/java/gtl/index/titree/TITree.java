@@ -1,4 +1,4 @@
-package gtl.index.itree;
+package gtl.index.titree;
 
 import gtl.geom.*;
 import gtl.index.shape.IsoscelesRightTriangleShape;
@@ -12,7 +12,7 @@ import java.util.function.Function;
 /**
  * Created by ZhenwenHe on 2017/3/27.
  */
-public class TriangleTree {
+public class TITree {
     /**
      *树的根节点，其所包含的三角形范围为baseTriangle
      */
@@ -43,7 +43,7 @@ public class TriangleTree {
      * @param baseTriangle
      * @param leafNodeCapacity
      */
-    public TriangleTree(IsoscelesRightTriangleShape baseTriangle, int leafNodeCapacity) {
+    public TITree(IsoscelesRightTriangleShape baseTriangle, int leafNodeCapacity) {
         this.baseTriangle = (IsoscelesRightTriangleShape) baseTriangle.clone();
         this.leafNodeCapacity=leafNodeCapacity;
         this.rootNode=new TreeNode();

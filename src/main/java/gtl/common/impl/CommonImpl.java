@@ -3,7 +3,7 @@ package gtl.common.impl;
 import gtl.common.Identifier;
 import gtl.common.PropertySet;
 import gtl.common.Variant;
-
+import gtl.common.BitSet;
 /**
  * Created by ZhenwenHe on 2017/3/15.
  */
@@ -43,4 +43,5 @@ public class CommonImpl {
         }
         return r;
     }
+
 }

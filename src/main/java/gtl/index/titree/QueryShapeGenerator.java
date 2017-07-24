@@ -1,4 +1,4 @@
-package gtl.index.itree;
+package gtl.index.titree;
 
 import gtl.geom.Interval;
 import gtl.geom.Vector2D;

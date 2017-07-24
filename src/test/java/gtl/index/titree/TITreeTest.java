@@ -1,4 +1,4 @@
-package gtl.index.itree;
+package gtl.index.titree;
 
 import gtl.geom.GeomSuits;
 import gtl.geom.Interval;
@@ -8,37 +8,39 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.BitSet;
+
 /**
  * Created by ZhenwenHe on 2017/3/29.
  */
-public class TriangleTreeTest {
+public class TITreeTest {
     Interval[] intervalArray;
-    TriangleTree tree;
+    TITree tree;
 
-    public TriangleTreeTest() {
-        System.out.println("TriangleTreeTest()");
+    public TITreeTest() {
+        System.out.println("TITreeTest()");
     }
     @Before
     public void setUp() throws Exception {
-        System.out.println("TriangleTreeTest.setUp()");
+        System.out.println("TITreeTest.setUp()");
 
 
     }
 
     @After
     public void tearDown() throws Exception {
-        System.out.println("TriangleTreeTest.tearDown()");
+        System.out.println("TITreeTest.tearDown()");
     }
 
     @Test
     public void insert() throws Exception {
         intervalArray = GeomSuits.generateRandomIntervals(100000);
-        tree = new TriangleTree(new IsoscelesRightTriangleShape(
+        tree = new TITree(new IsoscelesRightTriangleShape(
                 new Vector2D(0, 1),
                 new Vector2D(0, 0),
                 new Vector2D(1, 1)),
                 128);
-        System.out.println("TriangleTreeTest.insert()");
+        System.out.println("TITreeTest.insert()");
         int k = 0;
         for (Interval i : intervalArray) {
             tree.insert(i);
@@ -64,10 +66,12 @@ public class TriangleTreeTest {
 
     @Test
     public void leftExtension() throws Exception {
+
     }
 
     @Test
     public void rightExtension() throws Exception {
     }
+
 
 }

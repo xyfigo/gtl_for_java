@@ -1,4 +1,4 @@
-package gtl.index.itree;
+package gtl.index.titree;
 
 import gtl.geom.Interval;
 import gtl.index.shape.LineSegmentShape;
@@ -28,9 +28,9 @@ import java.util.function.Function;
  * Contains Query: Is < Qs < Qe < Ie; as shown in Fig. 4f.
  */
 public class QueryExecutor {
-    TriangleTree tree;
+    TITree tree;
 
-    public QueryExecutor(TriangleTree tree) {
+    public QueryExecutor(TITree tree) {
         this.tree = tree;
     }
 

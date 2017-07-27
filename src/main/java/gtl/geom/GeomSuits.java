@@ -8,6 +8,7 @@ import java.util.Random;
  */
 public class GeomSuits  {
     public static Interval createInterval(IntervalType t, double low, double high ){ return new IntervalImpl(t,low,high); }
+    public static Intervals createIntervals(){return new IntervalsImpl();}
     public static Envelope createEnvelope(){
         return new EnvelopeImpl();
     }

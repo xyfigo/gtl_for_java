@@ -48,7 +48,7 @@ public class BitSet extends java.util.BitSet {
     * Returns a new bit set containing all the bits in the given byte buffer between its position and limit.
      */
     public static BitSet	valueOf(ByteBuffer bb){
-
+        return null;
     }
     /*
     * Returns a new bit set containing all the bits in the given long array.
@@ -61,7 +61,7 @@ public class BitSet extends java.util.BitSet {
     * Returns a new bit set containing all the bits in the given long buffer between its position and limit.
      */
     public static BitSet	valueOf(LongBuffer lb){
-
+        return null;
     }
 
 

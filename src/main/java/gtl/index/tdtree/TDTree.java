@@ -39,7 +39,7 @@ public class TDTree {
     }
 
     public void split(Interval i, TreeNode curNode){
-
+        return;
     }
 
     public TreeNode find(Interval i){

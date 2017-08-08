@@ -14,36 +14,37 @@ import java.util.Iterator;
 /**
  * Models a collection of {@link Geometry}s of
  * arbitrary type and dimension.
- *
- *
  */
 public class GeometryCollection extends Geometry implements Collection<Geometry> {
+    private static final long serialVersionUID = 1L;
     /**
-     *  Internal representation of this <code>GeometryCollection</code>.
+     * Internal representation of this <code>GeometryCollection</code>.
      */
     ArrayList<Geometry> geometries;
 
     public GeometryCollection(ArrayList<Geometry> geometries) {
         this.geometries = new ArrayList<Geometry>(geometries.size());
-        int i=0;
-        for(Geometry g: geometries){
-            this.geometries.set(i,g);
+        int i = 0;
+        for (Geometry g : geometries) {
+            this.geometries.set(i, g);
             i++;
         }
-        this.geometryType=Geometry.GEOMETRYCOLLECTION;
+        this.geometryType = Geometry.GEOMETRYCOLLECTION;
     }
+
     public GeometryCollection(Geometry[] geometries) {
         this.geometries = new ArrayList<Geometry>(geometries.length);
-        int i=0;
-        for(Geometry g: geometries){
-            this.geometries.set(i,g);
+        int i = 0;
+        for (Geometry g : geometries) {
+            this.geometries.set(i, g);
             i++;
         }
-        this.geometryType=Geometry.GEOMETRYCOLLECTION;
+        this.geometryType = Geometry.GEOMETRYCOLLECTION;
     }
+
     public GeometryCollection() {
         this.geometries = new ArrayList<Geometry>();
-        this.geometryType=Geometry.GEOMETRYCOLLECTION;
+        this.geometryType = Geometry.GEOMETRYCOLLECTION;
     }
 
     @Override
@@ -113,11 +114,11 @@ public class GeometryCollection extends Geometry implements Collection<Geometry>
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof  GeometryCollection ){
-            GeometryCollection g = (GeometryCollection)i;
+        if (i instanceof GeometryCollection) {
+            GeometryCollection g = (GeometryCollection) i;
             super.copyFrom(i);
             this.geometries.clear();
-            for(Geometry g1: g.geometries){
+            for (Geometry g1 : g.geometries) {
                 this.geometries.add((Geometry) g1.clone());
             }
         }
@@ -126,9 +127,9 @@ public class GeometryCollection extends Geometry implements Collection<Geometry>
     @Override
     public boolean load(DataInput in) throws IOException {
         super.load(in);
-        int c= in.readInt();
+        int c = in.readInt();
         this.geometries.clear();
-        for(int i=0;i<c;++i){
+        for (int i = 0; i < c; ++i) {
             //the first four bytes store geometry type
             int gt = in.readInt();
             Geometry g = Geometry.create(gt);
@@ -142,7 +143,7 @@ public class GeometryCollection extends Geometry implements Collection<Geometry>
     public boolean store(DataOutput out) throws IOException {
         super.store(out);
         out.writeInt(this.geometries.size());
-        for(Geometry g: this.geometries){
+        for (Geometry g : this.geometries) {
             out.writeInt(g.geometryType);
             g.store(out);
         }
@@ -151,21 +152,21 @@ public class GeometryCollection extends Geometry implements Collection<Geometry>
 
     @Override
     public long getByteArraySize() {
-        long len = 4+this.envelope.getByteArraySize();
-        if(this.userData !=null && this.userData instanceof gtl.io.Serializable){
+        long len = 4 + this.envelope.getByteArraySize();
+        if (this.userData != null && this.userData instanceof gtl.io.Serializable) {
             gtl.io.Serializable s = (gtl.io.Serializable) this.userData;
             len += s.getByteArraySize();
         }
-        len+=4;
-        for(Geometry g: this.geometries){
-            len+=4;
-            len+=g.getByteArraySize();
+        len += 4;
+        for (Geometry g : this.geometries) {
+            len += 4;
+            len += g.getByteArraySize();
         }
         return len;
     }
 
     @Override
-    public Object clone(){
+    public Object clone() {
         GeometryCollection gc = new GeometryCollection();
         gc.copyFrom(this);
         return gc;

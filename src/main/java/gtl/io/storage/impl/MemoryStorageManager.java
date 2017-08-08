@@ -12,89 +12,98 @@ import java.util.Stack;
  */
 class MemoryStorageManager implements StorageManager {
 
-    class Entry{
-        byte [] data;
-        int length;
-
-        Entry(byte[] d) {
-            this.length=d.length;
-            this.data = new byte[this.length];
-            System.arraycopy(d,0,this.data,0,this.length);
-        }
-    }; // Entry
+    private static final long serialVersionUID = 1L;
 
     /**
      * 存放Entry集合，下标为页面ID
      */
-    ArrayList<MemoryStorageManager.Entry>  buffer;
+    ArrayList<MemoryStorageManager.Entry> buffer;
+
+    ; // Entry
     /**
      * 存放空页面ID
      */
     Stack<Identifier> emptyPages;
-
     public MemoryStorageManager() {
         this.buffer = new ArrayList<Entry>();
-        this.emptyPages =  new Stack<Identifier> ();
+        this.emptyPages = new Stack<Identifier>();
     }
 
     @Override
     public byte[] loadByteArray(Identifier page) {
-        int index  = (int)page.longValue();
-        MemoryStorageManager.Entry e = this.buffer.get(index);
-        if(e==null) return null;
-        byte [] r=null;
-        r = new byte[e.length];
-        System.arraycopy(e.data,0,r,0,e.length);
-        return r;
+        try {
+            int index = (int) page.longValue();
+            MemoryStorageManager.Entry e = this.buffer.get(index);
+            if (e == null) return null;
+            byte[] r = null;
+            r = new byte[e.length];
+            System.arraycopy(e.data, 0, r, 0, e.length);
+            return r;
+        }
+        catch (ArrayIndexOutOfBoundsException e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public void storeByteArray(Identifier page, byte[] data) throws IOException{
+    public void storeByteArray(Identifier page, byte[] data) throws IOException {
 
-        if (page.longValue() == StorageManager.NEW_PAGE ) {
+        if (page.longValue() == StorageManager.NEW_PAGE) {
             //如果是新建页
-           Entry  e = new Entry(data);
+            Entry e = new Entry(data);
             if (emptyPages.empty()) {
                 //如果页面栈为空，将e放到buffer中，
                 // 则新建的页面的ID为e在buffer中的下标
                 buffer.add(e);
-                page.reset( buffer.size() - 1);
-            }
-            else {
+                page.reset(buffer.size() - 1);
+            } else {
                 //如果页面栈不为空，则弹出栈中页面,并将页面ID设置为栈顶元素
                 // 则新建的页面的ID为e在buffer中的下标
                 page.reset(emptyPages.pop().longValue());
-                buffer.set(page.intValue(),e);
+                buffer.set(page.intValue(), e);
             }
-        }
-        else {
+        } else {
             //如果页面ID不是新建,则获取已有的页面及其数据
-            Entry  e_old=this.buffer.get(page.intValue());
-            if(e_old==null){
+            Entry e_old = this.buffer.get(page.intValue());
+            if (e_old == null) {
                 throw new IOException("MemoryStorageManager.storeByteArray: Invalid Page Exception");
             }
-            Entry e = new Entry( data);
-            this.buffer.set(page.intValue(),e);
+            Entry e = new Entry(data);
+            this.buffer.set(page.intValue(), e);
         }
     }
 
     @Override
-    public void deleteByteArray(Identifier page) throws IOException{
-        int index = (int)(page.longValue());
+    public void deleteByteArray(Identifier page) throws IOException {
+        int index = (int) (page.longValue());
         MemoryStorageManager.Entry e = this.buffer.get(index);
-        if(e==null) return;
-        this.buffer.set(index,null);
+        if (e == null) return;
+        this.buffer.set(index, null);
         this.emptyPages.push(page);
     }
 
     @Override
-    public void flush() throws IOException{
+    public void flush() throws IOException {
 
     }
 
     @Override
     public void close() throws IOException {
         flush();
+    }
+
+    class Entry implements java.io.Serializable{
+        private static final long serialVersionUID = 1L;
+
+        byte[] data;
+        int length;
+
+        Entry(byte[] d) {
+            this.length = d.length;
+            this.data = new byte[this.length];
+            System.arraycopy(d, 0, this.data, 0, this.length);
+        }
     }
 
 

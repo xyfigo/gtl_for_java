@@ -8,6 +8,8 @@ import gtl.geom.IntervalType;
  * Created by ZhenwenHe on 2016/12/22.
  */
 public class TimeRegionShape extends RegionShape implements TimeShape {
+    private static final long serialVersionUID = 1L;
+
     @Override
     public double getLowerBound() {
         return 0;

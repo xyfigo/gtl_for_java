@@ -12,33 +12,33 @@ import java.util.Arrays;
  */
 class EnvelopeImpl implements Envelope {
 
+    private static final long serialVersionUID = 1L;
 
+    double[] low;
+    double[] high;
 
-    double [] low;
-    double [] high;
-
-    public EnvelopeImpl(){
-        this.low=new double[3];
-        this.high=new double[3];
-        for (int cIndex = 0; cIndex < 3; ++cIndex){
+    public EnvelopeImpl() {
+        this.low = new double[3];
+        this.high = new double[3];
+        for (int cIndex = 0; cIndex < 3; ++cIndex) {
             this.low[cIndex] = Double.MAX_VALUE;
             this.high[cIndex] = -Double.MAX_VALUE;
         }
     }
 
-    public EnvelopeImpl(double [] low, double [] high){
-         reset(low,high,Math.min(low.length,high.length));
+    public EnvelopeImpl(double[] low, double[] high) {
+        reset(low, high, Math.min(low.length, high.length));
     }
 
     @Override
     public boolean load(DataInput dis) throws IOException {
-        int i=0;
-        int dims= dis.readInt();
+        int i = 0;
+        int dims = dis.readInt();
         this.makeDimension(dims);
-        for( i=0;i<dims;i++) {
+        for (i = 0; i < dims; i++) {
             this.low[i] = dis.readDouble();
         }
-        for( i=0;i<dims;i++) {
+        for (i = 0; i < dims; i++) {
             this.high[i] = dis.readDouble();
         }
         return true;
@@ -47,29 +47,29 @@ class EnvelopeImpl implements Envelope {
     @Override
     public boolean store(DataOutput dos) throws IOException {
         int dims = this.getDimension();
-        assert dims<=4;
+        assert dims <= 4;
         dos.writeInt(dims);
-        for(double d:this.low)
+        for (double d : this.low)
             dos.writeDouble(d);
-        for(double d:this.high)
+        for (double d : this.high)
             dos.writeDouble(d);
         return true;
     }
 
     @Override
-    public long getByteArraySize(){
-        return getDimension()*8*2+4;
+    public long getByteArraySize() {
+        return getDimension() * 8 * 2 + 4;
     }
 
     @Override
-    public Envelope2D flap(){
-        return new Envelope2D(this.low[0],this.high[0],this.low[1],this.high[1]);
+    public Envelope2D flap() {
+        return new Envelope2D(this.low[0], this.high[0], this.low[1], this.high[1]);
     }
 
     @Override
     public void makeInfinite(int dimension) {
         makeDimension(dimension);
-        for (int cIndex = 0; cIndex < dimension; ++cIndex){
+        for (int cIndex = 0; cIndex < dimension; ++cIndex) {
             this.low[cIndex] = Double.MAX_VALUE;
             this.high[cIndex] = -Double.MAX_VALUE;
         }
@@ -77,8 +77,8 @@ class EnvelopeImpl implements Envelope {
 
     @Override
     public void makeInfinite() {
-        int dimension=this.getDimension();
-        for (int cIndex = 0; cIndex < dimension; ++cIndex){
+        int dimension = this.getDimension();
+        for (int cIndex = 0; cIndex < dimension; ++cIndex) {
             this.low[cIndex] = Double.MAX_VALUE;
             this.high[cIndex] = -Double.MAX_VALUE;
         }
@@ -87,30 +87,30 @@ class EnvelopeImpl implements Envelope {
 
     @Override
     public void makeDimension(int dimension) {
-        if (getDimension() != dimension){
-            double [] newdataLow=new double[dimension];
-            double [] newdataHigh=new double[dimension];
+        if (getDimension() != dimension) {
+            double[] newdataLow = new double[dimension];
+            double[] newdataHigh = new double[dimension];
 
-            int minDims=Math.min(dimension,this.low.length);
-            for(int i=0;i<minDims;i++){
-                newdataLow[i]=this.low[i];
+            int minDims = Math.min(dimension, this.low.length);
+            for (int i = 0; i < minDims; i++) {
+                newdataLow[i] = this.low[i];
             }
-            this.low=newdataLow;
+            this.low = newdataLow;
 
-            minDims=Math.min(dimension,this.high.length);
-            for(int i=0;i<minDims;i++){
-                newdataHigh[i]=this.high[i];
+            minDims = Math.min(dimension, this.high.length);
+            for (int i = 0; i < minDims; i++) {
+                newdataHigh[i] = this.high[i];
             }
-            this.high=newdataHigh;
+            this.high = newdataHigh;
         }
     }
 
     @Override
     public int getDimension() {
-        if(this.low==null || this.high==null)
+        if (this.low == null || this.high == null)
             return 0;
         else
-            return Math.min(this.low.length,this.high.length);
+            return Math.min(this.low.length, this.high.length);
     }
 
     @Override
@@ -145,27 +145,28 @@ class EnvelopeImpl implements Envelope {
 
     @Override
     public void setLowCoordinate(int i, double d) {
-        this.low[i]=d;
+        this.low[i] = d;
     }
 
     @Override
     public void setHighCoordinate(int i, double d) {
-        this.high[i]=d;
+        this.high[i] = d;
     }
 
     @Override
     public void reset(double[] low, double[] high, int dimension) {
-        dimension = Math.min(Math.min(low.length,high.length),dimension);
-        this.low=new double [dimension];
-        this.high=new double [dimension];
-        System.arraycopy(low,0,this.low,0,dimension);
-        System.arraycopy(high,0,this.high,0,dimension);
+        dimension = Math.min(Math.min(low.length, high.length), dimension);
+        this.low = new double[dimension];
+        this.high = new double[dimension];
+        System.arraycopy(low, 0, this.low, 0, dimension);
+        System.arraycopy(high, 0, this.high, 0, dimension);
     }
 
     @Override
     public Object clone() {
-        return new EnvelopeImpl(this.low,this.high);
+        return new EnvelopeImpl(this.low, this.high);
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -191,32 +192,32 @@ class EnvelopeImpl implements Envelope {
         result = 31 * result + Arrays.hashCode(high);
         return result;
     }
+
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof Envelope){
-            Envelope e = (Envelope)i;
-            this.reset(e.getLowCoordinates(),e.getHighCoordinates(),e.getDimension());
-        }
-        else {
+        if (i instanceof Envelope) {
+            Envelope e = (Envelope) i;
+            this.reset(e.getLowCoordinates(), e.getHighCoordinates(), e.getDimension());
+        } else {
             assert false;
         }
     }
 
     @Override
     public void reset(double[] low, double[] high) {
-        int dimension = Math.min(low.length,high.length);
-        if(getDimension()!=dimension){
-            this.low=new double [dimension];
-            this.high=new double [dimension];
+        int dimension = Math.min(low.length, high.length);
+        if (getDimension() != dimension) {
+            this.low = new double[dimension];
+            this.high = new double[dimension];
         }
-        System.arraycopy(low,0,this.low,0,dimension);
-        System.arraycopy(high,0,this.high,0,dimension);
+        System.arraycopy(low, 0, this.low, 0, dimension);
+        System.arraycopy(high, 0, this.high, 0, dimension);
     }
 
-    public boolean intersects(Envelope e){
-        if(e==null) return false;
+    public boolean intersects(Envelope e) {
+        if (e == null) return false;
         int dims = this.getDimension();
-        if(dims!=e.getDimension()) return false;
+        if (dims != e.getDimension()) return false;
 
         for (int i = 0; i < dims; ++i) {
             if (this.low[i] > e.getHighCoordinate(i)
@@ -225,10 +226,11 @@ class EnvelopeImpl implements Envelope {
         }
         return true;
     }
-    public boolean contains(Envelope e){
-        if(e==null) return false;
+
+    public boolean contains(Envelope e) {
+        if (e == null) return false;
         int dims = this.getDimension();
-        if(dims!=e.getDimension()) return false;
+        if (dims != e.getDimension()) return false;
 
         for (int i = 0; i < dims; ++i) {
             if (this.low[i] > e.getLowCoordinate(i)
@@ -242,33 +244,34 @@ class EnvelopeImpl implements Envelope {
      * @param e
      * @return
      */
-    public boolean touches(Envelope e){
-        if(e==null) return false;
+    public boolean touches(Envelope e) {
+        if (e == null) return false;
         int dims = this.getDimension();
-        if(dims!=e.getDimension()) return false;
+        if (dims != e.getDimension()) return false;
 
         for (int i = 0; i < dims; ++i) {
             if (
                     (
                             this.low[i] >= e.getLowCoordinate(i) + MathSuits.EPSILON
                                     &&
-                            this.low[i] <= e.getLowCoordinate(i) - MathSuits.EPSILON
+                                    this.low[i] <= e.getLowCoordinate(i) - MathSuits.EPSILON
                     )
-                    ||
-                    (
-                            this.high[i] >= e.getHighCoordinate(i) + MathSuits.EPSILON
-                                    &&
-                            this.high[i] <= e.getHighCoordinate(i) - MathSuits.EPSILON
+                            ||
+                            (
+                                    this.high[i] >= e.getHighCoordinate(i) + MathSuits.EPSILON
+                                            &&
+                                            this.high[i] <= e.getHighCoordinate(i) - MathSuits.EPSILON
+                            )
                     )
-            )
-            return false;
+                return false;
         }
         return true;
     }
-    public boolean contains(Vector p){
-        if(p==null) return false;
+
+    public boolean contains(Vector p) {
+        if (p == null) return false;
         int dims = this.getDimension();
-        if(dims!=p.getDimension()) return false;
+        if (dims != p.getDimension()) return false;
 
         for (int i = 0; i < dims; ++i) {
             if (this.low[i] > p.getOrdinate(i) || this.high[i] < p.getOrdinate(i))
@@ -276,27 +279,28 @@ class EnvelopeImpl implements Envelope {
         }
         return true;
     }
-    public boolean touches(Vector p){
-        if(p==null) return false;
-        int dims = this.getDimension();
-        if(dims!=p.getDimension()) return false;
 
-        for (int i = 0; i < dims; ++i){
+    public boolean touches(Vector p) {
+        if (p == null) return false;
+        int dims = this.getDimension();
+        if (dims != p.getDimension()) return false;
+
+        for (int i = 0; i < dims; ++i) {
             if (
-            (this.low[i] >= p.getOrdinate(i) - MathSuits.EPSILON &&
-             this.low[i] <= p.getOrdinate(i) + MathSuits.EPSILON) ||
-            (this.high[i] >= p.getOrdinate(i) - MathSuits.EPSILON &&
-             this.high[i] <= p.getOrdinate(i) + MathSuits.EPSILON ))
-            return true;
+                    (this.low[i] >= p.getOrdinate(i) - MathSuits.EPSILON &&
+                            this.low[i] <= p.getOrdinate(i) + MathSuits.EPSILON) ||
+                            (this.high[i] >= p.getOrdinate(i) - MathSuits.EPSILON &&
+                                    this.high[i] <= p.getOrdinate(i) + MathSuits.EPSILON))
+                return true;
         }
         return false;
     }
 
     @Override
     public Envelope getIntersectingEnvelope(Envelope e) {
-        if(e==null) return null;
+        if (e == null) return null;
         int dims = this.getDimension();
-        if(dims!=e.getDimension()) return null;
+        if (dims != e.getDimension()) return null;
 
         EnvelopeImpl ret = new EnvelopeImpl();
         ret.makeInfinite(dims);
@@ -317,9 +321,9 @@ class EnvelopeImpl implements Envelope {
 
     @Override
     public double getIntersectingArea(Envelope e) {
-        if(e==null) return 0.0;
+        if (e == null) return 0.0;
         int dims = this.getDimension();
-        if(dims!=e.getDimension()) return 0.0;
+        if (dims != e.getDimension()) return 0.0;
 
         double ret = 1.0;
         double f1, f2;
@@ -338,7 +342,7 @@ class EnvelopeImpl implements Envelope {
     /*
      * Returns the margin of a region. It is calculated as the sum of  2^(d-1) * width, in each dimension.
      * It is actually the sum of all edges, no matter what the dimensionality is.
-    */
+     */
     @Override
     public double getMargin() {
         int dims = this.getDimension();
@@ -354,9 +358,9 @@ class EnvelopeImpl implements Envelope {
 
     @Override
     public void combine(Envelope e) {
-        int dims  = this.getDimension();
-        if(e.getDimension()!=dims)
-            return ;
+        int dims = this.getDimension();
+        if (e.getDimension() != dims)
+            return;
 
         for (int cDim = 0; cDim < dims; ++cDim) {
             this.low[cDim] = Math.min(this.low[cDim], e.getLowCoordinate(cDim));
@@ -366,9 +370,9 @@ class EnvelopeImpl implements Envelope {
 
     @Override
     public void combine(Vector v) {
-        int dims  = this.getDimension();
-        if(v.getDimension()!=dims)
-            return ;
+        int dims = this.getDimension();
+        if (v.getDimension() != dims)
+            return;
 
         for (int cDim = 0; cDim < dims; ++cDim) {
             this.low[cDim] = Math.min(this.low[cDim], v.getOrdinate(cDim));

@@ -5,5 +5,6 @@ package gtl.index.shape;
  */
 public interface EvolvingShape {
     RegionShape getVMBR();
-    RegionShape getMBRAtTime(double t) ;
+
+    RegionShape getMBRAtTime(double t);
 }

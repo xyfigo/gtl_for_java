@@ -4,5 +4,5 @@ package gtl.index;
  * Created by ZhenwenHe on 2016/12/6.
  */
 public interface Command {
-    void execute( Node  in) ;
+    void execute(Node in);
 }

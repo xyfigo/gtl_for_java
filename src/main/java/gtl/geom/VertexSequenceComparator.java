@@ -15,11 +15,30 @@ import java.util.Comparator;
  * <p>
  * If different behaviour is required for comparing size, dimension, or
  * coordinate values, any or all methods can be overridden.
- *
  */
 class VertexSequenceComparator
-        implements Comparator<VertexSequence>
-{
+        implements Comparator<VertexSequence> {
+    /**
+     * The number of dimensions to test
+     */
+    protected int dimensionLimit;
+
+    /**
+     * Creates a comparator which will test all dimensions.
+     */
+    public VertexSequenceComparator() {
+        dimensionLimit = Integer.MAX_VALUE;
+    }
+
+    /**
+     * Creates a comparator which will test only the specified number of dimensions.
+     *
+     * @param dimensionLimit the number of dimensions to test
+     */
+    public VertexSequenceComparator(int dimensionLimit) {
+        this.dimensionLimit = dimensionLimit;
+    }
+
     /**
      * Compare two <code>double</code>s, allowing for NaN values.
      * NaN is treated as being less than any valid number.
@@ -28,8 +47,7 @@ class VertexSequenceComparator
      * @param b a <code>double</code>
      * @return -1, 0, or 1 depending on whether a is less than, equal to or greater than b
      */
-    public static int compare(double a, double b)
-    {
+    public static int compare(double a, double b) {
         if (a < b) return -1;
         if (a > b) return 1;
 
@@ -43,37 +61,13 @@ class VertexSequenceComparator
     }
 
     /**
-     * The number of dimensions to test
-     */
-    protected int dimensionLimit;
-
-    /**
-     * Creates a comparator which will test all dimensions.
-     */
-    public VertexSequenceComparator()
-    {
-        dimensionLimit = Integer.MAX_VALUE;
-    }
-
-    /**
-     * Creates a comparator which will test only the specified number of dimensions.
-     *
-     * @param dimensionLimit the number of dimensions to test
-     */
-    public VertexSequenceComparator(int dimensionLimit)
-    {
-        this.dimensionLimit = dimensionLimit;
-    }
-
-    /**
      * Compares two {@link VertexSequence}s for relative order.
      *
      * @param o1 a {@link VertexSequence}
      * @param o2 a {@link VertexSequence}
      * @return -1, 0, or 1 depending on whether o1 is less than, equal to, or greater than o2
      */
-    public int compare(VertexSequence o1, VertexSequence o2)
-    {
+    public int compare(VertexSequence o1, VertexSequence o2) {
         VertexSequence s1 = (VertexSequence) o1;
         VertexSequence s2 = (VertexSequence) o2;
 
@@ -93,7 +87,7 @@ class VertexSequenceComparator
         }
 
         // lower dimension is less than higher
-        if (! dimLimited) {
+        if (!dimLimited) {
             if (dim1 < dim2) return -1;
             if (dim1 > dim2) return 1;
         }
@@ -115,14 +109,13 @@ class VertexSequenceComparator
      * Compares the same coordinate of two {@link VertexSequence}s
      * along the given number of dimensions.
      *
-     * @param s1 a {@link VertexSequence}
-     * @param s2 a {@link VertexSequence}
-     * @param i the index of the coordinate to test
+     * @param s1        a {@link VertexSequence}
+     * @param s2        a {@link VertexSequence}
+     * @param i         the index of the coordinate to test
      * @param dimension the number of dimensions to test
      * @return -1, 0, or 1 depending on whether s1[i] is less than, equal to, or greater than s2[i]
      */
-    protected int compareCoordinate(VertexSequence s1, VertexSequence s2, int i, int dimension)
-    {
+    protected int compareCoordinate(VertexSequence s1, VertexSequence s2, int i, int dimension) {
         for (int d = 0; d < dimension; d++) {
             double ord1 = s1.getOrdinate(i, d);
             double ord2 = s2.getOrdinate(i, d);

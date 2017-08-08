@@ -1,14 +1,14 @@
 package gtl.index.rtree;
 
 import gtl.common.Identifier;
-import gtl.index.Indexable;
 import gtl.common.PropertySet;
+import gtl.index.Indexable;
 import gtl.io.storage.StorageManager;
 
 /**
  * Created by ZhenwenHe on 2016/12/22.
  */
-public interface RTree extends Indexable{
+public interface RTree extends Indexable {
     // String                   Value     Description
     // ----------------------------------------------
     // IndexIdentifier         Identifier   If specified an existing index will be openened from the supplied
@@ -24,17 +24,17 @@ public interface RTree extends Indexable{
     // ReinsertFactor           Double Default is 0.3
     // EnsureTightMBRs          Boolean   Default is true
     void reset(StorageManager storageManager, PropertySet propSet);
-    void reset(StorageManager storageManager,
-            Identifier indexIdentifier,
-            int dimension,
-            int indexCapacity,int leafCapacity,
-            double fillFactor,
-            RTreeVariant treeVariant,
-            int nearMinimumOverlapFactor,
-            double splitDistributionFactor,
-            double reinsertFactor,
-            boolean ensureTightMBRs );
 
+    void reset(StorageManager storageManager,
+               Identifier indexIdentifier,
+               int dimension,
+               int indexCapacity, int leafCapacity,
+               double fillFactor,
+               RTreeVariant treeVariant,
+               int nearMinimumOverlapFactor,
+               double splitDistributionFactor,
+               double reinsertFactor,
+               boolean ensureTightMBRs);
 
 
 }

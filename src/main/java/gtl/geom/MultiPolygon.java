@@ -3,6 +3,7 @@ package gtl.geom;
 /**
  * Created by hadoop on 17-3-21.
  */
+
 /**
  * Models a collection of {@link Polygon}s.
  * <p>
@@ -12,10 +13,11 @@ package gtl.geom;
  * This allows the topological point-set semantics
  * to be well-defined.
  *
- *
- *@version 1.7
+ * @version 1.7
  */
 public class MultiPolygon extends GeometryCollection implements Polygonal {
+    private static final long serialVersionUID = 1L;
+
 }
 
 

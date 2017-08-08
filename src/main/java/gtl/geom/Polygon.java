@@ -29,11 +29,12 @@ package gtl.geom;
  * </ul>
  */
 public class Polygon extends Geometry implements Polygonal {
+    private static final long serialVersionUID = 1L;
 
     /**
-     *  The exterior boundary,
+     * The exterior boundary,
      * or <code>null</code> if this <code>Polygon</code>
-     *  is empty.
+     * is empty.
      */
     protected LinearRing shell = null;
 

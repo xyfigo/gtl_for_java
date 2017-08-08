@@ -1,23 +1,25 @@
 package gtl.geom;
+
 import gtl.math.MathSuits;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Comparator;
 
 /**
  * Created by hadoop on 17-3-16.
  */
 public class VertexImpl extends Vertex {
 
+    private static final long serialVersionUID = 1L;
+
 
     /**
-     *  Constructs a <code>Vertex</code> at (x,y,z).
+     * Constructs a <code>Vertex</code> at (x,y,z).
      *
-     *@param  x  the x-value
-     *@param  y  the y-value
-     *@param  z  the z-value
+     * @param x the x-value
+     * @param y the y-value
+     * @param z the z-value
      */
     public VertexImpl(double x, double y, double z) {
         this.x = x;
@@ -26,27 +28,27 @@ public class VertexImpl extends Vertex {
     }
 
     /**
-     *  Constructs a <code>Vertex</code> at (0,0,NaN).
+     * Constructs a <code>Vertex</code> at (0,0,NaN).
      */
     public VertexImpl() {
         this(0.0, 0.0);
     }
 
     /**
-     *  Constructs a <code>Vertex</code> having the same (x,y,z) values as
-     *  <code>other</code>.
+     * Constructs a <code>Vertex</code> having the same (x,y,z) values as
+     * <code>other</code>.
      *
-     *@param  c  the <code>Vertex</code> to copy.
+     * @param c the <code>Vertex</code> to copy.
      */
     public VertexImpl(VertexImpl c) {
         this(c.x, c.y, c.z);
     }
 
     /**
-     *  Constructs a <code>Vertex</code> at (x,y,NaN).
+     * Constructs a <code>Vertex</code> at (x,y,NaN).
      *
-     *@param  x  the x-value
-     *@param  y  the y-value
+     * @param x the x-value
+     * @param y the y-value
      */
     public VertexImpl(double x, double y) {
         this(x, y, NULL_ORDINATE);
@@ -54,16 +56,16 @@ public class VertexImpl extends Vertex {
 
 
     public Object clone() {
-        return (Object)new VertexImpl(this.x,this.y,this.z);
+        return (Object) new VertexImpl(this.x, this.y, this.z);
     }
 
     /**
-     *  Sets this <code>Vertex</code>s (x,y,z) values to that of <code>other</code>.
+     * Sets this <code>Vertex</code>s (x,y,z) values to that of <code>other</code>.
      *
-     *@param  other  the <code>Vertex</code> to copy
+     * @param other the <code>Vertex</code> to copy
      */
     public void setCoordinate(Vertex other) {
-        VertexImpl c= (VertexImpl) other;
+        VertexImpl c = (VertexImpl) other;
         x = c.x;
         y = c.y;
         z = c.z;
@@ -71,9 +73,9 @@ public class VertexImpl extends Vertex {
 
     @Override
     public void setCoordinate(Vector other) {
-        x=other.getX();
-        y=other.getY();
-        z=other.getZ();
+        x = other.getX();
+        y = other.getY();
+        z = other.getZ();
     }
 
     /**
@@ -85,12 +87,14 @@ public class VertexImpl extends Vertex {
      * @return the value of the ordinate
      * @throws IllegalArgumentException if the index is not valid
      */
-    public double getOrdinate(int ordinateIndex)
-    {
+    public double getOrdinate(int ordinateIndex) {
         switch (ordinateIndex) {
-            case X: return x;
-            case Y: return y;
-            case Z: return z;
+            case X:
+                return x;
+            case Y:
+                return y;
+            case Z:
+                return z;
         }
         throw new IllegalArgumentException("Invalid ordinate index: " + ordinateIndex);
     }
@@ -102,11 +106,10 @@ public class VertexImpl extends Vertex {
      * {@link X}, {@link Y}, and {@link Z}.
      *
      * @param ordinateIndex the ordinate index
-     * @param value the value to set
+     * @param value         the value to set
      * @throws IllegalArgumentException if the index is not valid
      */
-    public void setOrdinate(int ordinateIndex, double value)
-    {
+    public void setOrdinate(int ordinateIndex, double value) {
         switch (ordinateIndex) {
             case X:
                 x = value;
@@ -123,15 +126,15 @@ public class VertexImpl extends Vertex {
     }
 
     /**
-     *  Returns whether the planar projections of the two <code>Vertex</code>s
-     *  are equal.
+     * Returns whether the planar projections of the two <code>Vertex</code>s
+     * are equal.
      *
-     *@param  other  a <code>Vertex</code> with which to do the 2D comparison.
-     *@return        <code>true</code> if the x- and y-coordinates are equal; the
-     *      z-coordinates do not have to be equal.
+     * @param other a <code>Vertex</code> with which to do the 2D comparison.
+     * @return <code>true</code> if the x- and y-coordinates are equal; the
+     * z-coordinates do not have to be equal.
      */
     public boolean equals2D(Vertex other) {
-        VertexImpl c= (VertexImpl) other;
+        VertexImpl c = (VertexImpl) other;
         if (x != c.x) {
             return false;
         }
@@ -145,15 +148,15 @@ public class VertexImpl extends Vertex {
      * Tests if another coordinate has the same values for the X and Y ordinates.
      * The Z ordinate is ignored.
      *
-     *@param c a <code>Vertex</code> with which to do the 2D comparison.
-     *@return true if <code>other</code> is a <code>Vertex</code>
-     *      with the same values for X and Y.
+     * @param c a <code>Vertex</code> with which to do the 2D comparison.
+     * @return true if <code>other</code> is a <code>Vertex</code>
+     * with the same values for X and Y.
      */
-    public boolean equals2D(Vertex c, double tolerance){
-        if (! MathSuits.equalsWithTolerance(this.x, c.getOrdinate(X), tolerance)) {
+    public boolean equals2D(Vertex c, double tolerance) {
+        if (!MathSuits.equalsWithTolerance(this.x, c.getOrdinate(X), tolerance)) {
             return false;
         }
-        if (! MathSuits.equalsWithTolerance(this.y, c.getOrdinate(Y), tolerance)) {
+        if (!MathSuits.equalsWithTolerance(this.y, c.getOrdinate(Y), tolerance)) {
             return false;
         }
         return true;
@@ -162,12 +165,12 @@ public class VertexImpl extends Vertex {
     /**
      * Tests if another coordinate has the same values for the X, Y and Z ordinates.
      *
-     *@param other a <code>Vertex</code> with which to do the 3D comparison.
-     *@return true if <code>other</code> is a <code>Vertex</code>
-     *      with the same values for X, Y and Z.
+     * @param other a <code>Vertex</code> with which to do the 3D comparison.
+     * @return true if <code>other</code> is a <code>Vertex</code>
+     * with the same values for X, Y and Z.
      */
     public boolean equals3D(Vertex other) {
-        VertexImpl c= (VertexImpl) other;
+        VertexImpl c = (VertexImpl) other;
         return (x == c.x) && (y == c.y) &&
                 ((z == c.z) ||
                         (Double.isNaN(z) && Double.isNaN(c.z)));
@@ -176,11 +179,11 @@ public class VertexImpl extends Vertex {
     /**
      * Tests if another coordinate has the same value for Z, within a tolerance.
      *
-     * @param c a coordinate
+     * @param c         a coordinate
      * @param tolerance the tolerance value
      * @return true if the Z ordinates are within the given tolerance
      */
-    public boolean equalInZ(Vertex c, double tolerance){
+    public boolean equalInZ(Vertex c, double tolerance) {
         return MathSuits.equalsWithTolerance(this.z, c.getOrdinate(Z), tolerance);
     }
 
@@ -191,9 +194,6 @@ public class VertexImpl extends Vertex {
         }
         return equals3D((Vertex) other);
     }
-
-
-
 
 
     /**
@@ -216,7 +216,7 @@ public class VertexImpl extends Vertex {
      * @return the 3-dimensional Euclidean distance2D between the locations
      */
     public double distance3D(Vertex cp) {
-        VertexImpl c= (VertexImpl)cp;
+        VertexImpl c = (VertexImpl) cp;
         double dx = x - c.x;
         double dy = y - c.y;
         double dz = z - c.z;
@@ -224,22 +224,21 @@ public class VertexImpl extends Vertex {
     }
 
 
-
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof Vertex){
-            Vertex c = (Vertex)i;
-            this.x=c.getOrdinate(X);
-            this.y=c.getOrdinate(Y);
-            this.z=c.getOrdinate(Z);
+        if (i instanceof Vertex) {
+            Vertex c = (Vertex) i;
+            this.x = c.getOrdinate(X);
+            this.y = c.getOrdinate(Y);
+            this.z = c.getOrdinate(Z);
         }
     }
 
     @Override
     public boolean load(DataInput in) throws IOException {
-        this.x=in.readDouble();
-        this.y=in.readDouble();
-        this.z=in.readDouble();
+        this.x = in.readDouble();
+        this.y = in.readDouble();
+        this.z = in.readDouble();
         return true;
     }
 
@@ -257,22 +256,22 @@ public class VertexImpl extends Vertex {
     }
 
     /**
-     *  Compares this {@link Vertex} with the specified {@link Vertex} for order.
-     *  This method ignores the z value when making the comparison.
-     *  Returns:
-     *  <UL>
-     *    <LI> -1 : this.x &lt; other.x || ((this.x == other.x) &amp;&amp; (this.y &lt; other.y))
-     *    <LI> 0 : this.x == other.x &amp;&amp; this.y = other.y
-     *    <LI> 1 : this.x &gt; other.x || ((this.x == other.x) &amp;&amp; (this.y &gt; other.y))
-     *
-     *  </UL>
-     *  Note: This method assumes that ordinate values
+     * Compares this {@link Vertex} with the specified {@link Vertex} for order.
+     * This method ignores the z value when making the comparison.
+     * Returns:
+     * <UL>
+     * <LI> -1 : this.x &lt; other.x || ((this.x == other.x) &amp;&amp; (this.y &lt; other.y))
+     * <LI> 0 : this.x == other.x &amp;&amp; this.y = other.y
+     * <LI> 1 : this.x &gt; other.x || ((this.x == other.x) &amp;&amp; (this.y &gt; other.y))
+     * <p>
+     * </UL>
+     * Note: This method assumes that ordinate values
      * are valid numbers.  NaN values are not handled correctly.
      *
-     *@param  o  the <code>Vertex</code> with which this <code>Vertex</code>
-     *      is being compared
-     *@return    -1, zero, or 1 as this <code>Vertex</code>
-     *      is less than, equal to, or greater than the specified <code>Vertex</code>
+     * @param o the <code>Vertex</code> with which this <code>Vertex</code>
+     *          is being compared
+     * @return -1, zero, or 1 as this <code>Vertex</code>
+     * is less than, equal to, or greater than the specified <code>Vertex</code>
      */
     @Override
     public int compareTo(Vertex other) {
@@ -289,7 +288,7 @@ public class VertexImpl extends Vertex {
      * @return a hashcode for this coordinate
      */
     @Override
-    public  int hashCode() {
+    public int hashCode() {
         //Algorithm from Effective Java by Joshua Bloch [Jon Aquino]
         int result = 17;
         result = 37 * result + hashCode(x);

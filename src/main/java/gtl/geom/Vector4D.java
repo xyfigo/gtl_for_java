@@ -4,6 +4,8 @@ package gtl.geom;
  * Created by hadoop on 17-3-24.
  */
 public class Vector4D extends VectorImpl {
+    private static final long serialVersionUID = 1L;
+
     public Vector4D() {
     }
 
@@ -14,7 +16,8 @@ public class Vector4D extends VectorImpl {
     public Vector4D(double[] coordinates) {
         super(coordinates);
     }
-    public Vector4D(double []ca, int beginPosition){
-        super(ca,beginPosition,4);
+
+    public Vector4D(double[] ca, int beginPosition) {
+        super(ca, beginPosition, 4);
     }
 }

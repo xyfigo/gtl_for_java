@@ -5,40 +5,40 @@ package gtl.math;
  */
 public class MathSuits {
     public static final double EPSILON = 1.0E-308;
-    public static final double M_PI_2 =1.57079632679489661922;
+    public static final double M_PI_2 = 1.57079632679489661922;
+    private static final double LOG_10 = Math.log(10);
 
-    public static double dotProduct(double[] A, double[] B){
+    public static double dotProduct(double[] A, double[] B) {
         double dRtn = 0;
-        int dims=java.lang.Math.min(A.length,B.length);
-        for(int i=0;i<dims;++i){
-            dRtn += A[i]*B[i] ;
+        int dims = java.lang.Math.min(A.length, B.length);
+        for (int i = 0; i < dims; ++i) {
+            dRtn += A[i] * B[i];
         }
         return dRtn;
     }
-    public static double distance(double [] A, double[] B){
+
+    public static double distance(double[] A, double[] B) {
         double dRtn = 0;
-        int dims=java.lang.Math.min(A.length,B.length);
-        for(int i=0;i<dims;++i){
-            dRtn += (A[i]-B[i])* (A[i]-B[i]);
+        int dims = java.lang.Math.min(A.length, B.length);
+        for (int i = 0; i < dims; ++i) {
+            dRtn += (A[i] - B[i]) * (A[i] - B[i]);
         }
         return java.lang.Math.sqrt(dRtn);
     }
 
-
-    public static boolean equalsWithTolerance(double x1, double x2, double tolerance)
-    {
+    public static boolean equalsWithTolerance(double x1, double x2, double tolerance) {
         return Math.abs(x1 - x2) <= tolerance;
     }
 
     /**
      * Clamps a <tt>double</tt> value to a given range.
-     * @param x the value to clamp
+     *
+     * @param x   the value to clamp
      * @param min the minimum value of the range
      * @param max the maximum value of the range
      * @return the clamped value
      */
-    public static double clamp(double x, double min, double max)
-    {
+    public static double clamp(double x, double min, double max) {
         if (x < min) return min;
         if (x > max) return max;
         return x;
@@ -46,19 +46,17 @@ public class MathSuits {
 
     /**
      * Clamps an <tt>int</tt> value to a given range.
-     * @param x the value to clamp
+     *
+     * @param x   the value to clamp
      * @param min the minimum value of the range
      * @param max the maximum value of the range
      * @return the clamped value
      */
-    public static int clamp(int x, int min, int max)
-    {
+    public static int clamp(int x, int min, int max) {
         if (x < min) return min;
         if (x > max) return max;
         return x;
     }
-
-    private static final double LOG_10 = Math.log(10);
 
     /**
      * Computes the base-10 logarithm of a <tt>double</tt> value.
@@ -71,8 +69,7 @@ public class MathSuits {
      * @param x a positive number
      * @return the value log a, the base-10 logarithm of the input value
      */
-    public static double log10(double x)
-    {
+    public static double log10(double x) {
         double ln = Math.log(x);
         if (Double.isInfinite(ln)) return ln;
         if (Double.isNaN(ln)) return ln;
@@ -85,11 +82,10 @@ public class MathSuits {
      * For values &lt; 0, this is equal to <tt>max - (-val) % max</tt>
      *
      * @param index the value to wrap
-     * @param max the maximum value (or modulus)
+     * @param max   the maximum value (or modulus)
      * @return the wrapped index
      */
-    public static int wrap(int index, int max)
-    {
+    public static int wrap(int index, int max) {
         if (index < 0) {
             return max - ((-index) % max);
         }
@@ -103,21 +99,18 @@ public class MathSuits {
      * @param x2 a number
      * @return the average of the inputs
      */
-    public static double average(double x1, double x2)
-    {
+    public static double average(double x1, double x2) {
         return (x1 + x2) / 2.0;
     }
 
-    public static double max(double v1, double v2, double v3)
-    {
+    public static double max(double v1, double v2, double v3) {
         double max = v1;
         if (v2 > max) max = v2;
         if (v3 > max) max = v3;
         return max;
     }
 
-    public static double max(double v1, double v2, double v3, double v4)
-    {
+    public static double max(double v1, double v2, double v3, double v4) {
         double max = v1;
         if (v2 > max) max = v2;
         if (v3 > max) max = v3;
@@ -125,8 +118,7 @@ public class MathSuits {
         return max;
     }
 
-    public static double min(double v1, double v2, double v3, double v4)
-    {
+    public static double min(double v1, double v2, double v3, double v4) {
         double min = v1;
         if (v2 < min) min = v2;
         if (v3 < min) min = v3;

@@ -1,5 +1,7 @@
 package gtl.geom;
 
+
+import gtl.geom.jts.JTSWrapper;
 import gtl.math.Float128;
 import gtl.math.MathSuits;
 
@@ -53,16 +55,12 @@ public class Geom2DSuits extends GeomSuits {
      * This method does <i>not</i> first check the point against the envelope2D of
      * the ring.
      *
-     * @param p
-     *          point to check for ring inclusion
-     * @param ring
-     *          an array of coordinates representing the ring (which must have
-     *          first point identical to last point)
+     * @param p    point to check for ring inclusion
+     * @param ring an array of coordinates representing the ring (which must have
+     *             first point identical to last point)
      * @return true if p is inside ring
-     *
      */
-    public static boolean isPointInRing(Vertex2D p, Vertex2D[] ring)
-    {
+    public static boolean isPointInRing(Vertex2D p, Vertex2D[] ring) {
         return locatePointInRing(p, ring) != Location.EXTERIOR;
     }
 
@@ -73,15 +71,12 @@ public class Geom2DSuits extends GeomSuits {
      * This method does <i>not</i> first check the point against the envelope2D of
      * the ring.
      *
-     * @param p
-     *          point to check for ring inclusion
-     * @param ring
-     *          an array of coordinates representing the ring (which must have
-     *          first point identical to last point)
+     * @param p    point to check for ring inclusion
+     * @param ring an array of coordinates representing the ring (which must have
+     *             first point identical to last point)
      * @return the {@link Location} of p relative to the ring
      */
-    public static int locatePointInRing(Vertex2D p, Vertex2D[] ring)
-    {
+    public static int locatePointInRing(Vertex2D p, Vertex2D[] ring) {
         return RayCrossingCounter2D.locatePointInRing(p, ring);
     }
 
@@ -90,10 +85,9 @@ public class Geom2DSuits extends GeomSuits {
      * coordinates.
      *
      * @return true if the point is a vertex of the line or lies in the interior
-     *         of a line segment in the linestring
+     * of a line segment in the linestring
      */
-    public static boolean isOnLine(Vertex2D p, Vertex2D[] pt)
-    {
+    public static boolean isOnLine(Vertex2D p, Vertex2D[] pt) {
         LineIntersector2D lineIntersector2D = new RobustLineIntersector2D();
         for (int i = 1; i < pt.length; i++) {
             Vertex2D p0 = pt[i - 1];
@@ -117,14 +111,11 @@ public class Geom2DSuits extends GeomSuits {
      * ring is invalid (e.g. self-crosses or touches), the computed result may not
      * be correct.
      *
-     * @param ring
-     *          an array of Coordinates forming a ring
+     * @param ring an array of Coordinates forming a ring
      * @return true if the ring is oriented counter-clockwise.
-     * @throws IllegalArgumentException
-     *           if there are too few points to determine orientation (&lt; 4)
+     * @throws IllegalArgumentException if there are too few points to determine orientation (&lt; 4)
      */
-    public static boolean isCCW(Vertex2D[] ring)
-    {
+    public static boolean isCCW(Vertex2D[] ring) {
         // # of points without closing endpoint
         int nPts = ring.length - 1;
         // sanity check
@@ -184,8 +175,7 @@ public class Geom2DSuits extends GeomSuits {
         if (disc == 0) {
             // poly is CCW if prev x is right of next x
             isCCW = (prev.x > next.x);
-        }
-        else {
+        } else {
             // if area is positive, points are ordered CCW
             isCCW = (disc > 0);
         }
@@ -199,50 +189,45 @@ public class Geom2DSuits extends GeomSuits {
      *
      * @param p1 the first vertex of the line segment
      * @param p2 the second vertex of the line segment
-     * @param q the point to compute the relative orientation of
+     * @param q  the point to compute the relative orientation of
      * @return 1 if q is counter-clockwise from p1-p2,
      * or -1 if q is clockwise from p1-p2,
      * or 0 if q is collinear with p1-p2
      */
     public static int computeOrientation(Vertex2D p1, Vertex2D p2,
-                                         Vertex2D q)
-    {
+                                         Vertex2D q) {
         return orientationIndex(p1, p2, q);
     }
 
     /**
      * Computes the distance2D from a point p to a line segment AB
-     *
+     * <p>
      * Note: NON-ROBUST!
      *
-     * @param p
-     *          the point to compute the distance2D for
-     * @param A
-     *          one point of the line
-     * @param B
-     *          another point of the line (must be different to A)
+     * @param p the point to compute the distance2D for
+     * @param A one point of the line
+     * @param B another point of the line (must be different to A)
      * @return the distance2D from p to line segment AB
      */
     public static double distancePointLine(Vertex2D p, Vertex2D A,
-                                           Vertex2D B)
-    {
+                                           Vertex2D B) {
         // if start = end, then just compute distance2D to one of the endpoints
         if (A.x == B.x && A.y == B.y)
             return p.distance(A);
 
         // otherwise use comp.graphics.algorithms Frequently Asked Questions method
-    /*
-     * (1) r = AC dot AB
-     *         ---------
-     *         ||AB||^2
-     *
-     * r has the following meaning:
-     *   r=0 P = A
-     *   r=1 P = B
-     *   r<0 P is on the backward extension of AB
-     *   r>1 P is on the forward extension of AB
-     *   0<r<1 P is interior to AB
-     */
+        /*
+         * (1) r = AC dot AB
+         *         ---------
+         *         ||AB||^2
+         *
+         * r has the following meaning:
+         *   r=0 P = A
+         *   r=1 P = B
+         *   r<0 P is on the backward extension of AB
+         *   r>1 P is on the forward extension of AB
+         *   0<r<1 P is interior to AB
+         */
 
         double len2 = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y);
         double r = ((p.x - A.x) * (B.x - A.x) + (p.y - A.y) * (B.y - A.y))
@@ -253,16 +238,16 @@ public class Geom2DSuits extends GeomSuits {
         if (r >= 1.0)
             return p.distance(B);
 
-    /*
-     * (2) s = (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
-     *         -----------------------------
-     *                    L^2
-     *
-     * Then the distance2D from C to P = |s|*L.
-     *
-     * This is the same calculation as {@link #distancePointLinePerpendicular}.
-     * Unrolled here for performance.
-     */
+        /*
+         * (2) s = (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
+         *         -----------------------------
+         *                    L^2
+         *
+         * Then the distance2D from C to P = |s|*L.
+         *
+         * This is the same calculation as {@link #distancePointLinePerpendicular}.
+         * Unrolled here for performance.
+         */
         double s = ((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y))
                 / len2;
         return Math.abs(s) * Math.sqrt(len2);
@@ -272,25 +257,21 @@ public class Geom2DSuits extends GeomSuits {
      * Computes the perpendicular distance2D from a point p to the (infinite) line
      * containing the points AB
      *
-     * @param p
-     *          the point to compute the distance2D for
-     * @param A
-     *          one point of the line
-     * @param B
-     *          another point of the line (must be different to A)
+     * @param p the point to compute the distance2D for
+     * @param A one point of the line
+     * @param B another point of the line (must be different to A)
      * @return the distance2D from p to line AB
      */
     public static double distancePointLinePerpendicular(Vertex2D p,
-                                                        Vertex2D A, Vertex2D B)
-    {
+                                                        Vertex2D A, Vertex2D B) {
         // use comp.graphics.algorithms Frequently Asked Questions method
-    /*
-     * (2) s = (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
-     *         -----------------------------
-     *                    L^2
-     *
-     * Then the distance2D from C to P = |s|*L.
-     */
+        /*
+         * (2) s = (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
+         *         -----------------------------
+         *                    L^2
+         *
+         * Then the distance2D from C to P = |s|*L.
+         */
         double len2 = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y);
         double s = ((A.y - p.y) * (B.x - A.x) - (A.x - p.x) * (B.y - A.y))
                 / len2;
@@ -301,14 +282,11 @@ public class Geom2DSuits extends GeomSuits {
     /**
      * Computes the distance2D from a point to a sequence of line segments.
      *
-     * @param p
-     *          a point
-     * @param line
-     *          a sequence of contiguous line segments defined by their vertices
+     * @param p    a point
+     * @param line a sequence of contiguous line segments defined by their vertices
      * @return the minimum distance2D between the point and the line segments
      */
-    public static double distancePointLine(Vertex2D p, Vertex2D[] line)
-    {
+    public static double distancePointLine(Vertex2D p, Vertex2D[] line) {
         if (line.length == 0)
             throw new IllegalArgumentException(
                     "Line array must contain at least one vertex");
@@ -325,21 +303,16 @@ public class Geom2DSuits extends GeomSuits {
 
     /**
      * Computes the distance2D from a line segment AB to a line segment CD
-     *
+     * <p>
      * Note: NON-ROBUST!
      *
-     * @param A
-     *          a point of one line
-     * @param B
-     *          the second point of (must be different to A)
-     * @param C
-     *          one point of the line
-     * @param D
-     *          another point of the line (must be different to A)
+     * @param A a point of one line
+     * @param B the second point of (must be different to A)
+     * @param C one point of the line
+     * @param D another point of the line (must be different to A)
      */
     public static double distanceLineLine(Vertex2D A, Vertex2D B,
-                                          Vertex2D C, Vertex2D D)
-    {
+                                          Vertex2D C, Vertex2D D) {
         // check for zero-length segments
         if (A.equals(B))
             return distancePointLine(A, C, D);
@@ -374,16 +347,14 @@ public class Geom2DSuits extends GeomSuits {
          */
 
         boolean noIntersection = false;
-        if (! Envelope2D.intersects(A, B, C, D)) {
+        if (!Envelope2D.intersects(A, B, C, D)) {
             noIntersection = true;
-        }
-        else {
+        } else {
             double denom = (B.x - A.x) * (D.y - C.y) - (B.y - A.y) * (D.x - C.x);
 
             if (denom == 0) {
                 noIntersection = true;
-            }
-            else {
+            } else {
                 double r_num = (A.y - C.y) * (D.x - C.x) - (A.x - C.x) * (D.y - C.y);
                 double s_num = (A.y - C.y) * (B.x - A.x) - (A.x - C.x) * (B.y - A.y);
 
@@ -411,12 +382,10 @@ public class Geom2DSuits extends GeomSuits {
      * ring is oriented CW, negative if the ring is oriented CCW, and zero if the
      * ring is degenerate or flat.
      *
-     * @param ring
-     *          the coordinates forming the ring
+     * @param ring the coordinates forming the ring
      * @return the signed area of the ring
      */
-    public static double signedArea(Vertex2D[] ring)
-    {
+    public static double signedArea(Vertex2D[] ring) {
         if (ring.length < 3)
             return 0.0;
         double sum = 0.0;
@@ -442,12 +411,10 @@ public class Geom2DSuits extends GeomSuits {
      * <li>zero if the ring is degenerate or flat
      * </ul>
      *
-     * @param ring
-     *          the coordinates forming the ring
+     * @param ring the coordinates forming the ring
      * @return the signed area of the ring
      */
-    public static double signedArea(VertexSequence ring)
-    {
+    public static double signedArea(VertexSequence ring) {
         int n = ring.size();
         if (n < 3)
             return 0.0;
@@ -477,12 +444,10 @@ public class Geom2DSuits extends GeomSuits {
     /**
      * Computes the length of a linestring specified by a sequence of points.
      *
-     * @param pts
-     *          the points specifying the linestring
+     * @param pts the points specifying the linestring
      * @return the length of the linestring
      */
-    public static double length(VertexSequence pts)
-    {
+    public static double length(VertexSequence pts) {
         // optimized for processing VertexSequences
         int n = pts.size();
         if (n <= 1)
@@ -516,14 +481,10 @@ public class Geom2DSuits extends GeomSuits {
      *
      * @param p1 the origin point of the vector
      * @param p2 the final point of the vector
-     * @param q the point to compute the direction to
-     *
-     * @return 1 if q is counter-clockwise (left) from p1-p2
-     * @return -1 if q is clockwise (right) from p1-p2
+     * @param q  the point to compute the direction to
      * @return 0 if q is collinear with p1-p2
      */
-    public static int orientationIndex(Vertex2D p1, Vertex2D p2, Vertex2D q)
-    {
+    public static int orientationIndex(Vertex2D p1, Vertex2D p2, Vertex2D q) {
         // fast filter for orientation index
         // avoids use of slow extended-precision arithmetic in many cases
         int index = orientationIndexFilter2d(p1, p2, q);
@@ -543,16 +504,12 @@ public class Geom2DSuits extends GeomSuits {
      * Computes the sign of the determinant of the 2x2 matrix
      * with the given entries.
      *
-     * @return -1 if the determinant is negative,
-     * @return  1 if the determinant is positive,
-     * @return  0 if the determinant is 0.
+     * @return 0 if the determinant is 0.
      */
-    public static int signOfDet2x2(Float128 x1, Float128 y1, Float128 x2, Float128 y2)
-    {
+    public static int signOfDet2x2(Float128 x1, Float128 y1, Float128 x2, Float128 y2) {
         Float128 det = x1.multiply(y2).selfSubtract(y1.multiply(x2));
         return det.signum();
     }
-
 
 
     /**
@@ -572,11 +529,9 @@ public class Geom2DSuits extends GeomSuits {
      * @param pa a coordinate
      * @param pb a coordinate
      * @param pc a coordinate
-     * @return the orientation index if it can be computed safely
      * @return i > 1 if the orientation index cannot be computed safely
      */
-    private static int orientationIndexFilter2d(Vertex2D pa, Vertex2D pb, Vertex2D pc)
-    {
+    private static int orientationIndexFilter2d(Vertex2D pa, Vertex2D pb, Vertex2D pc) {
         double detsum;
 
         double detleft = (pa.x - pc.x) * (pb.y - pc.y);
@@ -586,20 +541,16 @@ public class Geom2DSuits extends GeomSuits {
         if (detleft > 0.0) {
             if (detright <= 0.0) {
                 return signum(det);
-            }
-            else {
+            } else {
                 detsum = detleft + detright;
             }
-        }
-        else if (detleft < 0.0) {
+        } else if (detleft < 0.0) {
             if (detright >= 0.0) {
                 return signum(det);
-            }
-            else {
+            } else {
                 detsum = -detleft - detright;
             }
-        }
-        else {
+        } else {
             return signum(det);
         }
 
@@ -611,8 +562,7 @@ public class Geom2DSuits extends GeomSuits {
         return 2;
     }
 
-    private static int signum(double x)
-    {
+    private static int signum(double x) {
         if (x > 0) return 1;
         if (x < 0) return -1;
         return 0;
@@ -631,8 +581,7 @@ public class Geom2DSuits extends GeomSuits {
      */
     public static Vertex2D intersection(
             Vertex2D p1, Vertex2D p2,
-            Vertex2D q1, Vertex2D q2)
-    {
+            Vertex2D q1, Vertex2D q2) {
         Float128 denom1 = Float128.valueOf(q2.y).selfSubtract(q1.y)
                 .selfMultiply(Float128.valueOf(p2.x).selfSubtract(p1.x));
         Float128 denom2 = Float128.valueOf(q2.x).selfSubtract(q1.x)
@@ -664,70 +613,70 @@ public class Geom2DSuits extends GeomSuits {
 
         double y = Float128.valueOf(q1.y).selfAdd(Float128.valueOf(q2.y).selfSubtract(q1.y).selfMultiply(fracQ)).doubleValue();
 
-        return Geom2DSuits.createVertex2D(x,y);
+        return Geom2DSuits.createVertex2D(x, y);
     }
 
     /**
-     *
      * @param P
      * @param S
      * @return determine if a point is inside a segment
      * true= P is inside S
      * false = P is  not inside S
      */
-    public static boolean pointInLineSegment(Vector2D P, LineSegment S){
+    public static boolean pointInLineSegment(Vector2D P, LineSegment S) {
         Vector2D SP0 = S.getStartPoint().flap();
         Vector2D SP1 = S.getEndPoint().flap();
         if (SP0.getX() != SP1.getX()) { // S is not  vertical
             if (SP0.getX() <= P.getX() && P.getX() <= SP1.getX()) return true;
             if (SP0.getX() >= P.getX() && P.getX() >= SP1.getX()) return true;
-        }
-        else { // S is vertical, so test y  coordinate
+        } else { // S is vertical, so test y  coordinate
             if (SP0.getY() <= P.getY() && P.getY() <= SP1.getY()) return true;
             if (SP0.getY() >= P.getY() && P.getY() >= SP1.getY()) return true;
         }
         return false;
     }
+
     /**
      * find the 2D intersection of 2 finite segments
+     *
      * @param S1
      * @param S2
-     * @param outPoint0   intersect point (when it exists)
+     * @param outPoint0 intersect point (when it exists)
      * @param outPoint1 endpoint of intersect segment [I0,I1] (when it exists)
-     * @return  0=disjoint (no intersect)
-     *          1=intersect in unique point I0
-     *          2=overlap in segment from I0 to I1
+     * @return 0=disjoint (no intersect)
+     * 1=intersect in unique point I0
+     * 2=overlap in segment from I0 to I1
      */
-    public static int intersection(LineSegment S1, LineSegment S2, Vector2D outPoint0, Vector2D outPoint1){
+    public static int intersection(LineSegment S1, LineSegment S2, Vector2D outPoint0, Vector2D outPoint1) {
         Vector2D S1P0 = S1.getStartPoint().flap();
         Vector2D S1P1 = S1.getEndPoint().flap();
         Vector2D S2P0 = S2.getStartPoint().flap();
         Vector2D S2P1 = S1.getEndPoint().flap();
-        Vector2D u =  (Vector2D)S1P1.subtract(S1P0);
-        Vector2D v = (Vector2D)S2P1.subtract(S2P0);
-        Vector2D w = (Vector2D)S1P0.subtract(S2P0);
-        double D = Vector2D.perpProduct(u,v);
+        Vector2D u = (Vector2D) S1P1.subtract(S1P0);
+        Vector2D v = (Vector2D) S2P1.subtract(S2P0);
+        Vector2D w = (Vector2D) S1P0.subtract(S2P0);
+        double D = Vector2D.perpProduct(u, v);
         // test if they are parallel (includes either being a point)
         if (Math.abs(D) < MathSuits.EPSILON) {// S1 and S2 are parallel
-             if (Vector2D.perpProduct(u,w) != 0 || Vector2D.perpProduct(v,w) != 0) {
-             return 0; // they are NOT collinear
+            if (Vector2D.perpProduct(u, w) != 0 || Vector2D.perpProduct(v, w) != 0) {
+                return 0; // they are NOT collinear
             }
             // they are collinear or degenerate // check if they are degenerate points
-            double du = Vector2D.dotProduct(u,u);
-            double dv = Vector2D.dotProduct(v,v);
-            if (du==0 && dv==0) { // both segments are points
+            double du = Vector2D.dotProduct(u, u);
+            double dv = Vector2D.dotProduct(v, v);
+            if (du == 0 && dv == 0) { // both segments are points
                 if (!S1P0.equals(S2P0)) // they are distinct points
                     return 0;
                 outPoint0.copyFrom(S1P0); // they are the same point
                 return 1;
             }
-            if (du==0) { // S1 is a single point
+            if (du == 0) { // S1 is a single point
                 if (pointInLineSegment(S1P0, S2) == false) // but is not in S2
                     return 0;
                 outPoint0.copyFrom(S1P0);
                 return 1;
             }
-            if (dv==0) { // S2 a single point
+            if (dv == 0) { // S2 a single point
                 if (pointInLineSegment(S2P0, S1) == false) // but is not in S1
                     return 0;
                 outPoint0.copyFrom(S2P0);
@@ -735,23 +684,24 @@ public class Geom2DSuits extends GeomSuits {
             }
             // they are collinear segments - get overlap (or not)
             double t0, t1; // endpoints of S1 in eqn for S2
-            Vector2D w2 = (Vector2D)S1P1.subtract(S2P0);
+            Vector2D w2 = (Vector2D) S1P1.subtract(S2P0);
             if (v.getX() != 0) {
                 t0 = w.getX() / v.getX();
                 t1 = w2.getX() / v.getX();
-            }
-            else {
+            } else {
                 t0 = w.getY() / v.getY();
-                t1 = w2.getY()/ v.getY();
+                t1 = w2.getY() / v.getY();
             }
             if (t0 > t1) { // must have t0 smaller than t1
-                double t=t0; t0=t1; t1=t; // swap if not
+                double t = t0;
+                t0 = t1;
+                t1 = t; // swap if not
             }
             if (t0 > 1 || t1 < 0) {
                 return 0; // NO overlap
             }
-            t0 = t0<0? 0 : t0; // clip to min 0
-            t1 = t1>1? 1 : t1; // clip to max 1
+            t0 = t0 < 0 ? 0 : t0; // clip to min 0
+            t1 = t1 > 1 ? 1 : t1; // clip to max 1
             if (t0 == t1) { // intersect is a point
                 //*I0 = S2P0 + t0 * v;
                 outPoint0.copyFrom(v.multiply(t0).add(S2P0));
@@ -767,11 +717,11 @@ public class Geom2DSuits extends GeomSuits {
 
         // the segments are skew and may intersect in a point
         // get the intersect parameter for S1
-        double sI = Vector2D.perpProduct(v,w) / D;
+        double sI = Vector2D.perpProduct(v, w) / D;
         if (sI < 0 || sI > 1) // no intersect with S1
             return 0;
         // get the intersect parameter for S2
-        double tI = Vector2D.perpProduct(u,w) / D;
+        double tI = Vector2D.perpProduct(u, w) / D;
         if (tI < 0 || tI > 1) // no intersect with S2
             return 0;
         //*I0 = S1.P0 + sI * u; // compute S1 intersect point
@@ -779,5 +729,108 @@ public class Geom2DSuits extends GeomSuits {
         return 1;
     }
 
+    /**
+     * 判断矩形和三角形是否相交
+     * @param e2d 矩形
+     * @param t 三角形
+     * @return
+     */
+    public static boolean intersects(Envelope2D e2d, Triangle t){
+        return JTSWrapper.toJTSGeometry(e2d).intersects(JTSWrapper.toJTSGeometry(t));
+    }
 
+    /**
+     * 判断矩形和三角形是否相交
+     * @param e2d 矩形
+     * @param t 三角形
+     * @return
+     */
+    public static boolean intersects(Envelope  e2d, Triangle t){
+        return JTSWrapper.toJTSGeometry(e2d).intersects(JTSWrapper.toJTSGeometry(t));
+    }
+
+    /**
+     * 判断两个三角形是否相交
+     * @param root
+     * @param sub
+     * @return
+     */
+    public static boolean intersects(Triangle root, Triangle sub){
+        return JTSWrapper.toJTSGeometry(root).intersects(JTSWrapper.toJTSGeometry(sub));
+    }
+
+    /**
+     * 判断三角形root是否包含sub三角形
+     * @param root
+     * @param sub
+     * @return
+     */
+    public static boolean contains(Triangle root, Triangle sub){
+        return JTSWrapper.toJTSGeometry(root).intersects(JTSWrapper.toJTSGeometry(sub));
+    }
+
+    /**
+     * 判断矩形是否包含三角形
+     * @param e2d 矩形
+     * @param t 三角形
+     * @return
+     */
+    public static boolean contains(Envelope2D e2d, Triangle t){
+        return JTSWrapper.toJTSGeometry(e2d).contains(JTSWrapper.toJTSGeometry(t));
+    }
+
+    /**
+     * 判断三角形是否包含矩形
+     * @param t
+     * @param e2d
+     * @return
+     */
+    public static boolean contains(Triangle t,Envelope2D e2d){
+        return JTSWrapper.toJTSGeometry(t).contains(JTSWrapper.toJTSGeometry(e2d));
+    }
+
+    /**
+     * 判断矩形是否包含三角形
+     * @param e2d 矩形
+     * @param t 三角形
+     * @return
+     */
+    public static boolean contains(Envelope e2d, Triangle t){
+        return JTSWrapper.toJTSGeometry(e2d).contains(JTSWrapper.toJTSGeometry(t));
+    }
+
+    public static boolean contains(Triangle t, double x, double y){
+        return JTSWrapper.toJTSGeometry(t).contains(JTSWrapper.toJTSGeometry(x,y));
+    }
+
+
+    /**
+     * 判断三角形是否包含矩形
+     * @param t
+     * @param e2d
+     * @return
+     */
+    public static boolean contains(Triangle t,Envelope e2d){
+        return JTSWrapper.toJTSGeometry(t).contains(JTSWrapper.toJTSGeometry(e2d));
+    }
+
+    /**
+     * 判断三角形与线段是否相交
+     * @param t
+     * @param ls
+     * @return
+     */
+    public static boolean intersects(Triangle t,LineSegment ls){
+        return JTSWrapper.toJTSGeometry(t).intersects(JTSWrapper.toJTSGeometry(ls));
+    }
+
+    /**
+     * 判断三角形与线串是否相交
+     * @param t
+     * @param ls
+     * @return
+     */
+    public static boolean intersects(Triangle t,LineString ls){
+        return JTSWrapper.toJTSGeometry(t).intersects(JTSWrapper.toJTSGeometry(ls));
+    }
 }

@@ -10,7 +10,10 @@ import java.util.Collection;
  */
 public interface Intervals extends Collection<Interval>, Serializable {
     Identifier getIdentifier();
+
     void setIdentifier(Identifier i);
+
     Interval get(int i);
+
     int find(Interval i);
 }

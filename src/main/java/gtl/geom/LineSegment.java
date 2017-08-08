@@ -4,6 +4,8 @@ package gtl.geom;
  * Created by ZhenwenHe on 2017/3/13.
  */
 public class LineSegment extends InfiniteLine {
+    private static final long serialVersionUID = 1L;
+
     public LineSegment(Vector startPoint, Vector endPoint) {
         super(startPoint, endPoint);
     }
@@ -12,22 +14,23 @@ public class LineSegment extends InfiniteLine {
         super(startPoint, endPoint);
     }
 
-    public LineSegment( ) {
+    public LineSegment() {
         super();
     }
 
     @Override
     public Object clone() {
-        return new LineSegment(this.startPoint,this.endPoint);
+        return new LineSegment(this.startPoint, this.endPoint);
     }
 
 
     /**
      * extend to line
+     *
      * @return
      */
-    public InfiniteLine extend(){
-        return new InfiniteLine(startPoint,endPoint);
+    public InfiniteLine extend() {
+        return new InfiniteLine(startPoint, endPoint);
     }
 
     public LineSegment flap() {

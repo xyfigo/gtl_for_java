@@ -3,9 +3,9 @@ package gtl.exception;
 /**
  * Created by ZhenwenHe on 2017/2/21.
  */
-public class IllegalArgumentException extends Exception{
+public class IllegalArgumentException extends Exception {
 
-    public IllegalArgumentException(String s){
+    public IllegalArgumentException(String s) {
         super(s);
     }
 

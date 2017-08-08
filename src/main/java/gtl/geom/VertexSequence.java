@@ -46,7 +46,9 @@ interface VertexSequence extends Serializable {
      * @param coord a {@link Vertex} to receive the value
      */
     void getCoordinate(int index, Vertex coord);
+
     void getCoordinate(int index, Vertex2D coord);
+
     void getCoordinate(int index, Vertex3D coord);
 
     /**
@@ -79,13 +81,14 @@ interface VertexSequence extends Serializable {
      * Ordinates indices greater than 1 have user-defined semantics
      * (for instance, they may contain other dimensions or measure values).
      *
-     * @param index  the coordinate index in the sequence
+     * @param index         the coordinate index in the sequence
      * @param ordinateIndex the ordinate index in the coordinate (in range [0, dimension-1])
      */
     double getOrdinate(int index, int ordinateIndex);
 
     /**
      * Returns the number of coordinates in this sequence.
+     *
      * @return the size of the sequence
      */
     int size();
@@ -93,9 +96,9 @@ interface VertexSequence extends Serializable {
     /**
      * Sets the value for a given ordinate of a coordinate in this sequence.
      *
-     * @param index  the coordinate index in the sequence
+     * @param index         the coordinate index in the sequence
      * @param ordinateIndex the ordinate index in the coordinate (in range [0, dimension-1])
-     * @param value  the new ordinate value
+     * @param value         the new ordinate value
      */
     void setOrdinate(int index, int ordinateIndex, double value);
 

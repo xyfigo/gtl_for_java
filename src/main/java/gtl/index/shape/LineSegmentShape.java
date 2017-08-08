@@ -12,17 +12,18 @@ import gtl.math.MathSuits;
  */
 public class LineSegmentShape extends LineSegment implements Shape {
 
+    private static final long serialVersionUID = 1L;
 
-    public LineSegmentShape( ) {
+    public LineSegmentShape() {
         super();
     }
 
     public LineSegmentShape(double[] startPoint, double[] endPoint) {
-        reset(startPoint,endPoint);
+        reset(startPoint, endPoint);
     }
 
     public LineSegmentShape(Vector startPoint, Vector endPoint) {
-        super(startPoint,endPoint);
+        super(startPoint, endPoint);
     }
 
     //some helpers for intersects methods
@@ -85,7 +86,7 @@ public class LineSegmentShape extends LineSegment implements Shape {
     }
 
     public boolean intersectsLineSegment(LineSegmentShape l) {
-        assert this.getDimension()==2;
+        assert this.getDimension() == 2;
 
         // use Geometry::intersects
         PointShape p1 = ShapeSuits.createPoint(this.getStartCoordinates());
@@ -97,23 +98,23 @@ public class LineSegmentShape extends LineSegment implements Shape {
 
     @Override
     public boolean intersectsShape(Shape in) {
-        if(in instanceof LineSegmentShape){
-            this.intersectsLineSegment((LineSegmentShape)in);
+        if (in instanceof LineSegmentShape) {
+            this.intersectsLineSegment((LineSegmentShape) in);
         }
-        if(in instanceof RegionShape){
-            this.intersectsRegion((RegionShape)in);
+        if (in instanceof RegionShape) {
+            this.intersectsRegion((RegionShape) in);
         }
         return false;
     }
 
     public boolean intersectsRegion(RegionShape p) {
-        assert this.getDimension()==2;
+        assert this.getDimension() == 2;
         return p.intersectsLineSegment((this));
     }
 
     @Override
     public boolean containsShape(Shape in) {
-         return false;
+        return false;
     }
 
     @Override
@@ -123,9 +124,9 @@ public class LineSegmentShape extends LineSegment implements Shape {
     }
 
     public double getMinimumDistance(PointShape p) {
-        assert this.getDimension()==2;
-        double [] startCoordinates = this.getStartCoordinates();
-        double [] endCoordinates = this.getEndCoordinates();
+        assert this.getDimension() == 2;
+        double[] startCoordinates = this.getStartCoordinates();
+        double[] endCoordinates = this.getEndCoordinates();
         if (endCoordinates[0] >= startCoordinates[0] - MathSuits.EPSILON &&
                 endCoordinates[0] <= startCoordinates[0] + MathSuits.EPSILON)
             return Math.abs(p.getCoordinate(0) - startCoordinates[0]);
@@ -145,20 +146,18 @@ public class LineSegmentShape extends LineSegment implements Shape {
     }
 
     public double getRelativeMinimumDistance(PointShape p) {
-        assert getDimension()==2;
-        double [] startCoordinates = this.getStartCoordinates();
-        double [] endCoordinates = this.getEndCoordinates();
+        assert getDimension() == 2;
+        double[] startCoordinates = this.getStartCoordinates();
+        double[] endCoordinates = this.getEndCoordinates();
 
         if (endCoordinates[0] >= startCoordinates[0] - MathSuits.EPSILON &&
-                endCoordinates[0] <= startCoordinates[0] + MathSuits.EPSILON)
-        {
+                endCoordinates[0] <= startCoordinates[0] + MathSuits.EPSILON) {
             if (startCoordinates[1] < endCoordinates[1]) return startCoordinates[0] - p.getCoordinate(0);
             if (startCoordinates[1] >= endCoordinates[1]) return p.getCoordinate(0) - startCoordinates[0];
         }
 
         if (endCoordinates[1] >= startCoordinates[1] - MathSuits.EPSILON &&
-                endCoordinates[1] <= startCoordinates[1] + MathSuits.EPSILON)
-        {
+                endCoordinates[1] <= startCoordinates[1] + MathSuits.EPSILON) {
             if (startCoordinates[0] < endCoordinates[0]) return p.getCoordinate(1) - startCoordinates[1];
             if (startCoordinates[0] >= endCoordinates[0]) return startCoordinates[1] - p.getCoordinate(1);
         }
@@ -175,37 +174,37 @@ public class LineSegmentShape extends LineSegment implements Shape {
 
     @Override
     public int getDimension() {
-        return Math.min(this.getStartPoint().getDimension(),this.getEndPoint().getDimension());
+        return Math.min(this.getStartPoint().getDimension(), this.getEndPoint().getDimension());
     }
 
     @Override
     public Envelope getMBR() {
-        double [] startCoordinates = this.getStartCoordinates();
-        double [] endCoordinates = this.getEndCoordinates();
+        double[] startCoordinates = this.getStartCoordinates();
+        double[] endCoordinates = this.getEndCoordinates();
         int dims = this.getDimension();
         double[] low = new double[dims];
         double[] high = new double[dims];
-        for (int cDim = 0; cDim < dims; ++cDim){
+        for (int cDim = 0; cDim < dims; ++cDim) {
             low[cDim] = Math.min(startCoordinates[cDim], endCoordinates[cDim]);
-            high[cDim] =  Math.max(startCoordinates[cDim], endCoordinates[cDim]);
+            high[cDim] = Math.max(startCoordinates[cDim], endCoordinates[cDim]);
         }
 
-        return Geom3DSuits.createEnvelope(low,high);
+        return Geom3DSuits.createEnvelope(low, high);
     }
 
     public double getRelativeMaximumDistance(RegionShape r) {
-         assert this.getDimension()==2;
+        assert this.getDimension() == 2;
         // clockwise.
         double d1 = this.getRelativeMinimumDistance(ShapeSuits.createPoint(r.getLowCoordinates()));
 
-        double []  coords = new double [this.getDimension()];
+        double[] coords = new double[this.getDimension()];
         coords[0] = r.getLowCoordinate(0);
         coords[1] = r.getHighCoordinate(1);
         double d2 = getRelativeMinimumDistance(ShapeSuits.createPoint(coords));
 
         double d3 = getRelativeMinimumDistance(ShapeSuits.createPoint(r.getHighCoordinates()));
 
-        coords[0] =r.getHighCoordinate(0);
+        coords[0] = r.getHighCoordinate(0);
         coords[1] = r.getLowCoordinates()[1];
         double d4 = getRelativeMinimumDistance(ShapeSuits.createPoint(coords));
 
@@ -219,10 +218,10 @@ public class LineSegmentShape extends LineSegment implements Shape {
 
     @Override
     public double getMinimumDistance(Shape in) {
-        if(in instanceof PointShape) {
-            return this.getMinimumDistance((PointShape)in);
+        if (in instanceof PointShape) {
+            return this.getMinimumDistance((PointShape) in);
         }
-        if(in instanceof RegionShape){
+        if (in instanceof RegionShape) {
             assert false;
 
         }
@@ -230,9 +229,9 @@ public class LineSegmentShape extends LineSegment implements Shape {
     }
 
     public double getAngleOfPerpendicularRay() {
-        assert this.getDimension()==2;
-        double [] startCoordinates = this.getStartCoordinates();
-        double [] endCoordinates = this.getEndCoordinates();
+        assert this.getDimension() == 2;
+        double[] startCoordinates = this.getStartCoordinates();
+        double[] endCoordinates = this.getEndCoordinates();
 
         if (startCoordinates[0] >= endCoordinates[0] - MathSuits.EPSILON &&
                 startCoordinates[0] <= endCoordinates[0] + MathSuits.EPSILON) return 0.0;
@@ -246,13 +245,13 @@ public class LineSegmentShape extends LineSegment implements Shape {
 
     @Override
     public Object clone() {
-        return new LineSegmentShape(getStartPoint(),getEndPoint());
+        return new LineSegmentShape(getStartPoint(), getEndPoint());
     }
 
     public void makeInfinite(int dimension) {
         this.makeDimension(dimension);
-        double [] startCoordinates = this.getStartCoordinates();
-        double [] endCoordinates = this.getEndCoordinates();
+        double[] startCoordinates = this.getStartCoordinates();
+        double[] endCoordinates = this.getEndCoordinates();
         for (int cIndex = 0; cIndex < dimension; ++cIndex) {
             startCoordinates[cIndex] = Double.MAX_VALUE;
             endCoordinates[cIndex] = Double.MAX_VALUE;
@@ -260,7 +259,7 @@ public class LineSegmentShape extends LineSegment implements Shape {
     }
 
     public void makeDimension(int dimension) {
-        if(dimension!=this.getDimension()){
+        if (dimension != this.getDimension()) {
             getStartPoint().makeDimension(dimension);
             getEndPoint().makeDimension(dimension);
         }
@@ -268,9 +267,9 @@ public class LineSegmentShape extends LineSegment implements Shape {
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof LineSegmentShape){
-            LineSegmentShape lss = (LineSegmentShape)i;
-            this.reset(lss.getStartCoordinates(),lss.getEndCoordinates());
+        if (i instanceof LineSegmentShape) {
+            LineSegmentShape lss = (LineSegmentShape) i;
+            this.reset(lss.getStartCoordinates(), lss.getEndCoordinates());
         }
     }
 

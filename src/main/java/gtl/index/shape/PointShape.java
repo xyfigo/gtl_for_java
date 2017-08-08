@@ -13,19 +13,24 @@ import java.util.Arrays;
  * Created by ZhenwenHe on 2016/12/6.
  */
 public class PointShape implements Shape {
+    private static final long serialVersionUID = 1L;
+
     Vector data;
-    public PointShape(){
-        this.data= Geom3DSuits.createVector();
+
+    public PointShape() {
+        this.data = Geom3DSuits.createVector();
     }
-    public PointShape(double x , double y) {
-        this.data= Geom3DSuits.createVector(x,y);
+
+    public PointShape(double x, double y) {
+        this.data = Geom3DSuits.createVector(x, y);
     }
-    public PointShape(double x , double y, double z) {
-        this.data= (Vector) Geom3DSuits.createVector(x,y,z);
+
+    public PointShape(double x, double y, double z) {
+        this.data = (Vector) Geom3DSuits.createVector(x, y, z);
     }
 
     public PointShape(double[] coordinates) {
-        this.data= Geom3DSuits.createVector(coordinates);
+        this.data = Geom3DSuits.createVector(coordinates);
     }
 
 
@@ -40,7 +45,7 @@ public class PointShape implements Shape {
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof PointShape || i instanceof Vector){
+        if (i instanceof PointShape || i instanceof Vector) {
             this.data.copyFrom(i);
         }
     }
@@ -50,26 +55,21 @@ public class PointShape implements Shape {
         return this.data.getX();
     }
 
+    public void setX(double x) {
+        this.data.setX(x);
+    }
 
     public double getY() {
         return this.data.getY();
     }
 
-
-    public double getZ() {
-        return this.data.getZ();
-    }
-
-
-    public void setX(double x) {
-        this.data.setX(x);
-    }
-
-
     public void setY(double y) {
         this.data.setY(y);
     }
 
+    public double getZ() {
+        return this.data.getZ();
+    }
 
     public void setZ(double z) {
         this.data.setX(z);
@@ -131,10 +131,9 @@ public class PointShape implements Shape {
 
     @Override
     public boolean intersectsShape(Shape in) {
-        if(in instanceof RegionShape){
+        if (in instanceof RegionShape) {
             return in.containsShape(this);
-        }
-        else
+        } else
             return false;
     }
 
@@ -145,10 +144,10 @@ public class PointShape implements Shape {
 
     @Override
     public boolean touchesShape(Shape in) {
-        if(in instanceof PointShape){
+        if (in instanceof PointShape) {
             return this.equals(in);
         }
-        if(in instanceof RegionShape){
+        if (in instanceof RegionShape) {
             return in.touchesShape(this);
         }
 
@@ -167,7 +166,7 @@ public class PointShape implements Shape {
 
     @Override
     public Envelope getMBR() {
-        return Geom3DSuits.createEnvelope(this.getCoordinates(),this.getCoordinates());
+        return Geom3DSuits.createEnvelope(this.getCoordinates(), this.getCoordinates());
     }
 
     @Override
@@ -177,24 +176,24 @@ public class PointShape implements Shape {
 
     @Override
     public double getMinimumDistance(Shape in) {
-        if(in instanceof PointShape){
-            return getMinimumDistance((PointShape)(in));
+        if (in instanceof PointShape) {
+            return getMinimumDistance((PointShape) (in));
         }
-        if(in instanceof RegionShape){
+        if (in instanceof RegionShape) {
             in.getMinimumDistance(this);
         }
         return 0;
     }
 
     @Override
-    public long getByteArraySize(){
-        return getDimension()*8;
+    public long getByteArraySize() {
+        return getDimension() * 8;
     }
 
     public double getMinimumDistance(PointShape in) {
-        double ret=0;
-        double [] coords = in.getCoordinates();
-        for (int cDim = 0; cDim < this.getCoordinates().length; ++cDim){
+        double ret = 0;
+        double[] coords = in.getCoordinates();
+        for (int cDim = 0; cDim < this.getCoordinates().length; ++cDim) {
             ret += Math.pow(this.getCoordinates()[cDim] - coords[cDim], 2.0);
         }
         return Math.sqrt(ret);

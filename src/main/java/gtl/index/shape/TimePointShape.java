@@ -7,13 +7,16 @@ import gtl.geom.IntervalType;
  * Created by ZhenwenHe on 2016/12/22.
  */
 public class TimePointShape extends PointShape implements TimeShape {
-    protected  double startTime;
+    private static final long serialVersionUID = 1L;
+
+    protected double startTime;
     protected double endTime;
 
     @Override
     public double getLowerBound() {
         return startTime;
     }
+
     @Override
     public double getUpperBound() {
 
@@ -28,8 +31,8 @@ public class TimePointShape extends PointShape implements TimeShape {
 
     @Override
     public void setBounds(double l, double u) {
-        this.startTime=l;
-        this.endTime=u;
+        this.startTime = l;
+        this.endTime = u;
     }
 
     @Override
@@ -39,8 +42,8 @@ public class TimePointShape extends PointShape implements TimeShape {
 
     @Override
     public boolean intersects(Interval i) {
-        if(i==null) return false;
-        return intersects(i.getType(),i.getLowerBound(),i.getUpperBound());
+        if (i == null) return false;
+        return intersects(i.getType(), i.getLowerBound(), i.getUpperBound());
     }
 
     @Override

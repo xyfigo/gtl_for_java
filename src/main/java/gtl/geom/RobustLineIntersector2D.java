@@ -17,6 +17,48 @@ class RobustLineIntersector2D extends LineIntersector2D {
     public RobustLineIntersector2D() {
     }
 
+    /**
+     * Finds the endpoint of the segments P and Q which
+     * is closest to the other segment.
+     * This is a reasonable surrogate for the true
+     * intersection points in ill-conditioned cases
+     * (e.g. where two segments are nearly coincident,
+     * or where the endpoint of one segment lies almost on the other segment).
+     * <p>
+     * This replaces the older CentralEndpoint heuristic,
+     * which chose the wrong endpoint in some cases
+     * where the segments had very distinct slopes
+     * and one endpoint lay almost on the other segment.
+     *
+     * @param p1 an endpoint of segment P
+     * @param p2 an endpoint of segment P
+     * @param q1 an endpoint of segment Q
+     * @param q2 an endpoint of segment Q
+     * @return the nearest endpoint to the other segment
+     */
+    private static Vertex2D nearestEndpoint(Vertex2D p1, Vertex2D p2,
+                                            Vertex2D q1, Vertex2D q2) {
+        Vertex2D nearestPt = p1;
+        double minDist = Geom2DSuits.distancePointLine(p1, q1, q2);
+
+        double dist = Geom2DSuits.distancePointLine(p2, q1, q2);
+        if (dist < minDist) {
+            minDist = dist;
+            nearestPt = p2;
+        }
+        dist = Geom2DSuits.distancePointLine(q1, p1, p2);
+        if (dist < minDist) {
+            minDist = dist;
+            nearestPt = q1;
+        }
+        dist = Geom2DSuits.distancePointLine(q2, p1, p2);
+        if (dist < minDist) {
+            minDist = dist;
+            nearestPt = q2;
+        }
+        return nearestPt;
+    }
+
     public void computeIntersection(Vertex2D p, Vertex2D p1, Vertex2D p2) {
         isProper = false;
         // do between check first, since it is faster than the orientation test
@@ -36,11 +78,11 @@ class RobustLineIntersector2D extends LineIntersector2D {
 
     protected int computeIntersect(
             Vertex2D p1, Vertex2D p2,
-            Vertex2D q1, Vertex2D q2  ) {
+            Vertex2D q1, Vertex2D q2) {
         isProper = false;
 
         // first try a fast test to see if the envelopes of the lines intersect
-        if (! Envelope2D.intersects(p1, p2, q1, q2))
+        if (!Envelope2D.intersects(p1, p2, q1, q2))
             return NO_INTERSECTION;
 
         // for each endpoint, compute which side of the other segment it lies
@@ -49,14 +91,14 @@ class RobustLineIntersector2D extends LineIntersector2D {
         int Pq1 = Geom2DSuits.orientationIndex(p1, p2, q1);
         int Pq2 = Geom2DSuits.orientationIndex(p1, p2, q2);
 
-        if ((Pq1>0 && Pq2>0) || (Pq1<0 && Pq2<0)) {
+        if ((Pq1 > 0 && Pq2 > 0) || (Pq1 < 0 && Pq2 < 0)) {
             return NO_INTERSECTION;
         }
 
         int Qp1 = Geom2DSuits.orientationIndex(q1, q2, p1);
         int Qp2 = Geom2DSuits.orientationIndex(q1, q2, p2);
 
-        if ((Qp1>0 && Qp2>0) || (Qp1<0 && Qp2<0)) {
+        if ((Qp1 > 0 && Qp2 > 0) || (Qp1 < 0 && Qp2 < 0)) {
             return NO_INTERSECTION;
         }
 
@@ -103,8 +145,7 @@ class RobustLineIntersector2D extends LineIntersector2D {
             if (p1.equals(q1)
                     || p1.equals(q2)) {
                 intPt[0] = p1;
-            }
-            else if (p2.equals(q1)
+            } else if (p2.equals(q1)
                     || p2.equals(q2)) {
                 intPt[0] = p2;
             }
@@ -114,18 +155,14 @@ class RobustLineIntersector2D extends LineIntersector2D {
              */
             else if (Pq1 == 0) {
                 intPt[0] = Geom2DSuits.createVertex2D(q1);
-            }
-            else if (Pq2 == 0) {
+            } else if (Pq2 == 0) {
                 intPt[0] = Geom2DSuits.createVertex2D(q2);
-            }
-            else if (Qp1 == 0) {
+            } else if (Qp1 == 0) {
                 intPt[0] = Geom2DSuits.createVertex2D(p1);
-            }
-            else if (Qp2 == 0) {
+            } else if (Qp2 == 0) {
                 intPt[0] = Geom2DSuits.createVertex2D(p2);
             }
-        }
-        else {
+        } else {
             isProper = true;
             intPt[0] = intersection(p1, p2, q1, q2);
         }
@@ -181,8 +218,7 @@ class RobustLineIntersector2D extends LineIntersector2D {
      * maintain more bits of precision.
      */
     private Vertex2D intersection(
-            Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2)
-    {
+            Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2) {
         Vertex2D intPt = intersectionWithNormalization(p1, p2, q1, q2);
 
 
@@ -200,7 +236,7 @@ class RobustLineIntersector2D extends LineIntersector2D {
          *
          * MD - Dec 14 2006 - This does not seem to be a failure case any longer
          */
-        if (! isInSegmentEnvelopes(intPt)) {
+        if (!isInSegmentEnvelopes(intPt)) {
 //      System.out.println("Intersection outside segment envelopes: " + intPt);
 
             // compute a safer result
@@ -215,19 +251,17 @@ class RobustLineIntersector2D extends LineIntersector2D {
     }
 
     private void checkDD(Vertex2D p1, Vertex2D p2, Vertex2D q1,
-                         Vertex2D q2, Vertex2D intPt)
-    {
+                         Vertex2D q2, Vertex2D intPt) {
         Vertex2D intPtDD = Geom2DSuits.intersection(p1, p2, q1, q2);
         boolean isIn = isInSegmentEnvelopes(intPtDD);
-        System.out.println(   "DD in env = " + isIn + "  --------------------- " + intPtDD);
+        System.out.println("DD in env = " + isIn + "  --------------------- " + intPtDD);
         if (intPt.distance(intPtDD) > 0.0001) {
             System.out.println("Distance = " + intPt.distance(intPtDD));
         }
     }
 
     private Vertex2D intersectionWithNormalization(
-            Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2)
-    {
+            Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2) {
         Vertex2D n1 = Geom2DSuits.createVertex2D(p1);
         Vertex2D n2 = Geom2DSuits.createVertex2D(p2);
         Vertex2D n3 = Geom2DSuits.createVertex2D(q1);
@@ -255,13 +289,11 @@ class RobustLineIntersector2D extends LineIntersector2D {
      * @param q2 a segment endpoint
      * @return the computed intersection point
      */
-    private Vertex2D safeHCoordinateIntersection(Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2)
-    {
+    private Vertex2D safeHCoordinateIntersection(Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2) {
         Vertex2D intPt = null;
         try {
             intPt = HCoordinate.intersection(p1, p2, q1, q2);
-        }
-        catch (NotRepresentableException e) {
+        } catch (NotRepresentableException e) {
 //    	System.out.println("Not calculable: " + this);
             // compute an approximate result
 //      intPt = CentralEndpointIntersector.getIntersection(p1, p2, q1, q2);
@@ -288,14 +320,17 @@ class RobustLineIntersector2D extends LineIntersector2D {
             Vertex2D n2,
             Vertex2D n3,
             Vertex2D n4,
-            Vertex2D normPt)
-    {
+            Vertex2D normPt) {
         normPt.x = smallestInAbsValue(n1.x, n2.x, n3.x, n4.x);
         normPt.y = smallestInAbsValue(n1.y, n2.y, n3.y, n4.y);
-        n1.x -= normPt.x;    n1.y -= normPt.y;
-        n2.x -= normPt.x;    n2.y -= normPt.y;
-        n3.x -= normPt.x;    n3.y -= normPt.y;
-        n4.x -= normPt.x;    n4.y -= normPt.y;
+        n1.x -= normPt.x;
+        n1.y -= normPt.y;
+        n2.x -= normPt.x;
+        n2.y -= normPt.y;
+        n3.x -= normPt.x;
+        n3.y -= normPt.y;
+        n4.x -= normPt.x;
+        n4.y -= normPt.y;
     }
 
     /**
@@ -314,8 +349,7 @@ class RobustLineIntersector2D extends LineIntersector2D {
             Vertex2D n01,
             Vertex2D n10,
             Vertex2D n11,
-            Vertex2D normPt)
-    {
+            Vertex2D normPt) {
         double minX0 = n00.x < n01.x ? n00.x : n01.x;
         double minY0 = n00.y < n01.y ? n00.y : n01.y;
         double maxX0 = n00.x > n01.x ? n00.x : n01.x;
@@ -347,14 +381,17 @@ class RobustLineIntersector2D extends LineIntersector2D {
     normPt.y = intMidPt.y;
     */
 
-        n00.x -= normPt.x;    n00.y -= normPt.y;
-        n01.x -= normPt.x;    n01.y -= normPt.y;
-        n10.x -= normPt.x;    n10.y -= normPt.y;
-        n11.x -= normPt.x;    n11.y -= normPt.y;
+        n00.x -= normPt.x;
+        n00.y -= normPt.y;
+        n01.x -= normPt.x;
+        n01.y -= normPt.y;
+        n10.x -= normPt.x;
+        n10.y -= normPt.y;
+        n11.x -= normPt.x;
+        n11.y -= normPt.y;
     }
 
-    private double smallestInAbsValue(double x1, double x2, double x3, double x4)
-    {
+    private double smallestInAbsValue(double x1, double x2, double x3, double x4) {
         double x = x1;
         double xabs = Math.abs(x);
         if (Math.abs(x2) < xabs) {
@@ -380,54 +417,10 @@ class RobustLineIntersector2D extends LineIntersector2D {
      *
      * @return <code>true</code> if the input point lies within both input segment envelopes
      */
-    private boolean isInSegmentEnvelopes(Vertex2D intPt)
-    {
+    private boolean isInSegmentEnvelopes(Vertex2D intPt) {
         Envelope2D env0 = new Envelope2D(inputLines[0][0], inputLines[0][1]);
         Envelope2D env1 = new Envelope2D(inputLines[1][0], inputLines[1][1]);
         return env0.contains(intPt) && env1.contains(intPt);
-    }
-
-    /**
-     * Finds the endpoint of the segments P and Q which
-     * is closest to the other segment.
-     * This is a reasonable surrogate for the true
-     * intersection points in ill-conditioned cases
-     * (e.g. where two segments are nearly coincident,
-     * or where the endpoint of one segment lies almost on the other segment).
-     * <p>
-     * This replaces the older CentralEndpoint heuristic,
-     * which chose the wrong endpoint in some cases
-     * where the segments had very distinct slopes
-     * and one endpoint lay almost on the other segment.
-     *
-     * @param p1 an endpoint of segment P
-     * @param p2 an endpoint of segment P
-     * @param q1 an endpoint of segment Q
-     * @param q2 an endpoint of segment Q
-     * @return the nearest endpoint to the other segment
-     */
-    private static Vertex2D nearestEndpoint(Vertex2D p1, Vertex2D p2,
-                                          Vertex2D q1, Vertex2D q2)
-    {
-        Vertex2D nearestPt = p1;
-        double minDist = Geom2DSuits.distancePointLine(p1, q1, q2);
-
-        double dist = Geom2DSuits.distancePointLine(p2, q1, q2);
-        if (dist < minDist) {
-            minDist = dist;
-            nearestPt = p2;
-        }
-        dist = Geom2DSuits.distancePointLine(q1, p1, p2);
-        if (dist < minDist) {
-            minDist = dist;
-            nearestPt = q1;
-        }
-        dist = Geom2DSuits.distancePointLine(q2, p1, p2);
-        if (dist < minDist) {
-            minDist = dist;
-            nearestPt = q2;
-        }
-        return nearestPt;
     }
 
 

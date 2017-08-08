@@ -15,26 +15,28 @@ import java.io.IOException;
  * then be extended indefinitely beyond either endpoint producing infinite rays in both directions.
  * When extended simultaneously beyond both ends, one gets the concept of an infinite line which
  * is how we often think of it today.
- *
+ * <p>
  * reference :http://geomalgorithms.com/a02-_lines.html
  * reference :LineSegmentShape
  */
-public class InfiniteLine implements gtl.io.Serializable, Comparable<InfiniteLine>{
+public class InfiniteLine implements gtl.io.Serializable, Comparable<InfiniteLine> {
+    private static final long serialVersionUID = 1L;
+
     Vector startPoint;
     Vector endPoint;
 
     public InfiniteLine(Vector startPoint, Vector endPoint) {
         this.startPoint = (Vector) startPoint.clone();
-        this.endPoint =(Vector)  endPoint.clone();
+        this.endPoint = (Vector) endPoint.clone();
     }
 
     public InfiniteLine(double[] startPoint, double[] endPoint) {
         reset(startPoint, endPoint);
     }
 
-    public InfiniteLine( ) {
-        this.startPoint = new VectorImpl(0.0,0.0,0.0);
-        this.endPoint =new VectorImpl(0.0,0.0,0.0);
+    public InfiniteLine() {
+        this.startPoint = new VectorImpl(0.0, 0.0, 0.0);
+        this.endPoint = new VectorImpl(0.0, 0.0, 0.0);
     }
 
     /**
@@ -106,24 +108,24 @@ public class InfiniteLine implements gtl.io.Serializable, Comparable<InfiniteLin
 
     @Override
     public Object clone() {
-        return new InfiniteLine(this.startPoint,this.endPoint);
+        return new InfiniteLine(this.startPoint, this.endPoint);
     }
 
     public void reset(Vector s, Vector e) {
         this.startPoint = (Vector) startPoint.clone();
-        this.endPoint =(Vector)  endPoint.clone();
+        this.endPoint = (Vector) endPoint.clone();
     }
 
     public void reset(double[] s, double[] e) {
         this.startPoint = new VectorImpl(s);
-        this.endPoint =new VectorImpl(e);
+        this.endPoint = new VectorImpl(e);
     }
 
     @Override
     public void copyFrom(Object i) {
-        if(i == null) return;
-        if(i instanceof InfiniteLine){
-            this.reset(((InfiniteLine)i).getStartPoint(),((InfiniteLine)i).getEndPoint());
+        if (i == null) return;
+        if (i instanceof InfiniteLine) {
+            this.reset(((InfiniteLine) i).getStartPoint(), ((InfiniteLine) i).getEndPoint());
         }
     }
 
@@ -151,7 +153,7 @@ public class InfiniteLine implements gtl.io.Serializable, Comparable<InfiniteLin
 
     @Override
     public long getByteArraySize() {
-        return this.startPoint.getByteArraySize()+this.endPoint.getByteArraySize();
+        return this.startPoint.getByteArraySize() + this.endPoint.getByteArraySize();
     }
 
     @Override
@@ -162,18 +164,18 @@ public class InfiniteLine implements gtl.io.Serializable, Comparable<InfiniteLin
     /**
      * 测试2D平面(XOY)上点与线的位置关系
      * 如果是3D空间，则只有在线上或不在线上
+     *
      * @param v 待测试的点
-     * @return
-     *      如果是2D空间，则
-     *          0- 点在线上，也即是三点共线
-     *          -1- 点在线的左边
-     *          1 - 点在线的右边
+     * @return 如果是2D空间，则
+     * 0- 点在线上，也即是三点共线
+     * -1- 点在线的左边
+     * 1 - 点在线的右边
      * 如果是3D空间，则
-     *          0- 点在线上，也即是三点共线
-     *          -1，1都表示在线外
+     * 0- 点在线上，也即是三点共线
+     * -1，1都表示在线外
      */
     public int test(Vector v) {
-        if(v.getDimension()==2){
+        if (v.getDimension() == 2) {
             return InfiniteLine.test2D(v, startPoint, endPoint);
         } else {
             return InfiniteLine.test3D(v, startPoint, endPoint);
@@ -182,6 +184,7 @@ public class InfiniteLine implements gtl.io.Serializable, Comparable<InfiniteLin
 
     /**
      * 投影到XOY的2D平面上
+     *
      * @return
      */
     public InfiniteLine flap() {

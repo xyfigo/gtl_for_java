@@ -6,6 +6,7 @@ import gtl.geom.*;
  * Created by ZhenwenHe on 2017/3/27.
  */
 public class IsoscelesRightTriangleShape extends IsoscelesRightTriangle implements Shape {
+    private static final long serialVersionUID = 1L;
 
     public IsoscelesRightTriangleShape(Vector v0, Vector v1, Vector v2) {
         super(v0, v1, v2);

@@ -3,6 +3,7 @@ package gtl.exception;
 /**
  * Created by hadoop on 17-3-20.
  */
+
 /**
  * Indicates that a {@link HCoordinate} has been computed which is
  * not representable on the Cartesian plane.

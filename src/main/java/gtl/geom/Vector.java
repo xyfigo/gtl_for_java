@@ -14,8 +14,10 @@ public interface Vector extends Serializable {
     public static final double NULL_ORDINATE = Double.NaN;
 
     double[] getCoordinates();
+
     double getOrdinate(int i);
-    void setOrdinate(int i,double d);
+
+    void setOrdinate(int i, double d);
 
     int getDimension();
 
@@ -32,21 +34,31 @@ public interface Vector extends Serializable {
     void setZ(double z);
 
     void makeInfinite(int dimension);
+
     void makeDimension(int dimension);
 
-    void reset(double [] coordinates);
+    void reset(double[] coordinates);
 
     double normalize();// return the original vector length
-    double dotProduct(Vector v);
-    Vector crossProduct(Vector b);// this X  b
-    double length();
-    double angle(Vector a , Vector b);
 
-    Vector subtract  (Vector b);//this - b;
+    double dotProduct(Vector v);
+
+    Vector crossProduct(Vector b);// this X  b
+
+    double length();
+
+    double angle(Vector a, Vector b);
+
+    Vector subtract(Vector b);//this - b;
+
     Vector add(Vector b);//this + b;
+
     Vector multiply(Scalar s);
+
     Vector multiply(double s);
+
     Vector divide(Scalar s);
+
     Vector divide(double s);
 
     //ignore Z;

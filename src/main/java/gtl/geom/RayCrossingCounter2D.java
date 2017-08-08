@@ -28,24 +28,30 @@ package gtl.geom;
  * do not need to be counted.  This allows for optimization by indexing.
  *
  * @author Martin Davis
- *
  */
 class RayCrossingCounter2D {
+    private Vertex2D p;
+    private int crossingCount = 0;
+    // true if the test point lies on an input segment
+    private boolean isPointOnSegment = false;
+    public RayCrossingCounter2D(Vertex2D p) {
+        this.p = p;
+    }
+
     /**
      * Determines the {@link Location} of a point in a ring.
      * This method is an exemplar of how to use this class.
      *
-     * @param p the point to test
+     * @param p    the point to test
      * @param ring an array of Coordinates forming a ring
      * @return the location of the point in the ring
      */
-    public static int locatePointInRing(Vertex2D p, Vertex2D[] ring)
-    {
+    public static int locatePointInRing(Vertex2D p, Vertex2D[] ring) {
         RayCrossingCounter2D counter = new RayCrossingCounter2D(p);
 
         for (int i = 1; i < ring.length; i++) {
             Vertex2D p1 = ring[i];
-            Vertex2D p2 = ring[i-1];
+            Vertex2D p2 = ring[i - 1];
             counter.countSegment(p1, p2);
             if (counter.isOnSegment())
                 return counter.getLocation();
@@ -56,17 +62,15 @@ class RayCrossingCounter2D {
     /**
      * Determines the {@link Location} of a point in a ring.
      *
-     * @param p
-     *            the point to test
-     * @param ring
-     *            a coordinate sequence forming a ring
+     * @param p    the point to test
+     * @param ring a coordinate sequence forming a ring
      * @return the location of the point in the ring
      */
     public static int locatePointInRing(Vertex2D p, VertexSequence ring) {
         RayCrossingCounter2D counter = new RayCrossingCounter2D(p);
 
-        Vertex2D p1 = Geom2DSuits.createVertex2D(0.0,0.0);
-        Vertex2D p2 = Geom2DSuits.createVertex2D(0.0,0.0);
+        Vertex2D p1 = Geom2DSuits.createVertex2D(0.0, 0.0);
+        Vertex2D p2 = Geom2DSuits.createVertex2D(0.0, 0.0);
         for (int i = 1; i < ring.size(); i++) {
             ring.getCoordinate(i, p1);
             ring.getCoordinate(i - 1, p2);
@@ -75,16 +79,6 @@ class RayCrossingCounter2D {
                 return counter.getLocation();
         }
         return counter.getLocation();
-    }
-
-    private Vertex2D p;
-    private int crossingCount = 0;
-    // true if the test point lies on an input segment
-    private boolean isPointOnSegment = false;
-
-    public RayCrossingCounter2D(Vertex2D p)
-    {
-        this.p = p;
     }
 
     /**
@@ -177,7 +171,9 @@ class RayCrossingCounter2D {
      *
      * @return true if the point lies exactly on a segment
      */
-    public boolean isOnSegment() { return isPointOnSegment; }
+    public boolean isOnSegment() {
+        return isPointOnSegment;
+    }
 
     /**
      * Gets the {@link Location} of the point relative to
@@ -189,8 +185,7 @@ class RayCrossingCounter2D {
      *
      * @return the Location of the point
      */
-    public int getLocation()
-    {
+    public int getLocation() {
         if (isPointOnSegment)
             return Location.BOUNDARY;
 
@@ -212,8 +207,7 @@ class RayCrossingCounter2D {
      *
      * @return true if the point lies in or on the supplied polygon
      */
-    public boolean isPointInPolygon()
-    {
+    public boolean isPointInPolygon() {
         return getLocation() != Location.EXTERIOR;
     }
 }

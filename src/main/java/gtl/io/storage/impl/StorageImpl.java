@@ -8,16 +8,22 @@ import java.io.IOException;
 /**
  * Created by ZhenwenHe on 2017/3/15.
  */
-public class StorageImpl {
-    public static BufferedStorageManager createBufferedStorageManager(StorageManager storageManager, int capacity, boolean writeThrough){
-        return new BufferedStorageManagerImpl(storageManager,  capacity,  writeThrough);
+public class StorageImpl implements java.io.Serializable{
+    private static final long serialVersionUID = 1L;
+
+    public static BufferedStorageManager createBufferedStorageManager(StorageManager storageManager, int capacity, boolean writeThrough) {
+        return new BufferedStorageManagerImpl(storageManager, capacity, writeThrough);
     }
 
-    public static StorageManager createMemoryStorageManager() throws IOException{
+    public static StorageManager createMemoryStorageManager() throws IOException {
         return new MemoryStorageManager();
     }
 
     public static StorageManager createDiskStorageManager(String baseName, int pageSize, boolean overWrite) throws IOException {
-        return new DiskStorageManager(baseName,pageSize,overWrite);
+        return new DiskStorageManager(baseName, pageSize, overWrite);
+    }
+
+    public static StorageManager createHdfsStorageManager(String baseName, int pageSize, boolean overWrite) throws IOException {
+        return new DiskStorageManager(baseName, pageSize, overWrite);
     }
 }

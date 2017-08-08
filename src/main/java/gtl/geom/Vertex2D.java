@@ -5,12 +5,13 @@ import gtl.math.MathSuits;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Comparator;
 
 /**
  * Created by hadoop on 17-3-24.
  */
-public class Vertex2D implements gtl.io.Serializable, Comparable<Vertex2D>{
+public class Vertex2D implements gtl.io.Serializable, Comparable<Vertex2D> {
+    private static final long serialVersionUID = 1L;
+
     /**
      * The value used to indicate a null or missing ordinate value.
      * In particular, used for the value of ordinates for dimensions
@@ -22,14 +23,14 @@ public class Vertex2D implements gtl.io.Serializable, Comparable<Vertex2D>{
      * Standard ordinate index values
      */
     public static final int X = 0;
-    public static final int Y = 1; 
+    public static final int Y = 1;
 
     /**
-     *  The x-coordinate.
+     * The x-coordinate.
      */
     public double x;
     /**
-     *  The y-coordinate.
+     * The y-coordinate.
      */
     public double y;
 
@@ -49,34 +50,46 @@ public class Vertex2D implements gtl.io.Serializable, Comparable<Vertex2D>{
         this.y = c.y;
     }
 
-
+    /**
+     * The "perp dot product"  for  and  vectors in the plane is a modification of the two-dimensional dot product
+     * in which  is replaced by the perpendicular vector rotated  to the left defined by Hill (1994).
+     * It satisfies the identities where  is the angle from vector  to vector .
+     *
+     * @param u
+     * @param v
+     * @return ref:http://mathworld.wolfram.com/PerpDotProduct.html
+     */
+    public static double perpProduct(Vertex2D u, Vertex2D v) {
+        return ((u).x * (v).y - (u).y * (v).x);
+    }
 
     @Override
     public Object clone() {
-        return (Object)new Vertex2D(this.x,this.y);
+        return (Object) new Vertex2D(this.x, this.y);
     }
 
     /**
-     *  Sets this <code>Vertex</code>s (x,y,z) values to that of <code>other</code>.
+     * Sets this <code>Vertex</code>s (x,y,z) values to that of <code>other</code>.
      *
-     *@param  other  the <code>Vertex</code> to copy
+     * @param other the <code>Vertex</code> to copy
      */
     public void setCoordinate(Vertex2D other) {
-        Vertex2D c= (Vertex2D) other;
+        Vertex2D c = (Vertex2D) other;
         x = c.x;
         y = c.y;
     }
 
     public double getOrdinate(int ordinateIndex) {
         switch (ordinateIndex) {
-            case X: return x;
-            case Y: return y;
+            case X:
+                return x;
+            case Y:
+                return y;
         }
         throw new IllegalArgumentException("Invalid ordinate index: " + ordinateIndex);
     }
 
-    public void setOrdinate(int ordinateIndex, double value)
-    {
+    public void setOrdinate(int ordinateIndex, double value) {
         switch (ordinateIndex) {
             case X:
                 x = value;
@@ -89,11 +102,11 @@ public class Vertex2D implements gtl.io.Serializable, Comparable<Vertex2D>{
         }
     }
 
-    public boolean equals(Vertex2D c, double tolerance){
-        if (! MathSuits.equalsWithTolerance(this.x, c.getOrdinate(X), tolerance)) {
+    public boolean equals(Vertex2D c, double tolerance) {
+        if (!MathSuits.equalsWithTolerance(this.x, c.getOrdinate(X), tolerance)) {
             return false;
         }
-        if (! MathSuits.equalsWithTolerance(this.y, c.getOrdinate(Y), tolerance)) {
+        if (!MathSuits.equalsWithTolerance(this.y, c.getOrdinate(Y), tolerance)) {
             return false;
         }
         return true;
@@ -107,17 +120,17 @@ public class Vertex2D implements gtl.io.Serializable, Comparable<Vertex2D>{
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof Vertex){
-            Vertex c = (Vertex)i;
-            this.x=c.getOrdinate(X);
-            this.y=c.getOrdinate(Y);
+        if (i instanceof Vertex) {
+            Vertex c = (Vertex) i;
+            this.x = c.getOrdinate(X);
+            this.y = c.getOrdinate(Y);
         }
     }
 
     @Override
     public boolean load(DataInput in) throws IOException {
-        this.x=in.readDouble();
-        this.y=in.readDouble();
+        this.x = in.readDouble();
+        this.y = in.readDouble();
         return true;
     }
 
@@ -170,18 +183,5 @@ public class Vertex2D implements gtl.io.Serializable, Comparable<Vertex2D>{
                 "x=" + x +
                 ", y=" + y +
                 '}';
-    }
-
-    /**
-     * The "perp dot product"  for  and  vectors in the plane is a modification of the two-dimensional dot product
-     * in which  is replaced by the perpendicular vector rotated  to the left defined by Hill (1994).
-     * It satisfies the identities where  is the angle from vector  to vector .
-     * @param u
-     * @param v
-     * @return
-     * ref:http://mathworld.wolfram.com/PerpDotProduct.html
-     */
-    public static double perpProduct(Vertex2D u, Vertex2D v) {
-        return ((u).x * (v).y - (u).y * (v).x);
     }
 }

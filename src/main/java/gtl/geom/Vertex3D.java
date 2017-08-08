@@ -5,12 +5,13 @@ import gtl.math.MathSuits;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Comparator;
 
 /**
  * Created by hadoop on 17-3-24.
  */
-public class Vertex3D  implements gtl.io.Serializable,Comparable<Vertex3D>{
+public class Vertex3D implements gtl.io.Serializable, Comparable<Vertex3D> {
+    private static final long serialVersionUID = 1L;
+
 
     /**
      * The value used to indicate a null or missing ordinate value.
@@ -27,24 +28,24 @@ public class Vertex3D  implements gtl.io.Serializable,Comparable<Vertex3D>{
     public static final int Z = 2;
 
     /**
-     *  The x-coordinate.
+     * The x-coordinate.
      */
     public double x;
     /**
-     *  The y-coordinate.
+     * The y-coordinate.
      */
     public double y;
     /**
-     *  The z-coordinate.
+     * The z-coordinate.
      */
     public double z;
 
     /**
-     *  Constructs a <code>Vertex</code> at (x,y,z).
+     * Constructs a <code>Vertex</code> at (x,y,z).
      *
-     *@param  x  the x-value
-     *@param  y  the y-value
-     *@param  z  the z-value
+     * @param x the x-value
+     * @param y the y-value
+     * @param z the z-value
      */
     public Vertex3D(double x, double y, double z) {
         this.x = x;
@@ -53,26 +54,25 @@ public class Vertex3D  implements gtl.io.Serializable,Comparable<Vertex3D>{
     }
 
     /**
-     *  Constructs a <code>Vertex</code> at (0,0,NaN).
+     * Constructs a <code>Vertex</code> at (0,0,NaN).
      */
     public Vertex3D() {
-        this(0.0, 0.0,0.0);
+        this(0.0, 0.0, 0.0);
     }
 
     /**
-     *  Constructs a <code>Vertex</code> having the same (x,y,z) values as
-     *  <code>other</code>.
+     * Constructs a <code>Vertex</code> having the same (x,y,z) values as
+     * <code>other</code>.
      *
-     *@param  c  the <code>Vertex</code> to copy.
+     * @param c the <code>Vertex</code> to copy.
      */
     public Vertex3D(Vertex3D c) {
         this(c.x, c.y, c.z);
     }
 
 
-
     public Object clone() {
-        return (Object)new Vertex3D(this.x,this.y,this.z);
+        return (Object) new Vertex3D(this.x, this.y, this.z);
     }
 
     public void setCoordinate(Vertex c) {
@@ -82,23 +82,24 @@ public class Vertex3D  implements gtl.io.Serializable,Comparable<Vertex3D>{
     }
 
     public void setCoordinate(Vector other) {
-        x=other.getX();
-        y=other.getY();
-        z=other.getZ();
+        x = other.getX();
+        y = other.getY();
+        z = other.getZ();
     }
 
-    public double getOrdinate(int ordinateIndex)
-    {
+    public double getOrdinate(int ordinateIndex) {
         switch (ordinateIndex) {
-            case X: return x;
-            case Y: return y;
-            case Z: return z;
+            case X:
+                return x;
+            case Y:
+                return y;
+            case Z:
+                return z;
         }
         throw new IllegalArgumentException("Invalid ordinate index: " + ordinateIndex);
     }
 
-    public void setOrdinate(int ordinateIndex, double value)
-    {
+    public void setOrdinate(int ordinateIndex, double value) {
         switch (ordinateIndex) {
             case X:
                 x = value;
@@ -115,7 +116,7 @@ public class Vertex3D  implements gtl.io.Serializable,Comparable<Vertex3D>{
     }
 
     public boolean equals2D(Vertex3D other) {
-        Vertex3D c= (Vertex3D) other;
+        Vertex3D c = (Vertex3D) other;
         if (x != c.x) {
             return false;
         }
@@ -125,11 +126,11 @@ public class Vertex3D  implements gtl.io.Serializable,Comparable<Vertex3D>{
         return true;
     }
 
-    public boolean equals2D(Vertex3D c, double tolerance){
-        if (! MathSuits.equalsWithTolerance(this.x, c.getOrdinate(X), tolerance)) {
+    public boolean equals2D(Vertex3D c, double tolerance) {
+        if (!MathSuits.equalsWithTolerance(this.x, c.getOrdinate(X), tolerance)) {
             return false;
         }
-        if (! MathSuits.equalsWithTolerance(this.y, c.getOrdinate(Y), tolerance)) {
+        if (!MathSuits.equalsWithTolerance(this.y, c.getOrdinate(Y), tolerance)) {
             return false;
         }
         return true;
@@ -143,22 +144,21 @@ public class Vertex3D  implements gtl.io.Serializable,Comparable<Vertex3D>{
     }
 
 
-
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof Vertex){
-            Vertex c = (Vertex)i;
-            this.x=c.getOrdinate(X);
-            this.y=c.getOrdinate(Y);
-            this.z=c.getOrdinate(Z);
+        if (i instanceof Vertex) {
+            Vertex c = (Vertex) i;
+            this.x = c.getOrdinate(X);
+            this.y = c.getOrdinate(Y);
+            this.z = c.getOrdinate(Z);
         }
     }
 
     @Override
     public boolean load(DataInput in) throws IOException {
-        this.x=in.readDouble();
-        this.y=in.readDouble();
-        this.z=in.readDouble();
+        this.x = in.readDouble();
+        this.y = in.readDouble();
+        this.z = in.readDouble();
         return true;
     }
 

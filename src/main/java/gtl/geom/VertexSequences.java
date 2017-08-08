@@ -10,8 +10,7 @@ class VertexSequences {
     /**
      * Reverses the coordinates in a sequence in-place.
      */
-    public static void reverse(VertexSequence seq)
-    {
+    public static void reverse(VertexSequence seq) {
         int last = seq.size() - 1;
         int mid = last / 2;
         for (int i = 0; i <= mid; i++) {
@@ -23,11 +22,10 @@ class VertexSequences {
      * Swaps two coordinates in a sequence.
      *
      * @param seq the sequence to modify
-     * @param i the index of a coordinate to swap
-     * @param j the index of a coordinate to swap
+     * @param i   the index of a coordinate to swap
+     * @param j   the index of a coordinate to swap
      */
-    public static void swap(VertexSequence seq, int i, int j)
-    {
+    public static void swap(VertexSequence seq, int i, int j) {
         if (i == j) return;
         for (int dim = 0; dim < seq.getDimension(); dim++) {
             double tmp = seq.getOrdinate(i, dim);
@@ -41,14 +39,13 @@ class VertexSequences {
      * The sequences may have different dimensions;
      * in this case only the common dimensions are copied.
      *
-     * @param src the sequence to copy from
-     * @param srcPos the position in the source sequence to start copying at
-     * @param dest the sequence to copy to
+     * @param src     the sequence to copy from
+     * @param srcPos  the position in the source sequence to start copying at
+     * @param dest    the sequence to copy to
      * @param destPos the position in the destination sequence to copy to
-     * @param length the number of coordinates to copy
+     * @param length  the number of coordinates to copy
      */
-    public static void copy(VertexSequence src, int srcPos, VertexSequence dest, int destPos, int length)
-    {
+    public static void copy(VertexSequence src, int srcPos, VertexSequence dest, int destPos, int length) {
         for (int i = 0; i < length; i++) {
             copyCoord(src, srcPos + i, dest, destPos + i);
         }
@@ -59,13 +56,12 @@ class VertexSequences {
      * The sequences may have different dimensions;
      * in this case only the common dimensions are copied.
      *
-     * @param src the sequence to copy from
-     * @param srcPos the source coordinate to copy
-     * @param dest the sequence to copy to
+     * @param src     the sequence to copy from
+     * @param srcPos  the source coordinate to copy
+     * @param dest    the sequence to copy to
      * @param destPos the destination coordinate to copy to
      */
-    public static void copyCoord(VertexSequence src, int srcPos, VertexSequence dest, int destPos)
-    {
+    public static void copyCoord(VertexSequence src, int srcPos, VertexSequence dest, int destPos) {
         int minDim = Math.min(src.getDimension(), dest.getDimension());
         for (int dim = 0; dim < minDim; dim++) {
             dest.setOrdinate(destPos, dim, src.getOrdinate(srcPos, dim));
@@ -82,16 +78,15 @@ class VertexSequences {
      * @return true if the sequence is a ring
      * @see LinearRing
      */
-    public static boolean isRing(VertexSequence seq)
-    {
+    public static boolean isRing(VertexSequence seq) {
         int n = seq.size();
         if (n == 0) return true;
         // too few points
         if (n <= 3)
             return false;
         // test if closed
-        return seq.getOrdinate(0, VertexSequence.X) == seq.getOrdinate(n-1, VertexSequence.X)
-                && seq.getOrdinate(0, VertexSequence.Y) == seq.getOrdinate(n-1, VertexSequence.Y);
+        return seq.getOrdinate(0, VertexSequence.X) == seq.getOrdinate(n - 1, VertexSequence.X)
+                && seq.getOrdinate(0, VertexSequence.Y) == seq.getOrdinate(n - 1, VertexSequence.Y);
     }
 
     /**
@@ -105,8 +100,7 @@ class VertexSequences {
      * @param seq the sequence to test
      * @return the original sequence, if it was a valid ring, or a new sequence which is valid.
      */
-    public static VertexSequence ensureValidRing(VertexSequence seq)
-    {
+    public static VertexSequence ensureValidRing(VertexSequence seq) {
         int n = seq.size();
         // empty sequence is valid
         if (n == 0) return seq;
@@ -114,15 +108,14 @@ class VertexSequences {
         if (n <= 3)
             return createClosedRing(seq, 4);
 
-        boolean isClosed = seq.getOrdinate(0, VertexSequence.X) == seq.getOrdinate(n-1, VertexSequence.X)
-                && seq.getOrdinate(0, VertexSequence.Y) == seq.getOrdinate(n-1, VertexSequence.Y);
+        boolean isClosed = seq.getOrdinate(0, VertexSequence.X) == seq.getOrdinate(n - 1, VertexSequence.X)
+                && seq.getOrdinate(0, VertexSequence.Y) == seq.getOrdinate(n - 1, VertexSequence.Y);
         if (isClosed) return seq;
         // make a new closed ring
-        return createClosedRing( seq, n+1);
+        return createClosedRing(seq, n + 1);
     }
 
-    private static VertexSequence createClosedRing(VertexSequence seq, int size)
-    {
+    private static VertexSequence createClosedRing(VertexSequence seq, int size) {
         VertexSequence newseq = new PackedVertexSequence(size, seq.getDimension());
         int n = seq.size();
         copy(seq, 0, newseq, 0, n);
@@ -132,15 +125,14 @@ class VertexSequences {
         return newseq;
     }
 
-    public static VertexSequence extend(VertexSequence seq, int size)
-    {
+    public static VertexSequence extend(VertexSequence seq, int size) {
         VertexSequence newseq = new PackedVertexSequence(size, seq.getDimension());
         int n = seq.size();
         copy(seq, 0, newseq, 0, n);
         // fill remaining coordinates with end point, if it exists
         if (n > 0) {
             for (int i = n; i < size; i++)
-                copy(seq, n-1, newseq, i, 1);
+                copy(seq, n - 1, newseq, i, 1);
         }
         return newseq;
     }
@@ -187,8 +179,7 @@ class VertexSequences {
      * @param cs the sequence to output
      * @return the string representation of the sequence
      */
-    public static String toString(VertexSequence cs)
-    {
+    public static String toString(VertexSequence cs) {
         int size = cs.size();
         if (size == 0)
             return "()";

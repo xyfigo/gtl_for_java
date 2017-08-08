@@ -7,13 +7,15 @@ import java.io.IOException;
 /**
  * Created by hadoop on 17-3-27.
  */
-public class Track implements gtl.io.Serializable , Comparable<Track>{
+public class Track implements gtl.io.Serializable, Comparable<Track> {
+    private static final long serialVersionUID = 1L;
+
     Vector origin;
     Vector velocity;
 
-    public Track(Vector origin,Vector velocity) {
-        this.origin =(Vector) origin.clone();
-        this.velocity =(Vector) velocity.clone();
+    public Track(Vector origin, Vector velocity) {
+        this.origin = (Vector) origin.clone();
+        this.velocity = (Vector) velocity.clone();
     }
 
     public Vector getOrigin() {
@@ -21,7 +23,7 @@ public class Track implements gtl.io.Serializable , Comparable<Track>{
     }
 
     public void setOrigin(Vector origin) {
-        this.origin =(Vector) origin.clone();
+        this.origin = (Vector) origin.clone();
     }
 
     public Vector getVelocity() {
@@ -29,7 +31,7 @@ public class Track implements gtl.io.Serializable , Comparable<Track>{
     }
 
     public void setVelocity(Vector velocity) {
-        this.velocity =(Vector) velocity.clone();
+        this.velocity = (Vector) velocity.clone();
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.io.IOException;
  * Created by ZhenwenHe on 2016/12/8.
  */
 public interface BufferedStorageManager extends StorageManager {
-    long getHits() ;
+    long getHits();
+
     void clear() throws IOException;
 }

@@ -1,18 +1,22 @@
 package gtl.index.rtree.impl;
+
 import gtl.common.CommonSuits;
+import gtl.common.Identifier;
+import gtl.index.Entry;
+import gtl.index.Node;
+import gtl.index.EntryImpl;
 import gtl.index.shape.RegionShape;
 import gtl.math.MathSuits;
-import gtl.index.Entry;
-import gtl.common.Identifier;
-import gtl.index.Node;
-import gtl.index.impl.EntryImpl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Stack;
 
 /**
  * Created by ZhenwenHe on 2017/2/13.
  */
-public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
+public class RTreeInternalNodeImpl extends RTreeNodeImpl {
     public RTreeInternalNodeImpl(RTreeImpl tree, Identifier identifier, int level) {
         super(tree, identifier, level, tree.indexCapacity);
         setType(1);
@@ -32,7 +36,7 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
 
     @Override
     protected Node chooseSubtree(RegionShape mbr, int insertionLevel, Stack<Identifier> pathBuffer) {
-        int level= getLevel();
+        int level = getLevel();
         if (level == insertionLevel)
             return this;
 
@@ -40,8 +44,7 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
 
         int child = 0;
 
-        switch (tree.treeVariant)
-        {
+        switch (tree.treeVariant) {
             case RV_LINEAR:
             case RV_QUADRATIC:
                 child = findLeastEnlargement(mbr);
@@ -50,8 +53,7 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
                 if (level == 1) {
                     // if this node points to leaves...
                     child = findLeastOverlap(mbr);
-                }
-                else{
+                } else {
                     child = findLeastEnlargement(mbr);
                 }
                 break;
@@ -61,21 +63,21 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
         assert (child != Integer.MAX_VALUE);
 
         Node n = tree.readNode(getChildIdentifier(child));
-        Node ret = ((RTreeNodeImpl)n).chooseSubtree(mbr, insertionLevel, pathBuffer);
+        Node ret = ((RTreeNodeImpl) n).chooseSubtree(mbr, insertionLevel, pathBuffer);
         return ret;
     }
 
     @Override
     protected Node findLeaf(RegionShape mbr, Identifier id, Stack<Identifier> pathBuffer) {
-        int children=getChildrenCount();
-        RegionShape r =null;
+        int children = getChildrenCount();
+        RegionShape r = null;
         pathBuffer.push(getIdentifier());
 
         for (int cChild = 0; cChild < children; ++cChild) {
-            r = (RegionShape)getChildShape(cChild);
+            r = (RegionShape) getChildShape(cChild);
             if (r.containsRegion(mbr)) {
                 Node n = tree.readNode(getChildIdentifier(cChild));
-                Node l = ((RTreeNodeImpl)n).findLeaf(mbr, id, pathBuffer);
+                Node l = ((RTreeNodeImpl) n).findLeaf(mbr, id, pathBuffer);
                 //if (n.get() == l.get()) n.relinquish();
                 if (l != null) return l;
             }
@@ -91,11 +93,10 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
 
         tree.stats.increaseSplitTimes();
 
-        ArrayList<Integer> g1=new ArrayList<>();
-        ArrayList<Integer> g2=new ArrayList<>();
+        ArrayList<Integer> g1 = new ArrayList<>();
+        ArrayList<Integer> g2 = new ArrayList<>();
 
-        switch (tree.treeVariant)
-        {
+        switch (tree.treeVariant) {
             case RV_LINEAR:
             case RV_QUADRATIC:
                 rtreeSplit(e, g1, g2);
@@ -107,7 +108,7 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
                 return null;
         }
 
-        Node ptrLeft =  new RTreeInternalNodeImpl(tree, getIdentifier(), getLevel());
+        Node ptrLeft = new RTreeInternalNodeImpl(tree, getIdentifier(), getLevel());
         Node ptrRight = new RTreeInternalNodeImpl(tree, CommonSuits.createIdentifier(-1L), getLevel());
 
         ptrLeft.setShape(tree.infiniteRegionShape);
@@ -117,24 +118,24 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
 
         Entry te = null;
         for (cIndex = 0; cIndex < g1.size(); ++cIndex) {
-            te=new EntryImpl(getChildIdentifier(g1.get(cIndex)),getChildShape(g1.get(cIndex)),null);
+            te = new EntryImpl(getChildIdentifier(g1.get(cIndex)), getChildShape(g1.get(cIndex)), null);
             ptrLeft.insertEntry(te);
         }
 
         for (cIndex = 0; cIndex < g2.size(); ++cIndex) {
-            te=new EntryImpl(getChildIdentifier(g2.get(cIndex)),getChildShape(g2.get(cIndex)),null);
+            te = new EntryImpl(getChildIdentifier(g2.get(cIndex)), getChildShape(g2.get(cIndex)), null);
             ptrRight.insertEntry(te);
         }
 
-        Node [] retNodes= new Node [2];
-        retNodes[0]=ptrLeft;
-        retNodes[1]=ptrRight;
+        Node[] retNodes = new Node[2];
+        retNodes[0] = ptrLeft;
+        retNodes[1] = ptrRight;
         return retNodes;
     }
 
-    public void adjustTree(Node n, Stack<Identifier> pathBuffer){
+    public void adjustTree(Node n, Stack<Identifier> pathBuffer) {
         tree.stats.increaseAdjustments();
-        int children =getChildrenCount();
+        int children = getChildrenCount();
         // find entry pointing to old node;
         int child;
         for (child = 0; child < children; ++child) {
@@ -144,14 +145,14 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
         // MBR needs recalculation if either:
         //   1. the NEW child MBR is not contained.
         //   2. the OLD child MBR is touching.
-        RegionShape r =(RegionShape)getShape();
-        RegionShape nr =(RegionShape) n.getShape();
-        RegionShape cr=(RegionShape) getChildShape(child);
+        RegionShape r = (RegionShape) getShape();
+        RegionShape nr = (RegionShape) n.getShape();
+        RegionShape cr = (RegionShape) getChildShape(child);
         boolean bContained = r.containsRegion(nr);
         boolean bTouches = r.touchesRegion(cr);
-        boolean bRecompute = (! bContained || (bTouches && tree.tightMBRs));
+        boolean bRecompute = (!bContained || (bTouches && tree.tightMBRs));
 
-	    //*(m_ptrMBR[child]) = n->m_nodeMBR;
+        //*(m_ptrMBR[child]) = n->m_nodeMBR;
         cr.copyFrom(nr);
 
         if (bRecompute) {
@@ -160,32 +161,33 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
 
         tree.writeNode(this);
 
-        if (bRecompute && (! pathBuffer.empty())) {
-            Identifier cParent =  pathBuffer.pop();
+        if (bRecompute && (!pathBuffer.empty())) {
+            Identifier cParent = pathBuffer.pop();
             Node ptrN = tree.readNode(cParent);
-            RTreeInternalNodeImpl p = (RTreeInternalNodeImpl)(ptrN);
+            RTreeInternalNodeImpl p = (RTreeInternalNodeImpl) (ptrN);
             p.adjustTree(this, pathBuffer);
         }
 
     }
-    public void adjustTree(Node n1, Node n2, Stack<Identifier> pathBuffer, byte[] overflowTable){
+
+    public void adjustTree(Node n1, Node n2, Stack<Identifier> pathBuffer, byte[] overflowTable) {
         tree.stats.increaseAdjustments();
-        int children =getChildrenCount();
+        int children = getChildrenCount();
         // find entry pointing to old node;
         int child;
         for (child = 0; child < children; ++child) {
             if (n1.getIdentifier().equals(getChildIdentifier(child))) break;
         }
-        RegionShape r = (RegionShape)getShape();
-        RegionShape r1= (RegionShape)n1.getShape();
-        RegionShape r2=(RegionShape)n2.getShape();
-        RegionShape cr =(RegionShape)getChildShape(child);
+        RegionShape r = (RegionShape) getShape();
+        RegionShape r1 = (RegionShape) n1.getShape();
+        RegionShape r2 = (RegionShape) n2.getShape();
+        RegionShape cr = (RegionShape) getChildShape(child);
         // MBR needs recalculation if either:
         //   1. the NEW child MBR is not contained.
         //   2. the OLD child MBR is touching.
         boolean bContained = r.containsRegion(r1);
         boolean bTouches = r.touchesRegion(cr);
-        boolean bRecompute = (! bContained || (bTouches && tree.tightMBRs));
+        boolean bRecompute = (!bContained || (bTouches && tree.tightMBRs));
 
         //*(m_ptrMBR[child]) = n1->m_nodeMBR;
         cr.copyFrom(r1);
@@ -196,16 +198,16 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
 
         // No write necessary here. insertData will write the node if needed.
         //tree.writeNode(this);
-        Entry e = new EntryImpl(n2.getIdentifier(),n2.getShape(),null);
+        Entry e = new EntryImpl(n2.getIdentifier(), n2.getShape(), null);
         boolean bAdjusted = insertData(e, pathBuffer, overflowTable);
 
         // if n2 is contained in the node and there was no split or reinsert,
         // we need to adjust only if recalculation took place.
         // In all other cases insertData above took care of adjustment.
-        if ((! bAdjusted) && bRecompute && (! pathBuffer.empty())) {
-            Identifier cParent =  pathBuffer.pop();
+        if ((!bAdjusted) && bRecompute && (!pathBuffer.empty())) {
+            Identifier cParent = pathBuffer.pop();
             Node ptrN = tree.readNode(cParent);
-            RTreeInternalNodeImpl p = (RTreeInternalNodeImpl)ptrN;
+            RTreeInternalNodeImpl p = (RTreeInternalNodeImpl) ptrN;
             p.adjustTree(this, pathBuffer);
         }
     }
@@ -214,12 +216,12 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
 
         double area = Double.MAX_VALUE;
         int best = Integer.MAX_VALUE;
-        int children=getChildrenCount();
+        int children = getChildrenCount();
         RegionShape t = null;
-        RegionShape cr=null;
+        RegionShape cr = null;
         for (int cChild = 0; cChild < children; ++cChild) {
             cr = (RegionShape) getChildShape(cChild);
-            t=cr.getCombinedRegion(r);
+            t = cr.getCombinedRegion(r);
 
             double a = cr.getArea();
             double enl = t.getArea() - a;
@@ -227,8 +229,7 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
             if (enl < area) {
                 area = enl;
                 best = cChild;
-            }
-            else if (enl == area){
+            } else if (enl == area) {
                 // this will rarely happen, so compute best area on the fly only when necessary.
                 t = (RegionShape) getChildShape(best);
                 if (a < t.getArea()) best = cChild;
@@ -237,15 +238,16 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
 
         return best;
     }
+
     protected int findLeastOverlap(RegionShape r) {
 
         int children = getChildrenCount();
 
-        double leastOverlap =Double.MAX_VALUE;
+        double leastOverlap = Double.MAX_VALUE;
         double me = Double.MAX_VALUE;
         OverlapEntry best = null;
         OverlapEntry[] overlapEntries = new OverlapEntry[children];
-        RegionShape cr=null;
+        RegionShape cr = null;
         // find combined regionShape and enlargement of every entry and store it.
         for (int cChild = 0; cChild < children; ++cChild) {
 
@@ -258,32 +260,27 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
             overlapEntries[cChild].m_ca = overlapEntries[cChild].m_combined.getArea();
             overlapEntries[cChild].m_enlargement = overlapEntries[cChild].m_ca - overlapEntries[cChild].m_oa;
 
-            if (overlapEntries[cChild].m_enlargement < me)
-            {
+            if (overlapEntries[cChild].m_enlargement < me) {
                 me = overlapEntries[cChild].m_enlargement;
                 best = overlapEntries[cChild];
-            }
-		    else if (overlapEntries[cChild].m_enlargement == me && overlapEntries[cChild].m_oa < best.m_oa)
-            {
+            } else if (overlapEntries[cChild].m_enlargement == me && overlapEntries[cChild].m_oa < best.m_oa) {
                 best = overlapEntries[cChild];
             }
         }
 
-        if (me < - MathSuits.EPSILON || me > MathSuits.EPSILON) {
+        if (me < -MathSuits.EPSILON || me > MathSuits.EPSILON) {
             int cIterations;
 
             if (children > tree.nearMinimumOverlapFactor) {
                 // sort overlapEntries in increasing order of enlargement.
-			    //::qsort(overlapEntries, children,
+                //::qsort(overlapEntries, children,
                 //    sizeof(OverlapEntry*),
                 //    OverlapEntry::compareEntries);
                 Arrays.sort(overlapEntries);
                 assert (overlapEntries[0].m_enlargement <= overlapEntries[children - 1].m_enlargement);
 
                 cIterations = tree.nearMinimumOverlapFactor;
-            }
-            else
-            {
+            } else {
                 cIterations = children;
             }
 
@@ -293,27 +290,21 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
                 OverlapEntry e = overlapEntries[cIndex];
 
                 for (int cChild = 0; cChild < children; ++cChild) {
-                    if (e.m_index != cChild)  {
+                    if (e.m_index != cChild) {
                         cr = (RegionShape) getChildShape(cChild);
                         double f = e.m_combined.getIntersectingArea(cr);
                         if (f != 0.0) dif += f - e.m_original.getIntersectingArea(cr);
                     }
                 } // for (cChild)
 
-                if (dif < leastOverlap)
-                {
+                if (dif < leastOverlap) {
                     leastOverlap = dif;
                     best = overlapEntries[cIndex];
-                }
-                else if (dif == leastOverlap)
-                {
-                    if (e.m_enlargement == best.m_enlargement)
-                    {
+                } else if (dif == leastOverlap) {
+                    if (e.m_enlargement == best.m_enlargement) {
                         // keep the one with least area.
                         if (e.m_original.getArea() < best.m_original.getArea()) best = overlapEntries[cIndex];
-                    }
-                    else
-                    {
+                    } else {
                         // keep the one with least enlargement.
                         if (e.m_enlargement < best.m_enlargement) best = overlapEntries[cIndex];
                     }
@@ -326,7 +317,7 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
     }
 
 
-    class OverlapEntry implements  Comparator<OverlapEntry>{
+    class OverlapEntry implements Comparator<OverlapEntry> {
         public int m_index;
         public double m_enlargement;
         public RegionShape m_original;
@@ -340,6 +331,8 @@ public class RTreeInternalNodeImpl extends RTreeNodeImpl  {
             if (pe1.m_enlargement > pe2.m_enlargement) return 1;
             return 0;
         }
-    }; // OverlapEntry
+    }
+
+    ; // OverlapEntry
 
 }

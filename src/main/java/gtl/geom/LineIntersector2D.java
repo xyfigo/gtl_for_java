@@ -34,8 +34,7 @@ import gtl.math.PrecisionModel;
  *
  * @version 1.7
  */
-abstract class LineIntersector2D
-{
+abstract class LineIntersector2D {
     /**
      * These are deprecated, due to ambiguous naming
      */
@@ -57,76 +56,6 @@ abstract class LineIntersector2D
      * Indicates that line segments intersect in a line segment
      */
     public final static int COLLINEAR_INTERSECTION = 2;
-
-    /**
-     * Computes the "edge distance2D" of an intersection point p along a segment.
-     * The edge distance2D is a metric of the point along the edge.
-     * The metric used is a robust and easy to compute metric function.
-     * It is <b>not</b> equivalent to the usual Euclidean metric.
-     * It relies on the fact that either the x or the y ordinates of the
-     * points in the edge are unique, depending on whether the edge is longer in
-     * the horizontal or vertical direction.
-     * <p>
-     * NOTE: This function may produce incorrect distances
-     *  for inputs where p is not precisely on p1-p2
-     * (E.g. p = (139,9) p1 = (139,10), p2 = (280,1) produces distance2D 0.0, which is incorrect.
-     * <p>
-     * My hypothesis is that the function is safe to use for points which are the
-     * result of <b>rounding</b> points which lie on the line,
-     * but not safe to use for <b>truncated</b> points.
-     */
-    public static double computeEdgeDistance(
-            Vertex2D p,
-            Vertex2D p0,
-            Vertex2D p1)
-    {
-        double dx = Math.abs(p1.x - p0.x);
-        double dy = Math.abs(p1.y - p0.y);
-
-        double dist = -1.0;   // sentinel value
-        if (p.equals(p0)) {
-            dist = 0.0;
-        }
-        else if (p.equals(p1)) {
-            if (dx > dy)
-                dist = dx;
-            else
-                dist = dy;
-        }
-        else {
-            double pdx = Math.abs(p.x - p0.x);
-            double pdy = Math.abs(p.y - p0.y);
-            if (dx > dy)
-                dist = pdx;
-            else
-                dist = pdy;
-            // <FIX>
-            // hack to ensure that non-endpoints always have a non-zero distance2D
-            if (dist == 0.0 && ! p.equals(p0))
-            {
-                dist = Math.max(pdx, pdy);
-            }
-        }
-        //Assert.isTrue(! (dist == 0.0 && ! p.equals(p0)), "Bad distance2D calculation");
-        return dist;
-    }
-
-    /**
-     * This function is non-robust, since it may compute the square of large numbers.
-     * Currently not sure how to improve this.
-     */
-    public static double nonRobustComputeEdgeDistance(
-            Vertex2D p,
-            Vertex2D p1,
-            Vertex2D p2)
-    {
-        double dx = p.x - p1.x;
-        double dy = p.y - p1.y;
-        double dist = Math.sqrt(dx * dx + dy * dy);   // dummy value
-        //Assert.isTrue(! (dist == 0.0 && ! p.equals(p1)), "Invalid distance2D calculation");
-        return dist;
-    }
-
     protected int result;
     protected Vertex2D[][] inputLines = new Vertex2D[2][2];
     protected Vertex2D[] intPt = new Vertex2D[2];
@@ -143,8 +72,6 @@ abstract class LineIntersector2D
      * using Vertex2D#makePrecise
      */
     protected PrecisionModel precisionModel = null;
-//public int numIntersects = 0;
-
     public LineIntersector2D() {
         intPt[0] = Geom2DSuits.createVertex2D();//new Vertex2D();
         intPt[1] = Geom2DSuits.createVertex2D();//new Vertex2D();
@@ -155,22 +82,87 @@ abstract class LineIntersector2D
     }
 
     /**
+     * Computes the "edge distance2D" of an intersection point p along a segment.
+     * The edge distance2D is a metric of the point along the edge.
+     * The metric used is a robust and easy to compute metric function.
+     * It is <b>not</b> equivalent to the usual Euclidean metric.
+     * It relies on the fact that either the x or the y ordinates of the
+     * points in the edge are unique, depending on whether the edge is longer in
+     * the horizontal or vertical direction.
+     * <p>
+     * NOTE: This function may produce incorrect distances
+     * for inputs where p is not precisely on p1-p2
+     * (E.g. p = (139,9) p1 = (139,10), p2 = (280,1) produces distance2D 0.0, which is incorrect.
+     * <p>
+     * My hypothesis is that the function is safe to use for points which are the
+     * result of <b>rounding</b> points which lie on the line,
+     * but not safe to use for <b>truncated</b> points.
+     */
+    public static double computeEdgeDistance(
+            Vertex2D p,
+            Vertex2D p0,
+            Vertex2D p1) {
+        double dx = Math.abs(p1.x - p0.x);
+        double dy = Math.abs(p1.y - p0.y);
+
+        double dist = -1.0;   // sentinel value
+        if (p.equals(p0)) {
+            dist = 0.0;
+        } else if (p.equals(p1)) {
+            if (dx > dy)
+                dist = dx;
+            else
+                dist = dy;
+        } else {
+            double pdx = Math.abs(p.x - p0.x);
+            double pdy = Math.abs(p.y - p0.y);
+            if (dx > dy)
+                dist = pdx;
+            else
+                dist = pdy;
+            // <FIX>
+            // hack to ensure that non-endpoints always have a non-zero distance2D
+            if (dist == 0.0 && !p.equals(p0)) {
+                dist = Math.max(pdx, pdy);
+            }
+        }
+        //Assert.isTrue(! (dist == 0.0 && ! p.equals(p0)), "Bad distance2D calculation");
+        return dist;
+    }
+//public int numIntersects = 0;
+
+    /**
+     * This function is non-robust, since it may compute the square of large numbers.
+     * Currently not sure how to improve this.
+     */
+    public static double nonRobustComputeEdgeDistance(
+            Vertex2D p,
+            Vertex2D p1,
+            Vertex2D p2) {
+        double dx = p.x - p1.x;
+        double dy = p.y - p1.y;
+        double dist = Math.sqrt(dx * dx + dy * dy);   // dummy value
+        //Assert.isTrue(! (dist == 0.0 && ! p.equals(p1)), "Invalid distance2D calculation");
+        return dist;
+    }
+
+    /**
      * Force computed intersection to be rounded to a given precision model
+     *
      * @param precisionModel
      * @deprecated use <code>setPrecisionModel</code> instead
      */
-    public void setMakePrecise(PrecisionModel precisionModel)
-    {
+    public void setMakePrecise(PrecisionModel precisionModel) {
         this.precisionModel = precisionModel;
     }
 
     /**
      * Force computed intersection to be rounded to a given precision model.
      * No getter is provided, because the precision model is not required to be specified.
+     *
      * @param precisionModel
      */
-    public void setPrecisionModel(PrecisionModel precisionModel)
-    {
+    public void setPrecisionModel(PrecisionModel precisionModel) {
         this.precisionModel = precisionModel;
     }
 
@@ -178,11 +170,10 @@ abstract class LineIntersector2D
      * Gets an endpoint of an input segment.
      *
      * @param segmentIndex the index of the input segment (0 or 1)
-     * @param ptIndex the index of the endpoint (0 or 1)
+     * @param ptIndex      the index of the endpoint (0 or 1)
      * @return the specified endpoint
      */
-    public Vertex2D getEndpoint(int segmentIndex, int ptIndex)
-    {
+    public Vertex2D getEndpoint(int segmentIndex, int ptIndex) {
         return inputLines[segmentIndex][ptIndex];
     }
 
@@ -227,8 +218,7 @@ abstract class LineIntersector2D
 //                + getTopologySummary();
 //    }
 
-    private String getTopologySummary()
-    {
+    private String getTopologySummary() {
         StringBuilder catBuilder = new StringBuilder();
         if (isEndPoint()) catBuilder.append(" endpoint");
         if (isProper) catBuilder.append(" proper");
@@ -254,16 +244,19 @@ abstract class LineIntersector2D
      *
      * @return the number of intersection points found (0, 1, or 2)
      */
-    public int getIntersectionNum() { return result; }
+    public int getIntersectionNum() {
+        return result;
+    }
 
     /**
      * Returns the intIndex'th intersection point
      *
      * @param intIndex is 0 or 1
-     *
      * @return the intIndex'th intersection point
      */
-    public Vertex2D getIntersection(int intIndex)  { return intPt[intIndex]; }
+    public Vertex2D getIntersection(int intIndex) {
+        return intPt[intIndex];
+    }
 
     protected void computeIntLineIndex() {
         if (intLineIndex == null) {
@@ -296,8 +289,7 @@ abstract class LineIntersector2D
      *
      * @return <code>true</code> if either intersection point is in the interior of one of the input segments
      */
-    public boolean isInteriorIntersection()
-    {
+    public boolean isInteriorIntersection() {
         if (isInteriorIntersection(0)) return true;
         if (isInteriorIntersection(1)) return true;
         return false;
@@ -308,11 +300,10 @@ abstract class LineIntersector2D
      *
      * @return <code>true</code> if either intersection point is in the interior of the input segment
      */
-    public boolean isInteriorIntersection(int inputLineIndex)
-    {
+    public boolean isInteriorIntersection(int inputLineIndex) {
         for (int i = 0; i < result; i++) {
-            if (! (   intPt[i].equals(inputLines[inputLineIndex][0])
-                    || intPt[i].equals(inputLines[inputLineIndex][1]) )) {
+            if (!(intPt[i].equals(inputLines[inputLineIndex][0])
+                    || intPt[i].equals(inputLines[inputLineIndex][1]))) {
                 return true;
             }
         }
@@ -342,8 +333,7 @@ abstract class LineIntersector2D
      * a specified input line segment
      *
      * @param segmentIndex is 0 or 1
-     * @param intIndex is 0 or 1
-     *
+     * @param intIndex     is 0 or 1
      * @return the intIndex'th intersection point in the direction of the specified input line segment
      */
     public Vertex2D getIntersectionAlongSegment(int segmentIndex, int intIndex) {
@@ -357,8 +347,7 @@ abstract class LineIntersector2D
      * a specified input line segment
      *
      * @param segmentIndex is 0 or 1
-     * @param intIndex is 0 or 1
-     *
+     * @param intIndex     is 0 or 1
      * @return the index of the intersection point along the input segment (0 or 1)
      */
     public int getIndexAlongSegment(int segmentIndex, int intIndex) {
@@ -372,8 +361,7 @@ abstract class LineIntersector2D
         if (dist0 > dist1) {
             intLineIndex[segmentIndex][0] = 0;
             intLineIndex[segmentIndex][1] = 1;
-        }
-        else {
+        } else {
             intLineIndex[segmentIndex][0] = 1;
             intLineIndex[segmentIndex][1] = 0;
         }
@@ -383,8 +371,7 @@ abstract class LineIntersector2D
      * Computes the "edge distance2D" of an intersection point along the specified input line segment.
      *
      * @param segmentIndex is 0 or 1
-     * @param intIndex is 0 or 1
-     *
+     * @param intIndex     is 0 or 1
      * @return the edge distance2D of the intersection point
      */
     public double getEdgeDistance(int segmentIndex, int intIndex) {

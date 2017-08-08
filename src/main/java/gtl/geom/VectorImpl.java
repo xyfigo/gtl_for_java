@@ -11,40 +11,43 @@ import java.util.Arrays;
  */
 public class VectorImpl implements Vector {
 
-    double  [] coordinates;
+    private static final long serialVersionUID = 1L;
 
-    public VectorImpl( ) {
+    double[] coordinates;
+
+    public VectorImpl() {
         this.coordinates = new double[3];
     }
 
-    public VectorImpl(double x , double y) {
+    public VectorImpl(double x, double y) {
         this.coordinates = new double[2];
-        this.coordinates[0]=x;
-        this.coordinates[1]=y;
+        this.coordinates[0] = x;
+        this.coordinates[1] = y;
     }
 
-    public VectorImpl(double x , double y, double z) {
+    public VectorImpl(double x, double y, double z) {
         this.coordinates = new double[3];
-        this.coordinates[0]=x;
-        this.coordinates[1]=y;
-        this.coordinates[2]=z;
+        this.coordinates[0] = x;
+        this.coordinates[1] = y;
+        this.coordinates[2] = z;
     }
 
-    public VectorImpl(double x , double y, double z, double t) {
+    public VectorImpl(double x, double y, double z, double t) {
         this.coordinates = new double[4];
-        this.coordinates[0]=x;
-        this.coordinates[1]=y;
-        this.coordinates[2]=z;
-        this.coordinates[3]=t;
+        this.coordinates[0] = x;
+        this.coordinates[1] = y;
+        this.coordinates[2] = z;
+        this.coordinates[3] = t;
     }
 
     public VectorImpl(double[] coordinates) {
-        this.coordinates=new double[coordinates.length];
-        System.arraycopy(coordinates,0,this.coordinates,0,coordinates.length);
+        this.coordinates = new double[coordinates.length];
+        System.arraycopy(coordinates, 0, this.coordinates, 0, coordinates.length);
     }
-    public VectorImpl(double[] coordinates,int beginPosition, int length) {
-        this.coordinates=new double[length];
-        System.arraycopy(coordinates,beginPosition,this.coordinates,0,length);
+
+    public VectorImpl(double[] coordinates, int beginPosition, int length) {
+        this.coordinates = new double[length];
+        System.arraycopy(coordinates, beginPosition, this.coordinates, 0, length);
     }
 
     public double[] getCoordinates() {
@@ -57,8 +60,8 @@ public class VectorImpl implements Vector {
 
     @Override
     public Object clone() {
-        double [] td = new double [this.coordinates.length];
-        System.arraycopy(this.coordinates,0,td,0,td.length);
+        double[] td = new double[this.coordinates.length];
+        System.arraycopy(this.coordinates, 0, td, 0, td.length);
         return new VectorImpl(td);
     }
 
@@ -102,7 +105,7 @@ public class VectorImpl implements Vector {
 
     @Override
     public double getY() {
-         return this.coordinates[1];
+        return this.coordinates[1];
     }
 
     @Override
@@ -124,7 +127,7 @@ public class VectorImpl implements Vector {
     public boolean load(DataInput dis) throws IOException {
         int dims = dis.readInt();
         this.makeDimension(dims);
-        for(int i=0;i<dims;i++) {
+        for (int i = 0; i < dims; i++) {
             this.coordinates[i] = dis.readDouble();
         }
         return true;
@@ -134,39 +137,39 @@ public class VectorImpl implements Vector {
     public boolean store(DataOutput dos) throws IOException {
         int dims = this.getDimension();
         dos.writeInt(dims);
-        for(double d:this.coordinates)
+        for (double d : this.coordinates)
             dos.writeDouble(d);
         return true;
     }
 
     @Override
-    public long getByteArraySize(){
-        return getDimension()*8+4;
+    public long getByteArraySize() {
+        return getDimension() * 8 + 4;
     }
 
     @Override
     public void makeInfinite(int dimension) {
         makeDimension(dimension);
-        for (int cIndex = 0; cIndex < this.coordinates.length; ++cIndex){
-            this.coordinates[cIndex] =Double.MAX_VALUE;
+        for (int cIndex = 0; cIndex < this.coordinates.length; ++cIndex) {
+            this.coordinates[cIndex] = Double.MAX_VALUE;
         }
     }
 
     @Override
     public void makeDimension(int dimension) {
-        if (this.getDimension() != dimension){
-            double [] newData=new double[dimension];
-            int minDims=Math.min(newData.length,this.coordinates.length);
-            for(int i=0;i<minDims;i++){
-                newData[i]=this.coordinates[i];
+        if (this.getDimension() != dimension) {
+            double[] newData = new double[dimension];
+            int minDims = Math.min(newData.length, this.coordinates.length);
+            for (int i = 0; i < minDims; i++) {
+                newData[i] = this.coordinates[i];
             }
-            this.coordinates=newData;
+            this.coordinates = newData;
         }
     }
 
     @Override
     public double getOrdinate(int i) {
-        if(i<this.getDimension())
+        if (i < this.getDimension())
             return this.coordinates[i];
         else
             return Vector.NULL_ORDINATE;
@@ -174,44 +177,42 @@ public class VectorImpl implements Vector {
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof Vector){
-            Vector v = (Vector)i;
-            if(v.getCoordinates().length==this.coordinates.length){
+        if (i instanceof Vector) {
+            Vector v = (Vector) i;
+            if (v.getCoordinates().length == this.coordinates.length) {
                 System.arraycopy(
                         v.getCoordinates(), 0,
-                        this.coordinates,0,this.coordinates.length);
-            }
-            else{
-                this.coordinates=new double[v.getCoordinates().length];
+                        this.coordinates, 0, this.coordinates.length);
+            } else {
+                this.coordinates = new double[v.getCoordinates().length];
                 System.arraycopy(
                         v.getCoordinates(), 0,
-                        this.coordinates,0,this.coordinates.length);
+                        this.coordinates, 0, this.coordinates.length);
             }
         }
     }
 
     @Override
-    public void reset(double [] coordinates){
-        if(this.coordinates.length==coordinates.length){
-            System.arraycopy(this.coordinates,0,
-                    coordinates,0,coordinates.length);
-        }
-        else{
-            this.coordinates=new double [coordinates.length];
-            System.arraycopy(this.coordinates,0,
-                    coordinates,0,coordinates.length);
+    public void reset(double[] coordinates) {
+        if (this.coordinates.length == coordinates.length) {
+            System.arraycopy(this.coordinates, 0,
+                    coordinates, 0, coordinates.length);
+        } else {
+            this.coordinates = new double[coordinates.length];
+            System.arraycopy(this.coordinates, 0,
+                    coordinates, 0, coordinates.length);
         }
     }
 
     @Override
     public double normalize() {
-        double dist=0.0;
-        double invDist=0.0;
+        double dist = 0.0;
+        double invDist = 0.0;
         dist = this.length();
-        if (dist>0.0){
-            invDist=1.0/dist;
-            for(int i=0;i<this.coordinates.length;++i)
-                this.coordinates[i]*=invDist;
+        if (dist > 0.0) {
+            invDist = 1.0 / dist;
+            for (int i = 0; i < this.coordinates.length; ++i)
+                this.coordinates[i] *= invDist;
         }
         return dist;
     }
@@ -220,10 +221,10 @@ public class VectorImpl implements Vector {
     public double dotProduct(Vector v) {
 
         double dRtn = 0.0;
-        double [] B = v.getCoordinates();
-        int i=0;
-        for(double d: this.coordinates){
-            dRtn+=d*B[i];
+        double[] B = v.getCoordinates();
+        int i = 0;
+        for (double d : this.coordinates) {
+            dRtn += d * B[i];
             ++i;
         }
         return dRtn;
@@ -231,22 +232,22 @@ public class VectorImpl implements Vector {
 
     @Override
     public Vector crossProduct(Vector b) {
-        assert b.getDimension()==3 && this.getDimension()==3;
-        Vector vRet = new VectorImpl(0.0,0.0,0.0);
-        double [] V = vRet.getCoordinates();
-        double [] A = this.coordinates;
-        double [] B =b.getCoordinates();
-        V[0] = A[1]*B[2] - A[2]*B[1];
-        V[1] = A[2]*B[0] - A[0]*B[2];
-        V[2] = A[0]*B[1] - A[1]*B[0];
+        assert b.getDimension() == 3 && this.getDimension() == 3;
+        Vector vRet = new VectorImpl(0.0, 0.0, 0.0);
+        double[] V = vRet.getCoordinates();
+        double[] A = this.coordinates;
+        double[] B = b.getCoordinates();
+        V[0] = A[1] * B[2] - A[2] * B[1];
+        V[1] = A[2] * B[0] - A[0] * B[2];
+        V[2] = A[0] * B[1] - A[1] * B[0];
         return vRet;
     }
 
     @Override
     public double length() {
-        double sum=0;
-        for(double d: this.coordinates)
-            sum+=d*d;
+        double sum = 0;
+        for (double d : this.coordinates)
+            sum += d * d;
         return java.lang.Math.sqrt(sum);
     }
 
@@ -264,53 +265,54 @@ public class VectorImpl implements Vector {
         double lfRgn = ao.dotProduct(bo);
         double lfLA = ao.length();
         double lfLB = bo.length();
-        double cosA = lfRgn/(lfLA*lfLB);
+        double cosA = lfRgn / (lfLA * lfLB);
         return java.lang.Math.acos(cosA);
     }
 
     @Override
     public Vector subtract(Vector b) {
-        assert b.getDimension()>=this.getDimension();
+        assert b.getDimension() >= this.getDimension();
         Vector v = (Vector) this.clone();
-        double [] dv = v.getCoordinates();
-        double [] bv = b.getCoordinates();
-        for(int i=0;i<dv.length;++i){
-            dv[i]-=bv[i];
+        double[] dv = v.getCoordinates();
+        double[] bv = b.getCoordinates();
+        for (int i = 0; i < dv.length; ++i) {
+            dv[i] -= bv[i];
         }
         return v;
     }
 
     @Override
     public Vector add(Vector b) {
-        assert b.getDimension()>=this.getDimension();
+        assert b.getDimension() >= this.getDimension();
         Vector v = (Vector) this.clone();
-        double [] dv = v.getCoordinates();
-        double [] bv = b.getCoordinates();
-        for(int i=0;i<dv.length;++i){
-            dv[i]+=bv[i];
+        double[] dv = v.getCoordinates();
+        double[] bv = b.getCoordinates();
+        for (int i = 0; i < dv.length; ++i) {
+            dv[i] += bv[i];
         }
         return v;
     }
 
     @Override
     public void setOrdinate(int i, double d) {
-        this.coordinates[i]=d;
+        this.coordinates[i] = d;
     }
 
     @Override
     public Vector multiply(Scalar s) {
         VectorImpl v = new VectorImpl(this.coordinates);
-        for(int i=0; i< this.coordinates.length; ++i){
-            v.coordinates[i]*=s.getScalar();
+        for (int i = 0; i < this.coordinates.length; ++i) {
+            v.coordinates[i] *= s.getScalar();
         }
 
         return v;
     }
+
     @Override
     public Vector multiply(double s) {
         VectorImpl v = new VectorImpl(this.coordinates);
-        for(int i=0; i< this.coordinates.length; ++i){
-            v.coordinates[i]*=s;
+        for (int i = 0; i < this.coordinates.length; ++i) {
+            v.coordinates[i] *= s;
         }
         return v;
     }
@@ -318,8 +320,8 @@ public class VectorImpl implements Vector {
     @Override
     public Vector divide(Scalar s) {
         VectorImpl v = new VectorImpl(this.coordinates);
-        for(int i=0; i< this.coordinates.length; ++i){
-            v.coordinates[i]/=s.scalar;
+        for (int i = 0; i < this.coordinates.length; ++i) {
+            v.coordinates[i] /= s.scalar;
         }
         return v;
     }
@@ -327,15 +329,15 @@ public class VectorImpl implements Vector {
     @Override
     public Vector divide(double s) {
         VectorImpl v = new VectorImpl(this.coordinates);
-        for(int i=0; i< this.coordinates.length; ++i){
-            v.coordinates[i]/=s;
+        for (int i = 0; i < this.coordinates.length; ++i) {
+            v.coordinates[i] /= s;
         }
         return v;
     }
 
     @Override
-    public Vector2D flap(){
-        return new Vector2D(this.coordinates[0],this.coordinates[1]);
+    public Vector2D flap() {
+        return new Vector2D(this.coordinates[0], this.coordinates[1]);
     }
 
     @Override

@@ -11,32 +11,34 @@ import java.io.IOException;
  */
 class TriangleImpl implements Triangle {
 
-    Vector vertices[]=null;//逆时针方向存储点
+    private static final long serialVersionUID = 1L;
+
+    Vector vertices[] = null;//逆时针方向存储点
 
     public TriangleImpl() {
         this.vertices = new Vector[3];
-        for(int i=0;i<3;++i){
-            this.vertices[i]=new VectorImpl();
+        for (int i = 0; i < 3; ++i) {
+            this.vertices[i] = new VectorImpl();
         }
     }
 
     public TriangleImpl(Vector[] vertices) {
         this.vertices = new Vector[3];
-        for(int i=0;i<3;++i){
-            this.vertices[i]=(Vector) vertices[i].clone();
+        for (int i = 0; i < 3; ++i) {
+            this.vertices[i] = (Vector) vertices[i].clone();
         }
     }
 
     public TriangleImpl(Vector v0, Vector v1, Vector v2) {
         this.vertices = new Vector[3];
-        this.vertices[0]=(Vector) v0.clone();
-        this.vertices[1]=(Vector) v1.clone();
-        this.vertices[2]=(Vector) v2.clone();
+        this.vertices[0] = (Vector) v0.clone();
+        this.vertices[1] = (Vector) v1.clone();
+        this.vertices[2] = (Vector) v2.clone();
     }
 
     @Override
     public Vector getVertex(int i) {
-        return this.vertices[i%3];
+        return this.vertices[i % 3];
     }
 
     /**
@@ -83,50 +85,53 @@ class TriangleImpl implements Triangle {
         pvs.add(vertices[1]);
         return pvs;
     }
+
     @Override
     public double getAngle(int i) {
-        return this.vertices[i].angle(this.vertices[(i+2)%3],this.vertices[(i+1)%3]);
+        return this.vertices[i].angle(this.vertices[(i + 2) % 3], this.vertices[(i + 1) % 3]);
     }
 
     @Override
     public double getHeight(int v) {
-        return Geom3DSuits.perpendicularDistance(this.vertices[(v+2)%3],this.vertices[(v+1)%3],this.vertices[v]);
+        return Geom3DSuits.perpendicularDistance(this.vertices[(v + 2) % 3], this.vertices[(v + 1) % 3], this.vertices[v]);
     }
 
     @Override
     public double getPerimeter() {
-        return this.getEdgeLength(0,1)+this.getEdgeLength(1,2)+this.getEdgeLength(2, 0);
+        return this.getEdgeLength(0, 1) + this.getEdgeLength(1, 2) + this.getEdgeLength(2, 0);
     }
 
-    /** 求矢量 BA 与 BC 的叉积的模，该值为平行四边形的面积，三角形的面积为其一半
+    /**
+     * 求矢量 BA 与 BC 的叉积的模，该值为平行四边形的面积，三角形的面积为其一半
      * ----------------------------------
-     *                 B (V0)
-     *                / \
-     *              /     \
-     *            /         \
-     *          /             \
-     *  (V1)  A --------------- C (V2)
+     * B (V0)
+     * / \
+     * /     \
+     * /         \
+     * /             \
+     * (V1)  A --------------- C (V2)
      * ----------------------------------
+     *
      * @return
      */
     @Override
     public double getArea() {
         Vector p = vertices[1].subtract(vertices[0]).crossProduct(
                 vertices[2].subtract(vertices[0]));
-        return Math.sqrt(p.dotProduct(p))/2.0;
+        return Math.sqrt(p.dotProduct(p)) / 2.0;
     }
 
     @Override
     public double getEdgeLength(int s, int e) {
-        return this.vertices[e%3].subtract(this.vertices[s%3]).length();
+        return this.vertices[e % 3].subtract(this.vertices[s % 3]).length();
     }
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof Triangle) {
-            Vector[] vv = ((TriangleImpl)i).vertices;
-            int k=0;
-            for(Vector v: vv){
+        if (i instanceof Triangle) {
+            Vector[] vv = ((TriangleImpl) i).vertices;
+            int k = 0;
+            for (Vector v : vv) {
                 this.vertices[k].reset(v.getCoordinates());
                 ++k;
             }
@@ -135,7 +140,7 @@ class TriangleImpl implements Triangle {
 
     @Override
     public LineSegment getEdge(int s, int e) {
-        return new LineSegment(vertices[s],vertices[e]);
+        return new LineSegment(vertices[s], vertices[e]);
     }
 
     @Override
@@ -150,7 +155,7 @@ class TriangleImpl implements Triangle {
 
     @Override
     public boolean load(DataInput in) throws IOException {
-        for(Vector v: this.vertices){
+        for (Vector v : this.vertices) {
             v.load(in);
         }
         return true;
@@ -158,32 +163,32 @@ class TriangleImpl implements Triangle {
 
     @Override
     public boolean store(DataOutput out) throws IOException {
-        for(Vector v: this.vertices)
+        for (Vector v : this.vertices)
             v.store(out);
         return true;
     }
 
     @Override
     public long getByteArraySize() {
-        long len=0;
-        for(Vector v: this.vertices)
-            len+=v.getByteArraySize();
+        long len = 0;
+        for (Vector v : this.vertices)
+            len += v.getByteArraySize();
         return len;
     }
 
     @Override
     public Envelope getEnvelope() {
-        int dims=this.getDimension();
-        double [] origin=new double[dims];
-        double [] topRight=new double[dims];
-        for(int i = 0; i<dims; ++i){
-            origin[i]=this.vertices[0].getOrdinate(i);
-            topRight[i]=this.vertices[0].getOrdinate(i);
+        int dims = this.getDimension();
+        double[] origin = new double[dims];
+        double[] topRight = new double[dims];
+        for (int i = 0; i < dims; ++i) {
+            origin[i] = this.vertices[0].getOrdinate(i);
+            topRight[i] = this.vertices[0].getOrdinate(i);
         }
-        for(int c = 1; c<3; ++c){
-            for(int i = 0; i<dims; ++i){
-                origin[i]=Math.min(origin[i],this.vertices[c].getOrdinate(i));
-                topRight[i]=Math.max(topRight[i],this.vertices[c].getOrdinate(i));
+        for (int c = 1; c < 3; ++c) {
+            for (int i = 0; i < dims; ++i) {
+                origin[i] = Math.min(origin[i], this.vertices[c].getOrdinate(i));
+                topRight[i] = Math.max(topRight[i], this.vertices[c].getOrdinate(i));
             }
         }
         return new EnvelopeImpl(origin, topRight);
@@ -197,7 +202,7 @@ class TriangleImpl implements Triangle {
         if (v0.equals(v1) || v0.equals(v2) || v1.equals(v2)) {
             return null;
         } else
-            return new TriangleImpl(v0,v1,v2);
+            return new TriangleImpl(v0, v1, v2);
     }
 
     @Override
@@ -248,6 +253,16 @@ class TriangleImpl implements Triangle {
     }
 
     @Override
+    public boolean contains(double x, double y){
+        return Geom2DSuits.contains(this,x,y);
+    }
+
+    @Override
+    public boolean contains(double x, double y,double z){
+        return Geom3DSuits.pointInTriangle(new VectorImpl(x,y,z), vertices[0], vertices[2], vertices[1]);
+    }
+
+    @Override
     public boolean contains(LineSegment p) {
         return contains(p.getStartPoint()) && contains(p.getEndPoint());
     }
@@ -288,4 +303,15 @@ class TriangleImpl implements Triangle {
         return false;
     }
 
+    public Triangle leftTriangle() {
+        // (V1+V2)/2.0
+        Vector m = vertices[1].add(vertices[2]).divide(2.0);
+        return new TriangleImpl(m, vertices[0], vertices[1]);
+    }
+
+    public Triangle rightTriangle() {
+        // m=(V1+V2)/2.0
+        Vector m = vertices[1].add(vertices[2]).divide(2.0);
+        return new TriangleImpl(m, vertices[2], vertices[0]);
+    }
 }

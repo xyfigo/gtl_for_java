@@ -19,12 +19,12 @@ import java.util.Map;
 /**
  * Specifies the precision model of the {@link Vertex}s in a {@link Geometry}.
  * In other words, specifies the grid of allowable
- *  points for all <code>Geometry</code>s.
+ * points for all <code>Geometry</code>s.
  * <p>
  * The {@link #makePrecise(Vertex)} method allows rounding a coordinate to
  * a "precise" value; that is, one whose
- *  precision is known exactly.
- *<p>
+ * precision is known exactly.
+ * <p>
  * Coordinates are assumed to be precise in geometries.
  * That is, the coordinates are assumed to be rounded to the
  * precision model given for the geometry.
@@ -41,14 +41,14 @@ import java.util.Map;
  * This is the default precision model used in JTS
  * <li>FLOATING_SINGLE - represents single precision floating point.
  * <li>FIXED - represents a model with a fixed number of decimal places.
- *  A Fixed Precision Model is specified by a scale factor.
- *  The scale factor specifies the size of the grid which numbers are rounded to.
- *  Input coordinates are mapped to fixed coordinates according to the following
- *  equations:
- *    <UL>
- *      <LI> jtsPt.x = round( (inputPt.x * scale ) / scale
- *      <LI> jtsPt.y = round( (inputPt.y * scale ) / scale
- *    </UL>
+ * A Fixed Precision Model is specified by a scale factor.
+ * The scale factor specifies the size of the grid which numbers are rounded to.
+ * Input coordinates are mapped to fixed coordinates according to the following
+ * equations:
+ * <UL>
+ * <LI> jtsPt.x = round( (inputPt.x * scale ) / scale
+ * <LI> jtsPt.y = round( (inputPt.y * scale ) / scale
+ * </UL>
  * </ul>
  * For example, to specify 3 decimal places of precision, use a scale factor
  * of 1000. To specify -3 decimal places of precision (i.e. rounding to
@@ -61,74 +61,8 @@ import java.util.Map;
  * <p>
  * JTS binary methods currently do not handle inputs which have different precision models.
  * The precision model of any constructed geometric value is undefined.
- *
  */
 public class PrecisionModel implements Serializable, Comparable<PrecisionModel> {
-    /**
-     * Determines which of two {@link PrecisionModel}s is the most precise
-     * (allows the greatest number of significant digits).
-     *
-     * @param pm1 a PrecisionModel
-     * @param pm2 a PrecisionModel
-     * @return the PrecisionModel which is most precise
-     */
-    public static PrecisionModel mostPrecise(PrecisionModel pm1, PrecisionModel pm2)
-    {
-        if (pm1.compareTo(pm2) >= 0)
-            return pm1;
-        return pm2;
-    }
-
-    /**
-     * The types of Precision Model which JTS supports.
-     */
-    public static class Type implements Serializable {
-        private static Map nameToTypeMap = new HashMap();
-        public Type(String name) {
-            this.name = name;
-            nameToTypeMap.put(name, this);
-        }
-        private String name;
-        public String toString() { return this.name; }
-
-
-        /*
-         * Ssee http://www.javaworld.com/javaworld/javatips/jw-javatip122.html
-         */
-        private Object readResolve() {
-            return nameToTypeMap.get(this.name);
-        }
-
-        @Override
-        public Object clone() {
-            return new Type(this.name);
-        }
-
-        @Override
-        public void copyFrom(Object i) {
-            if(i instanceof  Type){
-                this.name=((Type)i).name;
-            }
-        }
-
-        @Override
-        public boolean load(DataInput in) throws IOException {
-            this.name= Variant.readString(in);
-            return true;
-        }
-
-        @Override
-        public boolean store(DataOutput out) throws IOException {
-            Variant.writeString(out,this.name);
-            return true;
-        }
-
-        @Override
-        public long getByteArraySize() {
-            return 4+this.name.length()*2;
-        }
-    }
-
     /**
      * Fixed Precision indicates that coordinates have a fixed number of decimal places.
      * The number of decimal places is determined by the log10 of the scale factor.
@@ -146,15 +80,12 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
      * based on the IEEE-754 standard
      */
     public static final Type FLOATING_SINGLE = new Type("FLOATING SINGLE");
-
-
     /**
-     *  The maximum precise value representable in a double. Since IEE754
-     *  double-precision numbers allow 53 bits of mantissa, the value is equal to
-     *  2^53 - 1.  This provides <i>almost</i> 16 decimal digits of precision.
+     * The maximum precise value representable in a double. Since IEE754
+     * double-precision numbers allow 53 bits of mantissa, the value is equal to
+     * 2^53 - 1.  This provides <i>almost</i> 16 decimal digits of precision.
      */
     public final static double maximumPreciseValue = 9007199254740992.0;
-
     /**
      * The type of PrecisionModel this represents.
      */
@@ -172,7 +103,6 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
         // default is floating precision
         modelType = FLOATING;
     }
-
     /**
      * Creates a <code>PrecisionModel</code> that specifies
      * an explicit precision model type.
@@ -180,43 +110,55 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
      *
      * @param modelType the type of the precision model
      */
-    public PrecisionModel(Type modelType)
-    {
+    public PrecisionModel(Type modelType) {
         this.modelType = modelType;
-        if (modelType == FIXED)
-        {
+        if (modelType == FIXED) {
             setScale(1.0);
         }
     }
 
     /**
-     *  Creates a <code>PrecisionModel</code> that specifies Fixed precision.
-     *  Fixed-precision coordinates are represented as precise internal coordinates,
-     *  which are rounded to the grid defined by the scale factor.
+     * Creates a <code>PrecisionModel</code> that specifies Fixed precision.
+     * Fixed-precision coordinates are represented as precise internal coordinates,
+     * which are rounded to the grid defined by the scale factor.
      *
-     *@param  scale    amount by which to multiply a coordinate after subtracting
-     *      the offset, to obtain a precise coordinate
+     * @param scale amount by which to multiply a coordinate after subtracting
+     *              the offset, to obtain a precise coordinate
      */
     public PrecisionModel(double scale) {
         modelType = FIXED;
         setScale(scale);
     }
+
     /**
-     *  Copy constructor to create a new <code>PrecisionModel</code>
-     *  from an existing one.
+     * Copy constructor to create a new <code>PrecisionModel</code>
+     * from an existing one.
      */
     public PrecisionModel(PrecisionModel pm) {
         modelType = pm.modelType;
         scale = pm.scale;
     }
 
+    /**
+     * Determines which of two {@link PrecisionModel}s is the most precise
+     * (allows the greatest number of significant digits).
+     *
+     * @param pm1 a PrecisionModel
+     * @param pm2 a PrecisionModel
+     * @return the PrecisionModel which is most precise
+     */
+    public static PrecisionModel mostPrecise(PrecisionModel pm1, PrecisionModel pm2) {
+        if (pm1.compareTo(pm2) >= 0)
+            return pm1;
+        return pm2;
+    }
 
     /**
      * Tests whether the precision model supports floating point
+     *
      * @return <code>true</code> if the precision model supports floating point
      */
-    public boolean isFloating()
-    {
+    public boolean isFloating() {
         return modelType == FLOATING || modelType == FLOATING_SINGLE;
     }
 
@@ -237,7 +179,6 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
      * the algorithm uses a very rough approximation in this case.
      * This has the side effect that for scale factors which are
      * powers of 10 the value returned is 1 greater than the true value.
-     *
      *
      * @return the maximum number of decimal places provided by this precision model
      */
@@ -261,42 +202,40 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
      * Negative scale factors indicate that the places
      * of precision is to the left of the decimal point.
      *
-     *@return the scale factor for the fixed precision model
+     * @return the scale factor for the fixed precision model
      */
     public double getScale() {
         return scale;
     }
 
     /**
+     * Sets the multiplying factor used to obtain a precise coordinate.
+     * This method is private because PrecisionModel is an immutable (value) type.
+     */
+    private void setScale(double scale) {
+        this.scale = Math.abs(scale);
+    }
+
+    /**
      * Gets the type of this precision model
+     *
      * @return the type of this precision model
      * @see Type
      */
-    public Type getType()
-    {
+    public Type getType() {
         return modelType;
-    }
-    /**
-     *  Sets the multiplying factor used to obtain a precise coordinate.
-     * This method is private because PrecisionModel is an immutable (value) type.
-     */
-    private void setScale(double scale)
-    {
-        this.scale = Math.abs(scale);
     }
 
     /**
      * Returns the y-offset used to obtain a precise coordinate.
      *
      * @return the amount by which to subtract the y-coordinate before
-     *         multiplying by the scale
+     * multiplying by the scale
      * @deprecated Offsets are no longer used
      */
     public double getOffsetY() {
         return 0;
     }
-
-
 
     /**
      * Rounds a numeric value to the PrecisionModel grid.
@@ -309,8 +248,7 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
      * <b>Note:</b> Java's <code>Math#rint</code> uses the "Banker's Rounding" algorithm,
      * which is not suitable for precision operations elsewhere in JTS.
      */
-    public double makePrecise(double val)
-    {
+    public double makePrecise(double val) {
         // don't change NaN values
         if (Double.isNaN(val)) return val;
 
@@ -329,8 +267,7 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
     /**
      * Rounds a Vertex to the PrecisionModel grid.
      */
-    public void makePrecise(Vertex2D coord)
-    {
+    public void makePrecise(Vertex2D coord) {
         // optimization for full precision
         if (modelType == FLOATING) return;
 
@@ -341,8 +278,7 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
     /**
      * Rounds a Vertex to the PrecisionModel grid.
      */
-    public void makePrecise(Vertex3D coord)
-    {
+    public void makePrecise(Vertex3D coord) {
         // optimization for full precision
         if (modelType == FLOATING) return;
 
@@ -364,25 +300,26 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
     }
 
     public boolean equals(Object other) {
-        if (! (other instanceof PrecisionModel)) {
+        if (!(other instanceof PrecisionModel)) {
             return false;
         }
         PrecisionModel otherPrecisionModel = (PrecisionModel) other;
         return modelType == otherPrecisionModel.modelType
                 && scale == otherPrecisionModel.scale;
     }
+
     /**
-     *  Compares this {@link PrecisionModel} object with the specified object for order.
+     * Compares this {@link PrecisionModel} object with the specified object for order.
      * A PrecisionModel is greater than another if it provides greater precision.
      * The comparison is based on the value returned by the
      * {@link #getMaximumSignificantDigits} method.
      * This comparison is not strictly accurate when comparing floating precision models
      * to fixed models; however, it is correct when both models are either floating or fixed.
      *
-     *@param  other  the <code>PrecisionModel</code> with which this <code>PrecisionModel</code>
-     *      is being compared
-     *@return    a negative integer, zero, or a positive integer as this <code>PrecisionModel</code>
-     *      is less than, equal to, or greater than the specified <code>PrecisionModel</code>
+     * @param other the <code>PrecisionModel</code> with which this <code>PrecisionModel</code>
+     *              is being compared
+     * @return a negative integer, zero, or a positive integer as this <code>PrecisionModel</code>
+     * is less than, equal to, or greater than the specified <code>PrecisionModel</code>
      */
     public int compareTo(PrecisionModel other) {
 
@@ -398,17 +335,17 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
 
     @Override
     public void copyFrom(Object i) {
-        if( i instanceof  PrecisionModel){
-            PrecisionModel p = (PrecisionModel)i;
+        if (i instanceof PrecisionModel) {
+            PrecisionModel p = (PrecisionModel) i;
             this.modelType.copyFrom(p.modelType);
-            this.scale=p.scale;
+            this.scale = p.scale;
         }
     }
 
     @Override
     public boolean load(DataInput in) throws IOException {
         this.modelType.load(in);
-        this.scale=in.readDouble();
+        this.scale = in.readDouble();
         return true;
     }
 
@@ -421,6 +358,60 @@ public class PrecisionModel implements Serializable, Comparable<PrecisionModel> 
 
     @Override
     public long getByteArraySize() {
-        return this.modelType.getByteArraySize()+8;
+        return this.modelType.getByteArraySize() + 8;
+    }
+
+    /**
+     * The types of Precision Model which JTS supports.
+     */
+    public static class Type implements Serializable {
+        private static Map nameToTypeMap = new HashMap();
+        private String name;
+
+        public Type(String name) {
+            this.name = name;
+            nameToTypeMap.put(name, this);
+        }
+
+        public String toString() {
+            return this.name;
+        }
+
+
+        /*
+         * Ssee http://www.javaworld.com/javaworld/javatips/jw-javatip122.html
+         */
+        private Object readResolve() {
+            return nameToTypeMap.get(this.name);
+        }
+
+        @Override
+        public Object clone() {
+            return new Type(this.name);
+        }
+
+        @Override
+        public void copyFrom(Object i) {
+            if (i instanceof Type) {
+                this.name = ((Type) i).name;
+            }
+        }
+
+        @Override
+        public boolean load(DataInput in) throws IOException {
+            this.name = Variant.readString(in);
+            return true;
+        }
+
+        @Override
+        public boolean store(DataOutput out) throws IOException {
+            Variant.writeString(out, this.name);
+            return true;
+        }
+
+        @Override
+        public long getByteArraySize() {
+            return 4 + this.name.length() * 2;
+        }
     }
 }

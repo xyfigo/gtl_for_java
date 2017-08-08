@@ -58,21 +58,24 @@ import java.util.Arrays;
  */
 
 public class Plane implements gtl.io.Serializable {
-    Vector [] vertices;
-    Vector    normal;
+    private static final long serialVersionUID = 1L;
+
+    Vector[] vertices;
+    Vector normal;
 
     public Plane(Vector[] vertices) {
-        this.vertices =Arrays.copyOf(vertices,3);
-        Vector u=this.vertices[1].subtract(this.vertices[0]);
-        Vector v=this.vertices[2].subtract(this.vertices[0]);
+        this.vertices = Arrays.copyOf(vertices, 3);
+        Vector u = this.vertices[1].subtract(this.vertices[0]);
+        Vector v = this.vertices[2].subtract(this.vertices[0]);
         this.normal = u.crossProduct(v);
     }
+
     public Plane() {
-        this.vertices =new Vector[3];
-        vertices[0]=new VectorImpl(0.0,0.0,0.0);
-        vertices[1]=new VectorImpl(0.0,0.0,0.0);
-        vertices[2]=new VectorImpl(0.0,0.0,0.0);
-        this.normal = new VectorImpl(0.0,0.0,0.0);
+        this.vertices = new Vector[3];
+        vertices[0] = new VectorImpl(0.0, 0.0, 0.0);
+        vertices[1] = new VectorImpl(0.0, 0.0, 0.0);
+        vertices[2] = new VectorImpl(0.0, 0.0, 0.0);
+        this.normal = new VectorImpl(0.0, 0.0, 0.0);
     }
 
     public Vector[] getVertices() {
@@ -80,7 +83,8 @@ public class Plane implements gtl.io.Serializable {
     }
 
     public void setVertices(Vector[] vertices) {
-        this.vertices = Arrays.copyOf(vertices,3);;
+        this.vertices = Arrays.copyOf(vertices, 3);
+        ;
     }
 
     public Vector getNormal() {
@@ -126,9 +130,9 @@ public class Plane implements gtl.io.Serializable {
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof  Plane){
-            Plane p = (Plane)i;
-            this.vertices =Arrays.copyOf(p.vertices,3);
+        if (i instanceof Plane) {
+            Plane p = (Plane) i;
+            this.vertices = Arrays.copyOf(p.vertices, 3);
             this.normal = (Vector) p.normal.clone();
         }
     }
@@ -144,7 +148,7 @@ public class Plane implements gtl.io.Serializable {
 
     @Override
     public boolean store(DataOutput out) throws IOException {
-        for(Vector v: this.vertices)
+        for (Vector v : this.vertices)
             v.store(out);
         this.normal.store(out);
         return true;
@@ -152,10 +156,10 @@ public class Plane implements gtl.io.Serializable {
 
     @Override
     public long getByteArraySize() {
-        int len =0;
+        int len = 0;
 
-        for(Vector v: this.vertices)
-            len+=v.getByteArraySize();
+        for (Vector v : this.vertices)
+            len += v.getByteArraySize();
 
         len += this.normal.getByteArraySize();
         return len;

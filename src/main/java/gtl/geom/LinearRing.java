@@ -3,6 +3,7 @@ package gtl.geom;
 /**
  * Created by hadoop on 17-3-21.
  */
+
 /**
  * Models an OGC SFS <code>LinearRing</code>.
  * A <code>LinearRing</code> is a {@link LineString} which is both closed and simple.
@@ -18,14 +19,14 @@ package gtl.geom;
  *
  * @version 1.7
  */
-public class LinearRing extends LineString
-{
+public class LinearRing extends LineString {
+    private static final long serialVersionUID = 1L;
+
     /**
      * The minimum number of vertices allowed in a valid non-empty ring (= 4).
      * Empty rings with 0 vertices are also valid.
      */
     public static final int MINIMUM_VALID_SIZE = 4;
-
 
 
 }

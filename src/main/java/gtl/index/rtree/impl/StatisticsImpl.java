@@ -1,22 +1,28 @@
 package gtl.index.rtree.impl;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
  * Created by ZhenwenHe on 2016/12/16.
  */
-public class StatisticsImpl implements gtl.index.Statistics{
+public class StatisticsImpl implements gtl.index.Statistics {
+    long readTimes;
+    long writeTimes;
+    long splitTimes;
+    long hits;
+    long misses;
+    long nodeNumber;
+    long adjustments;
+    long queryResults;
+    long dataNumber;
+    long treeHeight;
+    ArrayList<Long> nodeNumberInLevelArray;
+
     public StatisticsImpl() {
         reset();
-    }
-
-    public void setReadTimes(long readTimes) {
-        this.readTimes = readTimes;
-    }
-
-    public void setWriteTimes(long writeTimes) {
-        this.writeTimes = writeTimes;
     }
 
     public long getSplitTimes() {
@@ -27,7 +33,9 @@ public class StatisticsImpl implements gtl.index.Statistics{
         this.splitTimes = splitTimes;
     }
 
-    public void increaseSplitTimes(){this.splitTimes++;}
+    public void increaseSplitTimes() {
+        this.splitTimes++;
+    }
 
     public long getHits() {
         return hits;
@@ -37,7 +45,9 @@ public class StatisticsImpl implements gtl.index.Statistics{
         this.hits = hits;
     }
 
-    public void increaseHits(){this.hits++;}
+    public void increaseHits() {
+        this.hits++;
+    }
 
     public long getMisses() {
         return misses;
@@ -47,15 +57,14 @@ public class StatisticsImpl implements gtl.index.Statistics{
         this.misses = misses;
     }
 
-    public void setNodeNumber(long nodeNumber) {
-        this.nodeNumber = nodeNumber;
-    }
     public void increaseNodeNumber() {
         ++this.nodeNumber;
     }
+
     public void decreaseNodeNumber() {
         --this.nodeNumber;
     }
+
     public long getAdjustments() {
         return adjustments;
     }
@@ -64,7 +73,9 @@ public class StatisticsImpl implements gtl.index.Statistics{
         this.adjustments = adjustments;
     }
 
-    public void increaseAdjustments(){++this.adjustments;}
+    public void increaseAdjustments() {
+        ++this.adjustments;
+    }
 
     public long getQueryResults() {
         return queryResults;
@@ -73,22 +84,30 @@ public class StatisticsImpl implements gtl.index.Statistics{
     public void setQueryResults(long queryResults) {
         this.queryResults = queryResults;
     }
-    public void increaseQueryResults( ) { this.queryResults ++;}
 
-    public void setDataNumber(long dataNumber) {
-        this.dataNumber = dataNumber;
+    public void increaseQueryResults() {
+        this.queryResults++;
     }
 
-    public void increaseDataNumber(){++this.dataNumber;}
-    public void decreaseDataNumber(){--this.dataNumber;}
+    public void increaseDataNumber() {
+        ++this.dataNumber;
+    }
 
-    public long getTreeHeight() {return this.treeHeight;}
+    public void decreaseDataNumber() {
+        --this.dataNumber;
+    }
+
+    public long getTreeHeight() {
+        return this.treeHeight;
+    }
 
     public void setTreeHeight(long treeHeight) {
         this.treeHeight = treeHeight;
     }
 
-    public void increaseTreeHeight(){++this.treeHeight;}
+    public void increaseTreeHeight() {
+        ++this.treeHeight;
+    }
 
     public ArrayList<Long> getNodeNumberInLevelArray() {
         return nodeNumberInLevelArray;
@@ -101,20 +120,36 @@ public class StatisticsImpl implements gtl.index.Statistics{
     public long getNodeNumberInLevel(int level) {
         return nodeNumberInLevelArray.get(level);
     }
-    public void setNodeNumberInLevel(int level,long numb) {
-        nodeNumberInLevelArray.set(level,numb);
+
+    public void setNodeNumberInLevel(int level, long numb) {
+        nodeNumberInLevelArray.set(level, numb);
     }
+
     @Override
     public long getReadTimes() {
         return this.readTimes;
     }
-    public void increaseReadTimes(){++this.readTimes;}
+
+    public void setReadTimes(long readTimes) {
+        this.readTimes = readTimes;
+    }
+
+    public void increaseReadTimes() {
+        ++this.readTimes;
+    }
+
     @Override
     public long getWriteTimes() {
         return this.writeTimes;
     }
 
-    public void increaseWriteTimes(){++this.writeTimes;}
+    public void setWriteTimes(long writeTimes) {
+        this.writeTimes = writeTimes;
+    }
+
+    public void increaseWriteTimes() {
+        ++this.writeTimes;
+    }
 
     @Override
     public Object clone() {
@@ -128,9 +163,13 @@ public class StatisticsImpl implements gtl.index.Statistics{
         return this.nodeNumber;
     }
 
+    public void setNodeNumber(long nodeNumber) {
+        this.nodeNumber = nodeNumber;
+    }
+
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof StatisticsImpl) {
+        if (i instanceof StatisticsImpl) {
             StatisticsImpl s = (StatisticsImpl) (i);
             this.readTimes = s.readTimes;
             this.writeTimes = s.writeTimes;
@@ -141,7 +180,7 @@ public class StatisticsImpl implements gtl.index.Statistics{
             this.adjustments = s.adjustments;
             this.queryResults = s.queryResults;
             this.dataNumber = s.dataNumber;
-            this.treeHeight=s.treeHeight;
+            this.treeHeight = s.treeHeight;
             this.nodeNumberInLevelArray = new ArrayList<Long>(s.nodeNumberInLevelArray);
         }
     }
@@ -151,20 +190,24 @@ public class StatisticsImpl implements gtl.index.Statistics{
         return this.dataNumber;
     }
 
+    public void setDataNumber(long dataNumber) {
+        this.dataNumber = dataNumber;
+    }
+
     @Override
     public boolean load(DataInput dis) throws IOException {
-        this.readTimes=dis.readLong();
-        this.writeTimes=dis.readLong();
-        this.splitTimes=dis.readLong();
-        this.hits=dis.readLong();
-        this.misses=dis.readLong();
-        this.nodeNumber=dis.readLong();
-        this.adjustments=dis.readLong();
-        this.queryResults=dis.readLong();
-        this.dataNumber=dis.readLong();
-        this.treeHeight=dis.readLong();
+        this.readTimes = dis.readLong();
+        this.writeTimes = dis.readLong();
+        this.splitTimes = dis.readLong();
+        this.hits = dis.readLong();
+        this.misses = dis.readLong();
+        this.nodeNumber = dis.readLong();
+        this.adjustments = dis.readLong();
+        this.queryResults = dis.readLong();
+        this.dataNumber = dis.readLong();
+        this.treeHeight = dis.readLong();
         int s = dis.readInt();
-        for(int i=0;i<s;i++){
+        for (int i = 0; i < s; i++) {
             this.nodeNumberInLevelArray.add(Long.valueOf(dis.readLong()));
         }
         return true;
@@ -184,53 +227,29 @@ public class StatisticsImpl implements gtl.index.Statistics{
         dos.writeLong(this.treeHeight);
         int s = this.nodeNumberInLevelArray.size();
         dos.writeInt(s);
-        for(Long i: this.nodeNumberInLevelArray){
+        for (Long i : this.nodeNumberInLevelArray) {
             dos.writeLong(i);
         }
         return true;
     }
 
-
     @Override
     public long getByteArraySize() {
-        return (10+this.nodeNumberInLevelArray.size())*8+4;
+        return (10 + this.nodeNumberInLevelArray.size()) * 8 + 4;
     }
 
     @Override
     public void reset() {
-        readTimes=0;
-        writeTimes=0;
-        splitTimes=0;
-        hits=0;
-        misses=0;
-        nodeNumber=0;
-        adjustments=0;
-        queryResults=0;
-        dataNumber=0;
-        treeHeight=0;
-        nodeNumberInLevelArray =new ArrayList<Long> ();
+        readTimes = 0;
+        writeTimes = 0;
+        splitTimes = 0;
+        hits = 0;
+        misses = 0;
+        nodeNumber = 0;
+        adjustments = 0;
+        queryResults = 0;
+        dataNumber = 0;
+        treeHeight = 0;
+        nodeNumberInLevelArray = new ArrayList<Long>();
     }
-
-
-    long readTimes;
-
-    long writeTimes;
-
-    long splitTimes;
-
-    long hits;
-
-    long misses;
-
-    long nodeNumber;
-
-    long adjustments;
-
-    long queryResults;
-
-    long dataNumber;
-
-    long treeHeight;
-
-    ArrayList<Long> nodeNumberInLevelArray;
 }

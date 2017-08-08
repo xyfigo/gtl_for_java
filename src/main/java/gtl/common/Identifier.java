@@ -1,6 +1,7 @@
 package gtl.common;
 
 
+import gtl.geom.Vector;
 import gtl.io.Serializable;
 
 /**
@@ -8,10 +9,17 @@ import gtl.io.Serializable;
  */
 public interface Identifier extends Serializable {
     byte byteValue();
+
     short shortValue();
+
     int intValue();
+
     long longValue();
+
     void reset(long v);
+
     void increase();
+
     int compare(Identifier i);
+
 }

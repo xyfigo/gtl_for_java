@@ -9,29 +9,93 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- *  Defines a rectangular region of the 2D coordinate plane.
- *  It is often used to represent the bounding box of a {@link Geometry},
- *  e.g. the minimum and maximum x and y values of the {@link Vertex2D}s.
- *  <p>
- *  Envelopes support infinite or half-infinite regions, by using the values of
- *  <code>Double.POSITIVE_INFINITY</code> and <code>Double.NEGATIVE_INFINITY</code>.
- *  Envelope2D objects may have a null value.
- *  <p>
- *  When Envelope2D objects are created or initialized,
- *  the supplies extent values are automatically sorted into the correct order.
+ * Defines a rectangular region of the 2D coordinate plane.
+ * It is often used to represent the bounding box of a {@link Geometry},
+ * e.g. the minimum and maximum x and y values of the {@link Vertex2D}s.
+ * <p>
+ * Envelopes support infinite or half-infinite regions, by using the values of
+ * <code>Double.POSITIVE_INFINITY</code> and <code>Double.NEGATIVE_INFINITY</code>.
+ * Envelope2D objects may have a null value.
+ * <p>
+ * When Envelope2D objects are created or initialized,
+ * the supplies extent values are automatically sorted into the correct order.
  */
-public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
-{
+public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
+    /**
+     * the minimum x-coordinate
+     */
+    private double minx;
+    /**
+     * the maximum x-coordinate
+     */
+    private double maxx;
+    /**
+     * the minimum y-coordinate
+     */
+    private double miny;
+    /**
+     * the maximum y-coordinate
+     */
+    private double maxy;
+
+    /**
+     * Creates a null <code>Envelope2D</code>.
+     */
+    public Envelope2D() {
+        init();
+    }
+
+    /**
+     * Creates an <code>Envelope2D</code> for a region defined by maximum and minimum values.
+     *
+     * @param x1 the first x-value
+     * @param x2 the second x-value
+     * @param y1 the first y-value
+     * @param y2 the second y-value
+     */
+    public Envelope2D(double x1, double x2, double y1, double y2) {
+        init(x1, x2, y1, y2);
+    }
+
+    /**
+     * Creates an <code>Envelope2D</code> for a region defined by two Coordinates.
+     *
+     * @param p1 the first Vertex2D
+     * @param p2 the second Vertex2D
+     */
+    public Envelope2D(Vertex2D p1, Vertex2D p2) {
+        init(p1.x, p2.x, p1.y, p2.y);
+    }
+
+    /**
+     * Creates an <code>Envelope2D</code> for a region defined by a single Vertex2D.
+     *
+     * @param p the Vertex2D
+     */
+    public Envelope2D(Vertex2D p) {
+        init(p.x, p.x, p.y, p.y);
+    }
+
+    /**
+     * Create an <code>Envelope2D</code> from an existing Envelope2D.
+     *
+     * @param env the Envelope2D to initialize from
+     */
+    public Envelope2D(Envelope2D env) {
+        init(env);
+    }
 
     /**
      * Test the point q to see whether it intersects the Envelope2D defined by p1-p2
+     *
      * @param p1 one extremal point of the envelope2D
      * @param p2 another extremal point of the envelope2D
-     * @param q the point to test for intersection
+     * @param q  the point to test for intersection
      * @return <code>true</code> if q intersects the envelope2D p1-p2
      */
-    public static boolean intersects(Vertex2D p1, Vertex2D p2, Vertex2D q)
-    {
+    public static boolean intersects(Vertex2D p1, Vertex2D p2, Vertex2D q) {
         //OptimizeIt shows that Math#min and Math#max here are a bottleneck.
         //Replace with direct comparisons. [Jon Aquino]
         if (((q.x >= (p1.x < p2.x ? p1.x : p2.x)) && (q.x <= (p1.x > p2.x ? p1.x : p2.x))) &&
@@ -52,16 +116,15 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      * @param q2 another extremal point of the envelope2D Q
      * @return <code>true</code> if Q intersects P
      */
-    public static boolean intersects(Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2)
-    {
+    public static boolean intersects(Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2) {
         double minq = Math.min(q1.x, q2.x);
         double maxq = Math.max(q1.x, q2.x);
         double minp = Math.min(p1.x, p2.x);
         double maxp = Math.max(p1.x, p2.x);
 
-        if( minp > maxq )
+        if (minp > maxq)
             return false;
-        if( maxp < minq )
+        if (maxp < minq)
             return false;
 
         minq = Math.min(q1.y, q2.y);
@@ -69,148 +132,70 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
         minp = Math.min(p1.y, p2.y);
         maxp = Math.max(p1.y, p2.y);
 
-        if( minp > maxq )
+        if (minp > maxq)
             return false;
-        if( maxp < minq )
+        if (maxp < minq)
             return false;
         return true;
     }
 
     /**
-     *  the minimum x-coordinate
+     * Initialize to a null <code>Envelope2D</code>.
      */
-    private double minx;
-
-    /**
-     *  the maximum x-coordinate
-     */
-    private double maxx;
-
-    /**
-     *  the minimum y-coordinate
-     */
-    private double miny;
-
-    /**
-     *  the maximum y-coordinate
-     */
-    private double maxy;
-
-    /**
-     *  Creates a null <code>Envelope2D</code>.
-     */
-    public Envelope2D() {
-        init();
-    }
-
-    /**
-     *  Creates an <code>Envelope2D</code> for a region defined by maximum and minimum values.
-     *
-     *@param  x1  the first x-value
-     *@param  x2  the second x-value
-     *@param  y1  the first y-value
-     *@param  y2  the second y-value
-     */
-    public Envelope2D(double x1, double x2, double y1, double y2)
-    {
-        init(x1, x2, y1, y2);
-    }
-
-    /**
-     *  Creates an <code>Envelope2D</code> for a region defined by two Coordinates.
-     *
-     *@param  p1  the first Vertex2D
-     *@param  p2  the second Vertex2D
-     */
-    public Envelope2D(Vertex2D p1, Vertex2D p2)
-    {
-        init(p1.x, p2.x, p1.y, p2.y);
-    }
-
-    /**
-     *  Creates an <code>Envelope2D</code> for a region defined by a single Vertex2D.
-     *
-     *@param  p  the Vertex2D
-     */
-    public Envelope2D(Vertex2D p)
-    {
-        init(p.x, p.x, p.y, p.y);
-    }
-
-    /**
-     *  Create an <code>Envelope2D</code> from an existing Envelope2D.
-     *
-     *@param  env  the Envelope2D to initialize from
-     */
-    public Envelope2D(Envelope2D env)
-    {
-        init(env);
-    }
-
-    /**
-     *  Initialize to a null <code>Envelope2D</code>.
-     */
-    public void init()
-    {
+    public void init() {
         setToNull();
     }
 
     /**
-     *  Initialize an <code>Envelope2D</code> for a region defined by maximum and minimum values.
+     * Initialize an <code>Envelope2D</code> for a region defined by maximum and minimum values.
      *
-     *@param  x1  the first x-value
-     *@param  x2  the second x-value
-     *@param  y1  the first y-value
-     *@param  y2  the second y-value
+     * @param x1 the first x-value
+     * @param x2 the second x-value
+     * @param y1 the first y-value
+     * @param y2 the second y-value
      */
-    public void init(double x1, double x2, double y1, double y2)
-    {
+    public void init(double x1, double x2, double y1, double y2) {
         if (x1 < x2) {
             minx = x1;
             maxx = x2;
-        }
-        else {
+        } else {
             minx = x2;
             maxx = x1;
         }
         if (y1 < y2) {
             miny = y1;
             maxy = y2;
-        }
-        else {
+        } else {
             miny = y2;
             maxy = y1;
         }
     }
 
     /**
-     *  Initialize an <code>Envelope2D</code> to a region defined by two Coordinates.
+     * Initialize an <code>Envelope2D</code> to a region defined by two Coordinates.
      *
-     *@param  p1  the first Vertex2D
-     *@param  p2  the second Vertex2D
+     * @param p1 the first Vertex2D
+     * @param p2 the second Vertex2D
      */
-    public void init(Vertex2D p1, Vertex2D p2)
-    {
+    public void init(Vertex2D p1, Vertex2D p2) {
         init(p1.x, p2.x, p1.y, p2.y);
     }
 
     /**
-     *  Initialize an <code>Envelope2D</code> to a region defined by a single Vertex2D.
+     * Initialize an <code>Envelope2D</code> to a region defined by a single Vertex2D.
      *
-     *@param  p  the coordinate
+     * @param p the coordinate
      */
-    public void init(Vertex2D p)
-    {
+    public void init(Vertex2D p) {
         init(p.x, p.x, p.y, p.y);
     }
 
     /**
-     *  Initialize an <code>Envelope2D</code> from an existing Envelope2D.
+     * Initialize an <code>Envelope2D</code> from an existing Envelope2D.
      *
-     *@param  env  the Envelope2D to initialize from
+     * @param env the Envelope2D to initialize from
      */
-    public void init(Envelope2D env)
-    {
+    public void init(Envelope2D env) {
         this.minx = env.minx;
         this.maxx = env.maxx;
         this.miny = env.miny;
@@ -219,8 +204,8 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
 
 
     /**
-     *  Makes this <code>Envelope2D</code> a "null" envelope2D, that is, the envelope2D
-     *  of the empty geometry.
+     * Makes this <code>Envelope2D</code> a "null" envelope2D, that is, the envelope2D
+     * of the empty geometry.
      */
     public void setToNull() {
         minx = 0;
@@ -230,20 +215,20 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     }
 
     /**
-     *  Returns <code>true</code> if this <code>Envelope2D</code> is a "null"
-     *  envelope2D.
+     * Returns <code>true</code> if this <code>Envelope2D</code> is a "null"
+     * envelope2D.
      *
-     *@return    <code>true</code> if this <code>Envelope2D</code> is uninitialized
-     *      or is the envelope2D of the empty geometry.
+     * @return <code>true</code> if this <code>Envelope2D</code> is uninitialized
+     * or is the envelope2D of the empty geometry.
      */
     public boolean isNull() {
         return maxx < minx;
     }
 
     /**
-     *  Returns the difference between the maximum and minimum x values.
+     * Returns the difference between the maximum and minimum x values.
      *
-     *@return    max x - min x, or 0 if this is a null <code>Envelope2D</code>
+     * @return max x - min x, or 0 if this is a null <code>Envelope2D</code>
      */
     public double getWidth() {
         if (isNull()) {
@@ -253,9 +238,9 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     }
 
     /**
-     *  Returns the difference between the maximum and minimum y values.
+     * Returns the difference between the maximum and minimum y values.
      *
-     *@return    max y - min y, or 0 if this is a null <code>Envelope2D</code>
+     * @return max y - min y, or 0 if this is a null <code>Envelope2D</code>
      */
     public double getHeight() {
         if (isNull()) {
@@ -265,40 +250,40 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     }
 
     /**
-     *  Returns the <code>Envelope2D</code>s minimum x-value. min x &gt; max x
-     *  indicates that this is a null <code>Envelope2D</code>.
+     * Returns the <code>Envelope2D</code>s minimum x-value. min x &gt; max x
+     * indicates that this is a null <code>Envelope2D</code>.
      *
-     *@return    the minimum x-coordinate
+     * @return the minimum x-coordinate
      */
     public double getMinX() {
         return minx;
     }
 
     /**
-     *  Returns the <code>Envelope2D</code>s maximum x-value. min x &gt; max x
-     *  indicates that this is a null <code>Envelope2D</code>.
+     * Returns the <code>Envelope2D</code>s maximum x-value. min x &gt; max x
+     * indicates that this is a null <code>Envelope2D</code>.
      *
-     *@return    the maximum x-coordinate
+     * @return the maximum x-coordinate
      */
     public double getMaxX() {
         return maxx;
     }
 
     /**
-     *  Returns the <code>Envelope2D</code>s minimum y-value. min y &gt; max y
-     *  indicates that this is a null <code>Envelope2D</code>.
+     * Returns the <code>Envelope2D</code>s minimum y-value. min y &gt; max y
+     * indicates that this is a null <code>Envelope2D</code>.
      *
-     *@return    the minimum y-coordinate
+     * @return the minimum y-coordinate
      */
     public double getMinY() {
         return miny;
     }
 
     /**
-     *  Returns the <code>Envelope2D</code>s maximum y-value. min y &gt; max y
-     *  indicates that this is a null <code>Envelope2D</code>.
+     * Returns the <code>Envelope2D</code>s maximum y-value. min y &gt; max y
+     * indicates that this is a null <code>Envelope2D</code>.
      *
-     *@return    the maximum y-coordinate
+     * @return the maximum y-coordinate
      */
     public double getMaxY() {
         return maxy;
@@ -307,11 +292,9 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     /**
      * Gets the area of this envelope2D.
      *
-     * @return the area of the envelope2D
      * @return 0.0 if the envelope2D is null
      */
-    public double getArea()
-    {
+    public double getArea() {
         return getWidth() * getHeight();
     }
 
@@ -320,8 +303,7 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      *
      * @return the minimum extent of this envelope2D
      */
-    public double minExtent()
-    {
+    public double minExtent() {
         if (isNull()) return 0.0;
         double w = getWidth();
         double h = getHeight();
@@ -334,8 +316,7 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      *
      * @return the maximum extent of this envelope2D
      */
-    public double maxExtent()
-    {
+    public double maxExtent() {
         if (isNull()) return 0.0;
         double w = getWidth();
         double h = getHeight();
@@ -344,14 +325,13 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     }
 
     /**
-     *  Enlarges this <code>Envelope2D</code> so that it contains
-     *  the given {@link Vertex2D}.
-     *  Has no effect if the point is already on or within the envelope2D.
+     * Enlarges this <code>Envelope2D</code> so that it contains
+     * the given {@link Vertex2D}.
+     * Has no effect if the point is already on or within the envelope2D.
      *
-     *@param  p  the Vertex2D to expand to include
+     * @param p the Vertex2D to expand to include
      */
-    public void expandToInclude(Vertex2D p)
-    {
+    public void expandToInclude(Vertex2D p) {
         expandToInclude(p.x, p.y);
     }
 
@@ -361,8 +341,7 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      *
      * @param distance the distance2D to expand the envelope2D
      */
-    public void expandBy(double distance)
-    {
+    public void expandBy(double distance) {
         expandBy(distance, distance);
     }
 
@@ -373,8 +352,7 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      * @param deltaX the distance2D to expand the envelope2D along the the X axis
      * @param deltaY the distance2D to expand the envelope2D along the the Y axis
      */
-    public void expandBy(double deltaX, double deltaY)
-    {
+    public void expandBy(double deltaX, double deltaY) {
         if (isNull()) return;
 
         minx -= deltaX;
@@ -388,12 +366,12 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     }
 
     /**
-     *  Enlarges this <code>Envelope2D</code> so that it contains
-     *  the given point.
-     *  Has no effect if the point is already on or within the envelope2D.
+     * Enlarges this <code>Envelope2D</code> so that it contains
+     * the given point.
+     * Has no effect if the point is already on or within the envelope2D.
      *
-     *@param  x  the value to lower the minimum x to or to raise the maximum x to
-     *@param  y  the value to lower the minimum y to or to raise the maximum y to
+     * @param x the value to lower the minimum x to or to raise the maximum x to
+     * @param y the value to lower the minimum y to or to raise the maximum y to
      */
     public void expandToInclude(double x, double y) {
         if (isNull()) {
@@ -401,8 +379,7 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
             maxx = x;
             miny = y;
             maxy = y;
-        }
-        else {
+        } else {
             if (x < minx) {
                 minx = x;
             }
@@ -419,12 +396,12 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     }
 
     /**
-     *  Enlarges this <code>Envelope2D</code> so that it contains
-     *  the <code>other</code> Envelope2D.
-     *  Has no effect if <code>other</code> is wholly on or
-     *  within the envelope2D.
+     * Enlarges this <code>Envelope2D</code> so that it contains
+     * the <code>other</code> Envelope2D.
+     * Has no effect if <code>other</code> is wholly on or
+     * within the envelope2D.
      *
-     *@param  other  the <code>Envelope2D</code> to expand to include
+     * @param other the <code>Envelope2D</code> to expand to include
      */
     public void expandToInclude(Envelope2D other) {
         if (other.isNull()) {
@@ -435,8 +412,7 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
             maxx = other.getMaxX();
             miny = other.getMinY();
             maxy = other.getMaxY();
-        }
-        else {
+        } else {
             if (other.minx < minx) {
                 minx = other.minx;
             }
@@ -486,9 +462,8 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      * @return a new Envelope2D representing the intersection of the envelopes (this will be
      * the null envelope2D if either argument is null, or they do not intersect
      */
-    public Envelope2D intersection(Envelope2D env)
-    {
-        if (isNull() || env.isNull() || ! intersects(env)) return new Envelope2D();
+    public Envelope2D intersection(Envelope2D env) {
+        if (isNull() || env.isNull() || !intersects(env)) return new Envelope2D();
 
         double intMinX = minx > env.minx ? minx : env.minx;
         double intMinY = miny > env.miny ? miny : env.miny;
@@ -498,22 +473,24 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     }
 
 
-
     /**
-     *  Check if the region defined by <code>other</code>
-     *  overlaps (intersects) the region of this <code>Envelope2D</code>.
+     * Check if the region defined by <code>other</code>
+     * overlaps (intersects) the region of this <code>Envelope2D</code>.
      *
-     *@param  other  the <code>Envelope2D</code> which this <code>Envelope2D</code> is
-     *          being checked for overlapping
-     *@return        <code>true</code> if the <code>Envelope2D</code>s overlap
+     * @param other the <code>Envelope2D</code> which this <code>Envelope2D</code> is
+     *              being checked for overlapping
+     * @return <code>true</code> if the <code>Envelope2D</code>s overlap
      */
     public boolean intersects(Envelope2D other) {
-        if (isNull() || other.isNull()) { return false; }
+        if (isNull() || other.isNull()) {
+            return false;
+        }
         return !(other.minx > maxx ||
                 other.maxx < minx ||
                 other.miny > maxy ||
                 other.maxy < miny);
     }
+
     /**
      * @deprecated Use #intersects instead. In the future, #overlaps may be
      * changed to be a true overlap check; that is, whether the intersection is
@@ -524,36 +501,39 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     }
 
     /**
-     *  Check if the point <code>p</code>
-     *  overlaps (lies inside) the region of this <code>Envelope2D</code>.
+     * Check if the point <code>p</code>
+     * overlaps (lies inside) the region of this <code>Envelope2D</code>.
      *
-     *@param  p  the <code>Vertex2D</code> to be tested
-     *@return        <code>true</code> if the point overlaps this <code>Envelope2D</code>
+     * @param p the <code>Vertex2D</code> to be tested
+     * @return <code>true</code> if the point overlaps this <code>Envelope2D</code>
      */
     public boolean intersects(Vertex2D p) {
         return intersects(p.x, p.y);
     }
+
     /**
      * @deprecated Use #intersects instead.
      */
     public boolean overlaps(Vertex2D p) {
         return intersects(p);
     }
+
     /**
-     *  Check if the point <code>(x, y)</code>
-     *  overlaps (lies inside) the region of this <code>Envelope2D</code>.
+     * Check if the point <code>(x, y)</code>
+     * overlaps (lies inside) the region of this <code>Envelope2D</code>.
      *
-     *@param  x  the x-ordinate of the point
-     *@param  y  the y-ordinate of the point
-     *@return        <code>true</code> if the point overlaps this <code>Envelope2D</code>
+     * @param x the x-ordinate of the point
+     * @param y the y-ordinate of the point
+     * @return <code>true</code> if the point overlaps this <code>Envelope2D</code>
      */
     public boolean intersects(double x, double y) {
         if (isNull()) return false;
-        return ! (x > maxx ||
+        return !(x > maxx ||
                 x < minx ||
                 y > maxy ||
                 y < miny);
     }
+
     /**
      * @deprecated Use #intersects instead.
      */
@@ -568,10 +548,9 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      * Note that this is <b>not</b> the same definition as the SFS <tt>contains</tt>,
      * which would exclude the envelope boundary.
      *
-     *@param  other the <code>Envelope2D</code> to check
-     *@return true if <code>other</code> is contained in this <code>Envelope2D</code>
-     *
-     *@see #covers(Envelope2D)
+     * @param other the <code>Envelope2D</code> to check
+     * @return true if <code>other</code> is contained in this <code>Envelope2D</code>
+     * @see #covers(Envelope2D)
      */
     public boolean contains(Envelope2D other) {
         return covers(other);
@@ -583,12 +562,11 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      * Note that this is <b>not</b> the same definition as the SFS <tt>contains</tt>,
      * which would exclude the envelope2D boundary.
      *
-     *@param  p  the point which this <code>Envelope2D</code> is
-     *      being checked for containing
-     *@return    <code>true</code> if the point lies in the interior or
-     *      on the boundary of this <code>Envelope2D</code>.
-     *
-     *@see #covers(Vertex2D)
+     * @param p the point which this <code>Envelope2D</code> is
+     *          being checked for containing
+     * @return <code>true</code> if the point lies in the interior or
+     * on the boundary of this <code>Envelope2D</code>.
+     * @see #covers(Vertex2D)
      */
     public boolean contains(Vertex2D p) {
         return covers(p);
@@ -600,14 +578,13 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      * Note that this is <b>not</b> the same definition as the SFS <tt>contains</tt>,
      * which would exclude the envelope2D boundary.
      *
-     *@param  x  the x-coordinate of the point which this <code>Envelope2D</code> is
-     *      being checked for containing
-     *@param  y  the y-coordinate of the point which this <code>Envelope2D</code> is
-     *      being checked for containing
-     *@return    <code>true</code> if <code>(x, y)</code> lies in the interior or
-     *      on the boundary of this <code>Envelope2D</code>.
-     *
-     *@see #covers(double, double)
+     * @param x the x-coordinate of the point which this <code>Envelope2D</code> is
+     *          being checked for containing
+     * @param y the y-coordinate of the point which this <code>Envelope2D</code> is
+     *          being checked for containing
+     * @return <code>true</code> if <code>(x, y)</code> lies in the interior or
+     * on the boundary of this <code>Envelope2D</code>.
+     * @see #covers(double, double)
      */
     public boolean contains(double x, double y) {
         return covers(x, y);
@@ -616,12 +593,12 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     /**
      * Tests if the given point lies in or on the envelope2D.
      *
-     *@param  x  the x-coordinate of the point which this <code>Envelope2D</code> is
-     *      being checked for containing
-     *@param  y  the y-coordinate of the point which this <code>Envelope2D</code> is
-     *      being checked for containing
-     *@return    <code>true</code> if <code>(x, y)</code> lies in the interior or
-     *      on the boundary of this <code>Envelope2D</code>.
+     * @param x the x-coordinate of the point which this <code>Envelope2D</code> is
+     *          being checked for containing
+     * @param y the y-coordinate of the point which this <code>Envelope2D</code> is
+     *          being checked for containing
+     * @return <code>true</code> if <code>(x, y)</code> lies in the interior or
+     * on the boundary of this <code>Envelope2D</code>.
      */
     public boolean covers(double x, double y) {
         if (isNull()) return false;
@@ -634,10 +611,10 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
     /**
      * Tests if the given point lies in or on the envelope2D.
      *
-     *@param  p  the point which this <code>Envelope2D</code> is
-     *      being checked for containing
-     *@return    <code>true</code> if the point lies in the interior or
-     *      on the boundary of this <code>Envelope2D</code>.
+     * @param p the point which this <code>Envelope2D</code> is
+     *          being checked for containing
+     * @return <code>true</code> if the point lies in the interior or
+     * on the boundary of this <code>Envelope2D</code>.
      */
     public boolean covers(Vertex2D p) {
         return covers(p.x, p.y);
@@ -647,11 +624,13 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      * Tests if the <code>Envelope2D other</code>
      * lies wholely inside this <code>Envelope2D</code> (inclusive of the boundary).
      *
-     *@param  other the <code>Envelope2D</code> to check
-     *@return true if this <code>Envelope2D</code> covers the <code>other</code>
+     * @param other the <code>Envelope2D</code> to check
+     * @return true if this <code>Envelope2D</code> covers the <code>other</code>
      */
     public boolean covers(Envelope2D other) {
-        if (isNull() || other.isNull()) { return false; }
+        if (isNull() || other.isNull()) {
+            return false;
+        }
         return other.getMinX() >= minx &&
                 other.getMaxX() <= maxx &&
                 other.getMinY() >= miny &&
@@ -664,8 +643,7 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      * The distance2D between overlapping Envelopes is 0.  Otherwise, the
      * distance2D is the Euclidean distance2D between the closest points.
      */
-    public double distance(Envelope2D env)
-    {
+    public double distance(Envelope2D env) {
         if (intersects(env)) return 0;
 
         double dx = 0.0;
@@ -699,8 +677,7 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
                 miny == otherEnvelope2D.getMinY();
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "Env[" + minx + " : " + maxx + ", " + miny + " : " + maxy + "]";
     }
 
@@ -712,14 +689,13 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
      *
      * @param o an Envelope2D object
      */
-    public int compareTo (Envelope2D o) {
+    public int compareTo(Envelope2D o) {
         Envelope2D env = (Envelope2D) o;
         // compare nulls if present
         if (isNull()) {
             if (env.isNull()) return 0;
             return -1;
-        }
-        else {
+        } else {
             if (env.isNull()) return 1;
         }
         // compare based on numerical ordering of ordinates
@@ -738,23 +714,23 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
 
     @Override
     public Object clone() {
-        return new Envelope2D(this.minx,this.maxx,this.miny,this.maxy);
+        return new Envelope2D(this.minx, this.maxx, this.miny, this.maxy);
     }
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof Envelope2D){
-            Envelope2D e=(Envelope2D)i;
-            this.init(e.minx,e.maxx,e.miny,e.maxy);
+        if (i instanceof Envelope2D) {
+            Envelope2D e = (Envelope2D) i;
+            this.init(e.minx, e.maxx, e.miny, e.maxy);
         }
     }
 
     @Override
     public boolean load(DataInput in) throws IOException {
-        this.minx=in.readDouble();
-        this.maxx=in.readDouble();
-        this.miny=in.readDouble();
-        this.maxy=in.readDouble();
+        this.minx = in.readDouble();
+        this.maxx = in.readDouble();
+        this.miny = in.readDouble();
+        this.maxy = in.readDouble();
         return true;
     }
 
@@ -769,7 +745,7 @@ public class Envelope2D implements Comparable<Envelope2D>, gtl.io.Serializable
 
     @Override
     public long getByteArraySize() {
-        return 8*4;
+        return 8 * 4;
     }
 
     @Override

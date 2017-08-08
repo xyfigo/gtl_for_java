@@ -8,12 +8,19 @@ import gtl.io.Serializable;
  * Created by ZhenwenHe on 2016/12/7.
  */
 public interface Entry extends Serializable {
-    Identifier getIdentifier() ;
+    Identifier getIdentifier();
+
+    void setIdentifier(Identifier id);
+
     Shape getShape();
-    void setIdentifier(long id) ;
-    void setIdentifier(Identifier id) ;
-    void setShape(Shape s) ;
+
+    void setShape(Shape s);
+
+    void setIdentifier(long id);
+
     byte[] getData();
+
     void setData(byte[] data);
+
     long getDataLength();
 }

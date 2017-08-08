@@ -11,6 +11,7 @@ import java.util.Arrays;
 /**
  * Created by hadoop on 17-3-20.
  */
+
 /**
  * A {@link VertexSequence} implementation based on a packed arrays.
  * In this implementation, {@link Vertex}s returned by #toArray and #get are copies
@@ -22,23 +23,22 @@ import java.util.Arrays;
  * The cache is cleared each time the coordinate sequence contents are
  * modified through a setter method.
  */
- class PackedVertexSequence implements VertexSequence
-{
+class PackedVertexSequence implements VertexSequence {
+    private static final long serialVersionUID = 1L;
+
     /**
      * The dimensions of the coordinates hold in the packed array
      */
     protected int dimension;
-
-    /**
-     * The packed coordinate array
-     */
-    double[] coords;
-
     /**
      * A soft reference to the Vertex[] representation of this sequence.
      * Makes repeated coordinate array accesses more efficient.
      */
     protected SoftReference coordRef;
+    /**
+     * The packed coordinate array
+     */
+    double[] coords;
 
     /**
      * Builds a new packed coordinate sequence
@@ -59,7 +59,6 @@ import java.util.Arrays;
     }
 
 
-
     /**
      * Builds a new packed coordinate sequence out of a float coordinate array
      *
@@ -72,7 +71,6 @@ import java.util.Arrays;
             this.coords[i] = coordinates[i];
         }
     }
-
 
 
     /**
@@ -94,6 +92,7 @@ import java.util.Arrays;
                 coords[i * this.dimension + 2] = vertices[i].z;
         }
     }
+
     /**
      * Builds a new packed coordinate sequence out of a coordinate array
      *
@@ -119,7 +118,7 @@ import java.util.Arrays;
     @Override
     public Vertex getCoordinate(int i) {
         Vertex[] coords = getCachedCoords();
-        if(coords != null)
+        if (coords != null)
             return coords[i];
         else
             return getCoordinateInternal(i);
@@ -129,7 +128,7 @@ import java.util.Arrays;
         return getCoordinateInternal(i);
     }
 
-   @Override
+    @Override
     public void getCoordinate(int i, Vertex coord) {
         coord.x = getOrdinate(i, 0);
         coord.y = getOrdinate(i, 1);
@@ -196,12 +195,11 @@ import java.util.Arrays;
     }
 
 
-
     /**
      * Sets the first ordinate of a coordinate in this sequence.
      *
-     * @param index  the coordinate index
-     * @param value  the new ordinate value
+     * @param index the coordinate index
+     * @param value the new ordinate value
      */
     public void setX(int index, double value) {
         coordRef = null;
@@ -211,16 +209,15 @@ import java.util.Arrays;
     /**
      * Sets the second ordinate of a coordinate in this sequence.
      *
-     * @param index  the coordinate index
-     * @param value  the new ordinate value
+     * @param index the coordinate index
+     * @param value the new ordinate value
      */
     public void setY(int index, double value) {
         coordRef = null;
         setOrdinate(index, 1, value);
     }
 
-    public String toString()
-    {
+    public String toString() {
         return VertexSequences.toString(this);
     }
 
@@ -237,12 +234,11 @@ import java.util.Arrays;
      *
      * @return the array of coordinate values
      */
-    public double[] getRawCoordinates()
-    {
+    public double[] getRawCoordinates() {
         return coords;
     }
 
-     @Override
+    @Override
     public int size() {
         return coords.length / dimension;
     }
@@ -266,9 +262,8 @@ import java.util.Arrays;
     }
 
     @Override
-    public Envelope2D expandEnvelope(Envelope2D env)
-    {
-        for (int i = 0; i < coords.length; i += dimension ) {
+    public Envelope2D expandEnvelope(Envelope2D env) {
+        for (int i = 0; i < coords.length; i += dimension) {
             env.expandToInclude(coords[i], coords[i + 1]);
         }
         return env;
@@ -276,30 +271,30 @@ import java.util.Arrays;
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof PackedVertexSequence){
-            PackedVertexSequence p = (PackedVertexSequence)i;
-            this.dimension=p.dimension;
-            this.coords=Arrays.copyOf(p.coords,p.coords.length);
+        if (i instanceof PackedVertexSequence) {
+            PackedVertexSequence p = (PackedVertexSequence) i;
+            this.dimension = p.dimension;
+            this.coords = Arrays.copyOf(p.coords, p.coords.length);
         }
     }
 
     @Override
     public boolean load(DataInput in) throws IOException {
-        this.dimension=in.readInt();
-        this.coords= Variant.readDoubles(in);
+        this.dimension = in.readInt();
+        this.coords = Variant.readDoubles(in);
         return true;
     }
 
     @Override
     public boolean store(DataOutput out) throws IOException {
         out.writeInt(this.dimension);
-        Variant.writeDoubles(out,this.coords);
+        Variant.writeDoubles(out, this.coords);
         return true;
     }
 
     @Override
     public long getByteArraySize() {
-        return 4+4+this.coords.length*8;
+        return 4 + 4 + this.coords.length * 8;
     }
 
     @Override

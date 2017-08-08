@@ -12,19 +12,20 @@ import java.io.IOException;
  * Created by ZhenwenHe on 2016/12/7.
  */
 public class RegionShape implements Shape {
+    private static final long serialVersionUID = 1L;
 
     Envelope data;
 
     public RegionShape() {
-        this.data= Geom3DSuits.createEnvelope();
+        this.data = Geom3DSuits.createEnvelope();
     }
 
     public RegionShape(double[] low, double[] high) {
-        this.data= Geom3DSuits.createEnvelope(low, high);
+        this.data = Geom3DSuits.createEnvelope(low, high);
     }
 
     public RegionShape(Envelope e) {
-        this.data= Geom3DSuits.createEnvelope(e.getLowCoordinates(), e.getHighCoordinates());
+        this.data = Geom3DSuits.createEnvelope(e.getLowCoordinates(), e.getHighCoordinates());
     }
 
     public RegionShape(Vector leftBottom, Vector rightTop) {
@@ -68,12 +69,12 @@ public class RegionShape implements Shape {
 
 
     public void setLowCoordinate(int i, double d) {
-        this.data.setLowCoordinate(i,d);
+        this.data.setLowCoordinate(i, d);
     }
 
 
     public void setHighCoordinate(int i, double d) {
-        this.data.setHighCoordinate(i,d);
+        this.data.setHighCoordinate(i, d);
     }
 
 
@@ -93,23 +94,21 @@ public class RegionShape implements Shape {
 
 
     public void reset(double[] low, double[] high, int dimension) {
-        this.data.reset(low,high,dimension);
+        this.data.reset(low, high, dimension);
     }
 
 
     public void reset(double[] low, double[] high) {
-        this.data.reset(low,high);
+        this.data.reset(low, high);
     }
 
     @Override
     public void copyFrom(Object i) {
-        if(i instanceof RegionShape){
-            this.data.copyFrom(((RegionShape)i).data);
-        }
-        else if(i instanceof Envelope){
+        if (i instanceof RegionShape) {
+            this.data.copyFrom(((RegionShape) i).data);
+        } else if (i instanceof Envelope) {
             this.data.copyFrom(i);
-        }
-        else {
+        } else {
             assert false;
         }
     }
@@ -131,17 +130,17 @@ public class RegionShape implements Shape {
 
     @Override
     public boolean intersectsShape(Shape in) {
-        if(in ==null) return false;
-        if(in instanceof RegionShape){
-            return this.intersectsRegion((RegionShape)in);
+        if (in == null) return false;
+        if (in instanceof RegionShape) {
+            return this.intersectsRegion((RegionShape) in);
         }
 
-        if(in instanceof LineSegmentShape){
-            return this.intersectsLineSegment((LineSegmentShape)in);
+        if (in instanceof LineSegmentShape) {
+            return this.intersectsLineSegment((LineSegmentShape) in);
         }
 
-        if(in instanceof PointShape){
-            return this.containsPoint((PointShape)in);
+        if (in instanceof PointShape) {
+            return this.containsPoint((PointShape) in);
         }
 
         return false;
@@ -149,14 +148,14 @@ public class RegionShape implements Shape {
 
     @Override
     public boolean containsShape(Shape in) {
-        if(in ==null) return false;
+        if (in == null) return false;
 
-        if(in instanceof RegionShape){
-            return this.containsRegion((RegionShape)in);
+        if (in instanceof RegionShape) {
+            return this.containsRegion((RegionShape) in);
         }
 
-        if(in instanceof PointShape){
-            return this.containsPoint((PointShape)in);
+        if (in instanceof PointShape) {
+            return this.containsPoint((PointShape) in);
         }
 
         return false;
@@ -164,14 +163,14 @@ public class RegionShape implements Shape {
 
     @Override
     public boolean touchesShape(Shape in) {
-        if(in ==null) return false;
+        if (in == null) return false;
 
-        if(in instanceof RegionShape){
-            return this.touchesRegion((RegionShape)in);
+        if (in instanceof RegionShape) {
+            return this.touchesRegion((RegionShape) in);
         }
 
-        if(in instanceof PointShape){
-            return this.touchesPoint((PointShape)in);
+        if (in instanceof PointShape) {
+            return this.touchesPoint((PointShape) in);
         }
 
         return false;
@@ -181,10 +180,10 @@ public class RegionShape implements Shape {
     public Vector getCenter() {
         PointShape p = ShapeSuits.createPoint();
 
-        int dims=this.getDimension();
+        int dims = this.getDimension();
         p.makeDimension(dims);
-        double [] cc = p.getCoordinates();
-        for(int i=0;i<dims;i++) {
+        double[] cc = p.getCoordinates();
+        for (int i = 0; i < dims; i++) {
             cc[i] = (this.getLowCoordinate(i) + this.getHighCoordinate(i)) / 2.0;
         }
         return p.getCenter();
@@ -205,7 +204,7 @@ public class RegionShape implements Shape {
 
         double area = 1.0;
         int dims = this.getDimension();
-        for (int i = 0; i < dims; ++i)        {
+        for (int i = 0; i < dims; ++i) {
             area *= (this.getHighCoordinate(i) - this.getLowCoordinate(i));
         }
 
@@ -215,12 +214,12 @@ public class RegionShape implements Shape {
     @Override
     public double getMinimumDistance(Shape in) {
 
-        if(in instanceof RegionShape){
-            return this.getMinimumDistance((RegionShape)in);
+        if (in instanceof RegionShape) {
+            return this.getMinimumDistance((RegionShape) in);
         }
 
-        if(in instanceof PointShape){
-            return this.getMinimumDistance((PointShape)in);
+        if (in instanceof PointShape) {
+            return this.getMinimumDistance((PointShape) in);
         }
 
         return 0;
@@ -228,7 +227,7 @@ public class RegionShape implements Shape {
 
     @Override
     public Object clone() {
-        return new RegionShape(this.getLowCoordinates(),this.getHighCoordinates());
+        return new RegionShape(this.getLowCoordinates(), this.getHighCoordinates());
     }
 
 
@@ -248,20 +247,19 @@ public class RegionShape implements Shape {
 
 
     public double getMinimumDistance(RegionShape e) {
-        if(e==null) return Double.MAX_VALUE;
+        if (e == null) return Double.MAX_VALUE;
         int dims = this.getDimension();
-        if(dims!=e.getDimension()) return Double.MAX_VALUE;
+        if (dims != e.getDimension()) return Double.MAX_VALUE;
 
         double ret = 0.0;
 
-        for (int i = 0; i < dims; ++i){
+        for (int i = 0; i < dims; ++i) {
             double x = 0.0;
 
-            if (e.getHighCoordinate(i) < this.getLowCoordinate(i)){
+            if (e.getHighCoordinate(i) < this.getLowCoordinate(i)) {
                 x = Math.abs(e.getHighCoordinate(i) - this.getLowCoordinate(i));
-            }
-            else if (this.getHighCoordinate(i) < e.getLowCoordinate(i)){
-                x = Math.abs(e.getLowCoordinate(i)-this.getHighCoordinate(i));
+            } else if (this.getHighCoordinate(i) < e.getLowCoordinate(i)) {
+                x = Math.abs(e.getLowCoordinate(i) - this.getHighCoordinate(i));
             }
 
             ret += x * x;
@@ -269,8 +267,6 @@ public class RegionShape implements Shape {
 
         return Math.sqrt(ret);
     }
-
-
 
 
     public boolean containsPoint(PointShape in) {
@@ -284,18 +280,18 @@ public class RegionShape implements Shape {
 
 
     public boolean intersectsLineSegment(LineSegmentShape e) {
-        if(e==null) return false;
+        if (e == null) return false;
         int dims = this.getDimension();
-        if(dims!=e.getDimension()) return false;
+        if (dims != e.getDimension()) return false;
 
-        assert dims==2;
+        assert dims == 2;
 
         // there may be a more efficient method, but this suffices for now
         PointShape ll = ShapeSuits.createPoint(this.getLowCoordinates());
         PointShape ur = ShapeSuits.createPoint(this.getHighCoordinates());
         // fabricate ul and lr coordinates and points
-        PointShape ul = ShapeSuits.createPoint(this.getLowCoordinate(0),this.getHighCoordinate(1));
-        PointShape lr = ShapeSuits.createPoint(this.getHighCoordinate(0),this.getLowCoordinate(1));
+        PointShape ul = ShapeSuits.createPoint(this.getLowCoordinate(0), this.getHighCoordinate(1));
+        PointShape lr = ShapeSuits.createPoint(this.getHighCoordinate(0), this.getLowCoordinate(1));
 
         // Points/LineSegmentShape for the segment
         PointShape p1 = ShapeSuits.createPoint(e.getStartCoordinates());
@@ -311,20 +307,17 @@ public class RegionShape implements Shape {
 
     public double getMinimumDistance(PointShape p) {
 
-        if(p==null) return Double.MAX_VALUE;
+        if (p == null) return Double.MAX_VALUE;
         int dims = this.getDimension();
-        if(dims!=p.getDimension()) return Double.MAX_VALUE;
+        if (dims != p.getDimension()) return Double.MAX_VALUE;
 
 
         double ret = 0.0;
 
-        for (int i = 0; i < dims; ++i){
-            if (p.getCoordinate(i) < this.getLowCoordinate(i))
-            {
+        for (int i = 0; i < dims; ++i) {
+            if (p.getCoordinate(i) < this.getLowCoordinate(i)) {
                 ret += Math.pow(this.getLowCoordinate(i) - p.getCoordinate(i), 2.0);
-            }
-            else if (p.getCoordinate(i) > this.getHighCoordinate(i))
-            {
+            } else if (p.getCoordinate(i) > this.getHighCoordinate(i)) {
                 ret += Math.pow(p.getCoordinate(i) - this.getHighCoordinate(i), 2.0);
             }
         }
@@ -359,7 +352,7 @@ public class RegionShape implements Shape {
 
     public RegionShape getCombinedRegion(RegionShape in) {
 
-        RegionShape r =(RegionShape) this.clone();
+        RegionShape r = (RegionShape) this.clone();
         r.combineRegion(in);
         return r;
     }

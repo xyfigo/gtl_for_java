@@ -5,6 +5,7 @@ package gtl.geom;
  * V0V1==V0V2
  */
 public class IsoscelesTriangle extends TriangleImpl {
+    private static final long serialVersionUID = 1L;
     public IsoscelesTriangle() {
     }
 
@@ -16,14 +17,5 @@ public class IsoscelesTriangle extends TriangleImpl {
         super(v0, v1, v2);
     }
 
-    public Triangle leftTriangle(){
-        // (V1+V2)/2.0
-        Vector m = vertices[1].add(vertices[2]).divide(2.0);
-        return new TriangleImpl(m, vertices[0], vertices[1]);
-    }
-    public Triangle rightTriangle(){
-        // m=(V1+V2)/2.0
-        Vector m = vertices[1].add(vertices[2]).divide(2.0);
-        return new TriangleImpl(m, vertices[2], vertices[0]);
-    }
+
 }

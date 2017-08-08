@@ -9,44 +9,7 @@ import gtl.exception.NotRepresentableException;
 
 class HCoordinate {
 
-    /**
-     * Computes the (approximate) intersection point between two line segments
-     * using homogeneous coordinates.
-     * <p>
-     * Note that this algorithm is
-     * not numerically stable; i.e. it can produce intersection points which
-     * lie outside the envelope2D of the line segments themselves.  In order
-     * to increase the precision of the calculation input points should be normalized
-     * before passing them to this routine.
-     */
-    public static Vertex2D intersection(
-            Vertex2D p1, Vertex2D p2,
-            Vertex2D q1, Vertex2D q2)
-            throws NotRepresentableException
-    {
-        // unrolled computation
-        double px = p1.y - p2.y;
-        double py = p2.x - p1.x;
-        double pw = p1.x * p2.y - p2.x * p1.y;
-
-        double qx = q1.y - q2.y;
-        double qy = q2.x - q1.x;
-        double qw = q1.x * q2.y - q2.x * q1.y;
-
-        double x = py * qw - qy * pw;
-        double y = qx * pw - px * qw;
-        double w = px * qy - qx * py;
-
-        double xInt = x/w;
-        double yInt = y/w;
-
-        if ((Double.isNaN(xInt)) || (Double.isInfinite(xInt)
-                || Double.isNaN(yInt)) || (Double.isInfinite(yInt))) {
-            throw new NotRepresentableException();
-        }
-
-        return Geom2DSuits.createVertex2D(xInt, yInt);
-    }
+    public double x, y, w;
 
   /*
   public static Vertex2D OLDintersection(
@@ -61,8 +24,6 @@ class HCoordinate {
     return intPt;
   }
   */
-
-    public double x,y,w;
 
     public HCoordinate() {
         x = 0.0;
@@ -88,8 +49,7 @@ class HCoordinate {
         w = 1.0;
     }
 
-    public HCoordinate(HCoordinate p1, HCoordinate p2)
-    {
+    public HCoordinate(HCoordinate p1, HCoordinate p2) {
         x = p1.y * p2.w - p2.y * p1.w;
         y = p2.x * p1.w - p1.x * p2.w;
         w = p1.x * p2.y - p2.x * p1.y;
@@ -103,16 +63,14 @@ class HCoordinate {
      * @param p1
      * @param p2
      */
-    public HCoordinate(Vertex2D p1, Vertex2D p2)
-    {
+    public HCoordinate(Vertex2D p1, Vertex2D p2) {
         // optimization when it is known that w = 1
         x = p1.y - p2.y;
         y = p2.x - p1.x;
         w = p1.x * p2.y - p2.x * p1.y;
     }
 
-    public HCoordinate(Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2)
-    {
+    public HCoordinate(Vertex2D p1, Vertex2D p2, Vertex2D q1, Vertex2D q2) {
         // unrolled computation
         double px = p1.y - p2.y;
         double py = p2.x - p1.x;
@@ -127,8 +85,46 @@ class HCoordinate {
         w = px * qy - qx * py;
     }
 
+    /**
+     * Computes the (approximate) intersection point between two line segments
+     * using homogeneous coordinates.
+     * <p>
+     * Note that this algorithm is
+     * not numerically stable; i.e. it can produce intersection points which
+     * lie outside the envelope2D of the line segments themselves.  In order
+     * to increase the precision of the calculation input points should be normalized
+     * before passing them to this routine.
+     */
+    public static Vertex2D intersection(
+            Vertex2D p1, Vertex2D p2,
+            Vertex2D q1, Vertex2D q2)
+            throws NotRepresentableException {
+        // unrolled computation
+        double px = p1.y - p2.y;
+        double py = p2.x - p1.x;
+        double pw = p1.x * p2.y - p2.x * p1.y;
+
+        double qx = q1.y - q2.y;
+        double qy = q2.x - q1.x;
+        double qw = q1.x * q2.y - q2.x * q1.y;
+
+        double x = py * qw - qy * pw;
+        double y = qx * pw - px * qw;
+        double w = px * qy - qx * py;
+
+        double xInt = x / w;
+        double yInt = y / w;
+
+        if ((Double.isNaN(xInt)) || (Double.isInfinite(xInt)
+                || Double.isNaN(yInt)) || (Double.isInfinite(yInt))) {
+            throw new NotRepresentableException();
+        }
+
+        return Geom2DSuits.createVertex2D(xInt, yInt);
+    }
+
     public double getX() throws NotRepresentableException {
-        double a = x/w;
+        double a = x / w;
         if ((Double.isNaN(a)) || (Double.isInfinite(a))) {
             throw new NotRepresentableException();
         }
@@ -136,8 +132,8 @@ class HCoordinate {
     }
 
     public double getY() throws NotRepresentableException {
-        double a = y/w;
-        if  ((Double.isNaN(a)) || (Double.isInfinite(a))) {
+        double a = y / w;
+        if ((Double.isNaN(a)) || (Double.isInfinite(a))) {
             throw new NotRepresentableException();
         }
         return a;

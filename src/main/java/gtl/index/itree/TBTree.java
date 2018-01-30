@@ -2,14 +2,13 @@ package gtl.index.itree;
 
 
 import gtl.geom.*;
-import gtl.index.shape.IsoscelesRightTriangleShape;
+import gtl.index.shape.TriangleShape;
 import gtl.index.shape.LineSegmentShape;
 import gtl.index.shape.PointShape;
 import gtl.index.shape.RegionShape;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Created by ZhenwenHe on 2017/3/27.
@@ -25,7 +24,7 @@ public class TBTree<T extends Interval > extends BaseTriangleTree<T> {
      * @param baseTriangle
      * @param leafNodeCapacity
      */
-    public TBTree(Triangle baseTriangle, int leafNodeCapacity) {
+    public TBTree(TriangleShape baseTriangle, int leafNodeCapacity) {
         super(baseTriangle,leafNodeCapacity);
         this.rootNode = new TreeNode();
         this.rootNode.intervals = new ArrayList<>();
@@ -74,7 +73,7 @@ public class TBTree<T extends Interval > extends BaseTriangleTree<T> {
         List<T> intervals = tn.intervals;
         List<T> leftIntervals = new ArrayList<T>(0);
         List<T> rightIntervals = new ArrayList<T>(0);
-        IsoscelesRightTriangleShape leftTriangleShape, rightTriangleShape;
+        TriangleShape leftTriangleShape, rightTriangleShape;
         tn.intervals = null;
         intervals.add(i);
         TreeNode p = tn;
@@ -85,13 +84,13 @@ public class TBTree<T extends Interval > extends BaseTriangleTree<T> {
             left = new TreeNode();
             left.parent = p;
             p.left = left;
-            leftTriangleShape = new IsoscelesRightTriangleShape(p.triangle.leftTriangle());
+            leftTriangleShape = new TriangleShape(p.triangle.leftTriangle());
             left.triangle = leftTriangleShape;
 
             right = new TreeNode();
             right.parent = p;
             p.right = right;
-            rightTriangleShape = new IsoscelesRightTriangleShape(p.triangle.rightTriangle());
+            rightTriangleShape = new TriangleShape(p.triangle.rightTriangle());
             right.triangle = rightTriangleShape;
 
             for (T it : intervals) {
@@ -164,7 +163,7 @@ public class TBTree<T extends Interval > extends BaseTriangleTree<T> {
      */
     TreeNode extend(T i) {
         TreeNode newRoot = this.rootNode;
-        IsoscelesRightTriangleShape newBaseTriangle = this.rootNode.triangle;
+        TriangleShape newBaseTriangle = this.rootNode.triangle;
         Vector V0;
         while (test(newBaseTriangle, i) == 0) {
             V0 = newRoot.triangle.getVertex(0);
@@ -191,7 +190,7 @@ public class TBTree<T extends Interval > extends BaseTriangleTree<T> {
      * @return
      */
     TreeNode leftExtension(TreeNode tn) {
-        IsoscelesRightTriangleShape baseT = tn.triangle;
+        TriangleShape baseT = tn.triangle;
 
         Vector[] vertices = baseT.getClockwiseVertices();
         Vector V0 = new VectorImpl(vertices[0].getX() - (vertices[2].getX() - vertices[0].getX()),
@@ -199,23 +198,23 @@ public class TBTree<T extends Interval > extends BaseTriangleTree<T> {
         Vector V2 = vertices[2];
         Vector V1 = new VectorImpl(V0.getX(),
                 V0.getY() - 2 * (vertices[0].getY() - vertices[1].getY()), 0.0);
-        baseT = new IsoscelesRightTriangleShape(V0, V1, V2);
+        baseT = new TriangleShape(V0, V1, V2);
         TreeNode newRootNode = new TreeNode();
         newRootNode.triangle = baseT;
 
         newRootNode.left = new TreeNode();
         newRootNode.left.parent = newRootNode;
         newRootNode.left.intervals = new ArrayList<>();
-        newRootNode.left.triangle = new IsoscelesRightTriangleShape(baseT.leftTriangle().getVertices());
+        newRootNode.left.triangle = new TriangleShape(baseT.leftTriangle().getVertices());
 
         newRootNode.right = new TreeNode();
         newRootNode.right.parent = newRootNode;
-        newRootNode.right.triangle = new IsoscelesRightTriangleShape(baseT.rightTriangle().getVertices());
+        newRootNode.right.triangle = new TriangleShape(baseT.rightTriangle().getVertices());
 
         TreeNode p = newRootNode.right;
         p.right = new TreeNode();
         p.right.parent = p;
-        p.right.triangle = new IsoscelesRightTriangleShape(
+        p.right.triangle = new TriangleShape(
                 p.triangle.rightTriangle().getVertices());
         p.right.intervals = new ArrayList<>();
 
@@ -236,30 +235,30 @@ public class TBTree<T extends Interval > extends BaseTriangleTree<T> {
      * @return
      */
     TreeNode rightExtension(TreeNode tn) {
-        IsoscelesRightTriangleShape baseT = tn.triangle;
+        TriangleShape baseT = tn.triangle;
         Vector[] vertices = baseT.getVertices();
         Vector V0 = new VectorImpl(vertices[0].getX(),
                 vertices[0].getY() + (vertices[0].getY() - vertices[1].getY()), 0.0);
         Vector V1 = vertices[1];
         Vector V2 = new VectorImpl(vertices[2].getX() + vertices[2].getX() - vertices[0].getX(),
                 V0.getY(), 0.0);
-        baseT = new IsoscelesRightTriangleShape(V0, V1, V2);
+        baseT = new TriangleShape(V0, V1, V2);
         TreeNode newRootNode = new TreeNode();
         newRootNode.triangle = baseT;
 
         newRootNode.right = new TreeNode();
         newRootNode.right.parent = newRootNode;
         newRootNode.right.intervals = new ArrayList<>();
-        newRootNode.right.triangle = new IsoscelesRightTriangleShape(baseT.rightTriangle().getVertices());
+        newRootNode.right.triangle = new TriangleShape(baseT.rightTriangle().getVertices());
 
         newRootNode.left = new TreeNode();
         newRootNode.left.parent = newRootNode;
-        newRootNode.left.triangle = new IsoscelesRightTriangleShape(baseT.leftTriangle().getVertices());
+        newRootNode.left.triangle = new TriangleShape(baseT.leftTriangle().getVertices());
 
         TreeNode p = newRootNode.left;
         p.left = new TreeNode();
         p.left.parent = p;
-        p.left.triangle = new IsoscelesRightTriangleShape(
+        p.left.triangle = new TriangleShape(
                 p.triangle.leftTriangle().getVertices());
         p.left.intervals = new ArrayList<>();
 
@@ -277,7 +276,7 @@ public class TBTree<T extends Interval > extends BaseTriangleTree<T> {
      */
     public List<T> pointQuery(PointShape ps) {
         TreeNode p = this.rootNode;
-        IsoscelesRightTriangleShape pTri;
+        TriangleShape pTri;
         int retVal;
         List<T> s = new ArrayList<>();
         while (p != null) {
@@ -403,7 +402,7 @@ public class TBTree<T extends Interval > extends BaseTriangleTree<T> {
      * triangle是节点覆盖的三角形范围。
      */
     class TreeNode {
-        IsoscelesRightTriangleShape triangle;
+        TriangleShape triangle;
         TreeNode parent;
         TreeNode left;
         TreeNode right;

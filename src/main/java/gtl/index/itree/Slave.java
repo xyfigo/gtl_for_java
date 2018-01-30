@@ -5,6 +5,7 @@ import gtl.common.Pair;
 import gtl.common.Variant;
 import gtl.geom.*;
 import gtl.index.shape.RegionShape;
+import gtl.index.shape.TriangleShape;
 import gtl.io.Serializable;
 import gtl.io.storage.StorageManager;
 import gtl.io.storage.StorageSuits;
@@ -175,7 +176,7 @@ public class Slave extends SlaveProxy{
         final  Triangle t =(Triangle) triangle.clone();
         StorageManager sm = StorageSuits.createMemoryStorageManager();
         this.tree= new TITree<LabeledInterval>(
-                (Triangle)triangle.clone(),
+                (TriangleShape)triangle.clone(),
                 128,
                 sm,
                 JavaSparkContext.fromSparkContext(this.spark.sparkContext())

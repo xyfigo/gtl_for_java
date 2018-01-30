@@ -1,14 +1,13 @@
 package gtl.index.itree;
 
 import gtl.geom.*;
-import gtl.index.shape.IsoscelesRightTriangleShape;
+import gtl.index.shape.TriangleShape;
 import gtl.index.shape.LineSegmentShape;
 import gtl.index.shape.PointShape;
 import gtl.index.shape.RegionShape;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.function.Function;
 
 public abstract class BaseTriangleTree<T extends Interval> implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -20,7 +19,7 @@ public abstract class BaseTriangleTree<T extends Interval> implements Serializab
      * 也可以右扩展（rightExtension），可以无限扩大；
      * 扩展后的基准三角形与原来的基准三角形为相似三角形
      */
-    protected IsoscelesRightTriangleShape baseTriangle;
+    protected TriangleShape baseTriangle;
     /**
      * 每个叶子节点中最多能存放leafNodeCapacity个间隔数据对象
      */
@@ -33,8 +32,8 @@ public abstract class BaseTriangleTree<T extends Interval> implements Serializab
      */
     transient QueryShapeGenerator<T> queryShapeGenerator;
 
-    public BaseTriangleTree(Triangle triangle,int leafNodeCapacity ){
-        this.baseTriangle = new IsoscelesRightTriangleShape(triangle);
+    public BaseTriangleTree(TriangleShape triangle,int leafNodeCapacity ){
+        this.baseTriangle = new TriangleShape(triangle);
         this.leafNodeCapacity=leafNodeCapacity;
         this.queryShapeGenerator=new QueryShapeGenerator<T>(baseTriangle);
     }
@@ -84,7 +83,7 @@ public abstract class BaseTriangleTree<T extends Interval> implements Serializab
      * 1-left sub triangle
      * 2- right sub triangle
      */
-    public static int test(Triangle triangle, Interval i) {
+    public static int test(TriangleShape triangle, Interval i) {
         Vector2D v = new Vector2D(i.getLowerBound(), i.getUpperBound());
         return test(triangle, v);
     }
@@ -101,7 +100,7 @@ public abstract class BaseTriangleTree<T extends Interval> implements Serializab
      * 1-left sub triangle
      * 2- right sub triangle
      */
-    public static int test(Triangle triangle, PointShape i) {
+    public static int test(TriangleShape triangle, PointShape i) {
         Vector2D v = new Vector2D(i.getX(), i.getY());
         return test(triangle, v);
     }
@@ -118,7 +117,7 @@ public abstract class BaseTriangleTree<T extends Interval> implements Serializab
      * 1-left sub triangle
      * 2- right sub triangle
      */
-    public static int test(Triangle triangle, Vector v) {
+    public static int test(TriangleShape triangle, Vector v) {
         if (!triangle.contains(v)) {
             return 0;
         }

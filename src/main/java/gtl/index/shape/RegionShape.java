@@ -1,6 +1,7 @@
 package gtl.index.shape;
 
 import gtl.geom.Envelope;
+import gtl.geom.EnvelopeImpl;
 import gtl.geom.Geom3DSuits;
 import gtl.geom.Vector;
 
@@ -11,121 +12,38 @@ import java.io.IOException;
 /**
  * Created by ZhenwenHe on 2016/12/7.
  */
-public class RegionShape implements Shape {
+public class RegionShape extends EnvelopeImpl implements Shape {
     private static final long serialVersionUID = 1L;
 
-    Envelope data;
-
     public RegionShape() {
-        this.data = Geom3DSuits.createEnvelope();
+        super();
     }
 
     public RegionShape(double[] low, double[] high) {
-        this.data = Geom3DSuits.createEnvelope(low, high);
+        super(low, high);
     }
 
     public RegionShape(Envelope e) {
-        this.data = Geom3DSuits.createEnvelope(e.getLowCoordinates(), e.getHighCoordinates());
+       super(e.getLowCoordinates(), e.getHighCoordinates());
     }
 
     public RegionShape(Vector leftBottom, Vector rightTop) {
-        this.data = Geom3DSuits.createEnvelope(leftBottom.getCoordinates(), rightTop.getCoordinates());
+        super(leftBottom.getCoordinates(), rightTop.getCoordinates());
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof gtl.index.shape.RegionShape)) return false;
+        return super.equals(o);
+    }
 
-        RegionShape region = (RegionShape) o;
-
-        return data.equals(region.data);
+    @Override
+    public String toString() {
+        return super.toString();
     }
 
     @Override
     public int hashCode() {
-        return data.hashCode();
-    }
-
-
-    public double getLowCoordinate(int i) {
-        return this.data.getLowCoordinate(i);
-    }
-
-
-    public double getHighCoordinate(int i) {
-        return this.data.getHighCoordinate(i);
-    }
-
-
-    public double[] getLowCoordinates() {
-        return this.data.getLowCoordinates();
-    }
-
-
-    public double[] getHighCoordinates() {
-        return this.data.getHighCoordinates();
-    }
-
-
-    public void setLowCoordinate(int i, double d) {
-        this.data.setLowCoordinate(i, d);
-    }
-
-
-    public void setHighCoordinate(int i, double d) {
-        this.data.setHighCoordinate(i, d);
-    }
-
-
-    public void makeInfinite(int dimension) {
-        this.data.makeInfinite(dimension);
-    }
-
-
-    public void makeInfinite() {
-        this.data.makeInfinite();
-    }
-
-
-    public void makeDimension(int dimension) {
-        this.data.makeDimension(dimension);
-    }
-
-
-    public void reset(double[] low, double[] high, int dimension) {
-        this.data.reset(low, high, dimension);
-    }
-
-
-    public void reset(double[] low, double[] high) {
-        this.data.reset(low, high);
-    }
-
-    @Override
-    public void copyFrom(Object i) {
-        if (i instanceof RegionShape) {
-            this.data.copyFrom(((RegionShape) i).data);
-        } else if (i instanceof Envelope) {
-            this.data.copyFrom(i);
-        } else {
-            assert false;
-        }
-    }
-
-    @Override
-    public boolean load(DataInput in) throws IOException {
-        return this.data.load(in);
-    }
-
-    @Override
-    public boolean store(DataOutput out) throws IOException {
-        return this.data.store(out);
-    }
-
-    @Override
-    public long getByteArraySize() {
-        return this.data.getByteArraySize();
+        return super.hashCode();
     }
 
     @Override
@@ -190,13 +108,8 @@ public class RegionShape implements Shape {
     }
 
     @Override
-    public int getDimension() {
-        return this.data.getDimension();
-    }
-
-    @Override
     public Envelope getMBR() {
-        return (Envelope) this.data.clone();
+        return (Envelope)this.clone();
     }
 
     @Override
@@ -227,22 +140,22 @@ public class RegionShape implements Shape {
 
     @Override
     public Object clone() {
-        return new RegionShape(this.getLowCoordinates(), this.getHighCoordinates());
+        return new RegionShape(getLowCoordinates(), getHighCoordinates());
     }
 
 
     public boolean intersectsRegion(RegionShape in) {
-        return this.data.intersects(in.getMBR());
+        return intersects(in.getMBR());
     }
 
 
     public boolean containsRegion(RegionShape in) {
-        return this.data.contains(in.getMBR());
+        return contains(in.getMBR());
     }
 
 
     public boolean touchesRegion(RegionShape in) {
-        return this.data.touches(in.getMBR());
+        return touches(in.getMBR());
     }
 
 
@@ -270,12 +183,12 @@ public class RegionShape implements Shape {
 
 
     public boolean containsPoint(PointShape in) {
-        return this.data.contains(in.getCenter());
+        return contains(in.getCenter());
     }
 
 
     public boolean touchesPoint(PointShape in) {
-        return this.data.touches(in.getCenter());
+        return touches(in.getCenter());
     }
 
 
@@ -327,26 +240,18 @@ public class RegionShape implements Shape {
 
 
     public RegionShape getIntersectingRegion(RegionShape r) {
-        return new RegionShape(this.data.getIntersectingEnvelope(r.getMBR()));
+        return new RegionShape(getIntersectingEnvelope(r.getMBR()));
     }
 
-
-    public double getIntersectingArea(RegionShape in) {
-        return this.data.getIntersectingArea(in.getMBR());
-    }
-
-    public double getMargin() {
-        return this.data.getMargin();
-    }
 
 
     public void combineRegion(RegionShape in) {
-        this.data.combine(in.getMBR());
+        combine(in.getMBR());
     }
 
 
     public void combinePoint(PointShape in) {
-        this.data.combine(in.getCenter());
+        combine(in.getCenter());
     }
 
 
@@ -356,5 +261,17 @@ public class RegionShape implements Shape {
         r.combineRegion(in);
         return r;
     }
+
+    /**
+     * 按照X,Y,Z,W方向由小向大排列
+     * 如果是二维，则索引需要为0,1,2,3
+     * 如果为三维，则索引序号为0,1,2,4,5,6,7,
+     * 如果为四维，则索引序号为0~15
+     * @return
+     */
+    public RegionShape subregion(){
+        return null;
+    }
+
 }
 

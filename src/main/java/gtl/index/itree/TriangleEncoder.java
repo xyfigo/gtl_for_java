@@ -3,18 +3,19 @@ package gtl.index.itree;
 import gtl.geom.Geom2DSuits;
 import gtl.geom.IsoscelesTriangle;
 import gtl.geom.Triangle;
+import gtl.index.shape.TriangleShape;
 
 public class TriangleEncoder implements java.io.Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    Triangle rootTriangle;
-    public TriangleEncoder(Triangle triangle){
-        rootTriangle = (Triangle)triangle.clone();
+    TriangleShape rootTriangle;
+    public TriangleEncoder(TriangleShape triangle){
+        rootTriangle = (TriangleShape)triangle.clone();
     }
 
-    public void reset(Triangle triangle){
-        rootTriangle = (Triangle)triangle.clone();
+    public void reset(TriangleShape triangle){
+        rootTriangle = (TriangleShape)triangle.clone();
     }
     /**
      * parse the triangle code,0 represents the left sub-triangle,
@@ -23,12 +24,12 @@ public class TriangleEncoder implements java.io.Serializable{
      * @param identifier code of the triangle
      * @return the corresponding triangle
      */
-    public Triangle parse(String identifier){
-        Triangle r =null;
+    public TriangleShape parse(String identifier){
+        TriangleShape r =null;
         if(identifier.isEmpty()) return r;
         int s = identifier.length();
         if(s==1) return rootTriangle;
-        Triangle p =  rootTriangle;
+        TriangleShape p =  rootTriangle;
         for(int i=1;i<s;++i){
             if(identifier.charAt(i)=='0')
                 r = p.leftTriangle();
@@ -56,21 +57,21 @@ public class TriangleEncoder implements java.io.Serializable{
      * and return its code string, if the string returned is empty,
      * it means that rootTriangle does not contain subtriangle
      */
-    public String encode(Triangle subtriangle){
-        IsoscelesTriangle p = (IsoscelesTriangle) rootTriangle;
+    public String encode(TriangleShape subtriangle){
+        TriangleShape p = (TriangleShape) rootTriangle;
         StringBuilder sb = new StringBuilder();
         if(contains(subtriangle)){
             sb.append('1');
-            Triangle left = p.leftTriangle();
-            Triangle right = p.rightTriangle();
+            TriangleShape left = p.leftTriangle();
+            TriangleShape right = p.rightTriangle();
             if(!Geom2DSuits.contains(left,subtriangle)){
                 if(!Geom2DSuits.contains(right,subtriangle))
                     return sb.toString();
                 else
-                    p = (IsoscelesTriangle)right;
+                    p = (TriangleShape)right;
             }
             else{
-                p=(IsoscelesTriangle) left;
+                p=(TriangleShape) left;
             }
         }
         else
@@ -80,13 +81,13 @@ public class TriangleEncoder implements java.io.Serializable{
             Triangle left = p.leftTriangle();
             if(Geom2DSuits.contains(left,subtriangle)){
                 sb.append('0');
-                p = (IsoscelesTriangle)left;
+                p = (TriangleShape)left;
             }
             else{
                 Triangle right = p.rightTriangle();
                 if(Geom2DSuits.contains(right,subtriangle)) {
                     sb.append('1');
-                    p = (IsoscelesTriangle)right;
+                    p = (TriangleShape)right;
                 }
                 else
                     return sb.toString();

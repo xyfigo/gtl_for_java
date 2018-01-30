@@ -3,7 +3,7 @@ package gtl.index.itree;
 import gtl.common.Pair;
 import gtl.common.Variant;
 import gtl.geom.*;
-import gtl.index.shape.IsoscelesRightTriangleShape;
+import gtl.index.shape.TriangleShape;
 import gtl.io.Serializable;
 import gtl.ipc.*;
 import org.apache.commons.cli.*;
@@ -18,9 +18,9 @@ public class Master extends MasterProxy implements TTree,java.io.Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    Triangle rootTriangle;
+    TriangleShape rootTriangle;
     String dataFile;
-    List<Pair<Triangle, SlaveDescriptor>> slavePairs;
+    List<Pair<TriangleShape, SlaveDescriptor>> slavePairs;
     transient QueryShapeGenerator  queryShapeGenerator;
 
     public static void main(String[] args){
@@ -136,12 +136,12 @@ public class Master extends MasterProxy implements TTree,java.io.Serializable{
         double minTime=TimelineGenerator.timeMinValue;
         double maxTime=TimelineGenerator.timeMaxValue;
         //3. set the rootTriangle
-        rootTriangle = new IsoscelesRightTriangleShape(
+        rootTriangle = new TriangleShape(
                 new Vector2D(minTime-1,maxTime+1),
                 new Vector2D(maxTime+1,maxTime+1),
                 new Vector2D(minTime-1,minTime-1)
         );
-        queryShapeGenerator= new QueryShapeGenerator(new IsoscelesRightTriangleShape(rootTriangle));
+        queryShapeGenerator= new QueryShapeGenerator(new TriangleShape(rootTriangle));
         //4.partition the triangle
         slavePairs= executePartition(getMasterDescriptor());
         //5.call slave methods,create TI-Tree
@@ -149,7 +149,7 @@ public class Master extends MasterProxy implements TTree,java.io.Serializable{
     }
 
     @Override
-    public Triangle getRootTriangle() {
+    public TriangleShape getRootTriangle() {
         return this.rootTriangle;
     }
 
@@ -159,11 +159,11 @@ public class Master extends MasterProxy implements TTree,java.io.Serializable{
      * @return
      */
     @Override
-    public List< Pair<Triangle, SlaveDescriptor> > executePartition(MasterDescriptor md) {
-        List<Triangle> listTriangles= new ArrayList<>();
-        List<Triangle> tempListTriangles= new ArrayList<>();
-        List<Triangle> swapListTriangles=null;
-        listTriangles.add((Triangle) rootTriangle.clone());
+    public List< Pair<TriangleShape, SlaveDescriptor> > executePartition(MasterDescriptor md) {
+        List<TriangleShape> listTriangles= new ArrayList<>();
+        List<TriangleShape> tempListTriangles= new ArrayList<>();
+        List<TriangleShape> swapListTriangles=null;
+        listTriangles.add((TriangleShape) rootTriangle.clone());
         int slaveCount = md.getSlaves().size();
         int triangleCount=1;
         int i=0;
@@ -198,7 +198,7 @@ public class Master extends MasterProxy implements TTree,java.io.Serializable{
         //构建返回对象
         i=0;
         assert md.getSlaves().size()==triangleCount;
-        List< Pair<Triangle, SlaveDescriptor> > r=  new ArrayList<>();
+        List< Pair<TriangleShape, SlaveDescriptor> > r=  new ArrayList<>();
         for(SlaveDescriptor s: md.getSlaves()){
             r.add(new Pair<>(listTriangles.get(i),s));
         }
@@ -217,7 +217,7 @@ public class Master extends MasterProxy implements TTree,java.io.Serializable{
             e.combine(queryShapeGenerator.overlaps(li).getMBR());
         }
 
-        for(Pair<Triangle,SlaveDescriptor> p: slavePairs){
+        for(Pair<TriangleShape,SlaveDescriptor> p: slavePairs){
             if(Geom2DSuits.intersects(e,p.first())==false) continue;
             CommandDescriptor cd = new CommandDescriptor("executeSimilarityQuery");
             ParameterDescriptor pd1 = new ParameterDescriptor(t);
@@ -234,13 +234,13 @@ public class Master extends MasterProxy implements TTree,java.io.Serializable{
      * createTI-Trees
      * @param slavePairs
      */
-    void createTITrees(final List<Pair<Triangle, SlaveDescriptor> > slavePairs){
+    void createTITrees(final List<Pair<TriangleShape, SlaveDescriptor> > slavePairs){
         CommandDescriptor cd = new CommandDescriptor("createTITree");
         ParameterDescriptor pdTriangle = new ParameterDescriptor(null);
         cd.addParameterDescriptor(pdTriangle);
         ParameterDescriptor pdDataFile = new ParameterDescriptor(new Variant(this.dataFile));
         cd.addParameterDescriptor(pdDataFile);
-        for(Pair<Triangle,SlaveDescriptor> p: slavePairs){
+        for(Pair<TriangleShape,SlaveDescriptor> p: slavePairs){
             pdTriangle.setParameter((Serializable)p.first());
             p.second().getSlave().executeCommand(cd);
         }

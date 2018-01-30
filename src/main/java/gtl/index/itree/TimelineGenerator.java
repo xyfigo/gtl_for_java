@@ -3,13 +3,7 @@ import gtl.common.CommonSuits;
 import gtl.geom.GeomSuits;
 import gtl.geom.LabeledInterval;
 import gtl.geom.Timeline;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.mllib.random.StandardNormalGenerator;
-import org.apache.spark.mllib.random.RandomRDDs;
-import org.apache.spark.mllib.random.RandomDataGenerator;
 import org.apache.spark.mllib.random.UniformGenerator;
-import org.apache.spark.sql.SparkSession;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -20,14 +14,14 @@ import java.util.List;
 public class TimelineGenerator {
     static double timeMaxValue=10000;//最大时间值
     static double timeMinValue=0;//最小时间值
-    static double timelineMinLength=10;//一条时间线的最小长度
-    static double timelineMaxLength=50;//一条时间线的最大长度
-    static double intervalMinDuring=2;//间隔最小持续时间
-    static double intervalMaxDuring=10;//间隔最大持续时间
+    static double timelineMinLength=50;//一条时间线的最小长度
+    static double timelineMaxLength=100;//一条时间线的最大长度
+    static double intervalMinLength=2;//间隔最小持续时间
+    static double intervalMaxLength =10;//间隔最大持续时间
     static int     labelTypes=5;//标识种类
-    static final long numberTimelines=10000000;// the number of the generated timelines
+    static final long numberTimelines=10000;// the number of the generated timelines
     static String outputFileName = "d://devs//data//timelines.txt";
-
+    static long  numberIntervals=0;
     public static void main(String[] args){
         //StandardNormalGenerator sng = new StandardNormalGenerator();
         UniformGenerator ug= new UniformGenerator();
@@ -35,12 +29,16 @@ public class TimelineGenerator {
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFileName));
             for(long i=0;i<numberTimelines;++i){
                 Timeline tl = generate();
+                numberIntervals+=tl.getLabeledIntervals().size();
                 tl.getIdentifier().reset(i);
                 bw.write(tl.toString());
                 if(i<numberTimelines-1)
                     bw.newLine();
             }
             bw.close();
+
+            System.out.println(numberTimelines);
+            System.out.println(numberIntervals);
         }
         catch (IOException e){
             e.printStackTrace();
@@ -61,11 +59,11 @@ public class TimelineGenerator {
             double timelineEndValue = timelineStartValue+timelineLength;
             double intervalStartValue = timelineStartValue;
             double intervalEndValue = intervalStartValue;
-            double intervalLength = ug.nextValue()*(intervalMaxDuring-intervalMinDuring);
+            double intervalLength = ug.nextValue()*(intervalMaxLength -intervalMinLength);
             int label =0;
             List<LabeledInterval> labeledIntervals = new ArrayList<>();
             do{
-                intervalLength = ug.nextValue()*(intervalMaxDuring-intervalMinDuring);
+                intervalLength = ug.nextValue()*(intervalMaxLength -intervalMinLength);
                 intervalEndValue = intervalStartValue+intervalLength;
                 while (label==0)
                     label= (int)(ug.nextValue()*labelTypes);

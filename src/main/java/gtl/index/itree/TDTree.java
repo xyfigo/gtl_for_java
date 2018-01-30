@@ -7,6 +7,7 @@ import gtl.geom.*;
 import gtl.index.shape.LineSegmentShape;
 import gtl.index.shape.PointShape;
 import gtl.index.shape.RegionShape;
+import gtl.index.shape.TriangleShape;
 import gtl.io.storage.StorageManager;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -36,9 +37,9 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
     transient JavaRDD<Pair<String,Identifier>> sparkRDD;
     AtomicBoolean   constructedRDD; //whether the RDD is constructed, threadsafe
 
-    public TDTree(Triangle root,int leafCapacity,StorageManager sm,JavaSparkContext sparkContext) {
+    public TDTree(TriangleShape root,int leafCapacity,StorageManager sm,JavaSparkContext sparkContext) {
         super(root,leafCapacity);
-        triangleEncoder = new TriangleEncoder((Triangle)this.baseTriangle);
+        triangleEncoder = new TriangleEncoder((TriangleShape)this.baseTriangle);
         storageManager=sm;
         leafInfos =  new HashMap<>();
 
@@ -69,7 +70,7 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
         JavaRDD<T> result = sparkRDD
                 .filter(r->{
                     //if(r.getValue().longValue()!=-1L) return false;
-                    Triangle t = te.parse(r.getKey());
+                    TriangleShape t = te.parse(r.getKey());
                     if(test(t,ps)!=0)
                         return true;
                     else
@@ -255,10 +256,10 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
 
         int leftIntervalNumber=0;
         int rightIntervalNumber=0;
-        Triangle lnTriangle = ln.second().triangle;
+        TriangleShape lnTriangle = ln.second().triangle;
         String  lnString=ln.first();
-        Triangle leftTriangle=null;
-        Triangle rightTriangle=null;
+        TriangleShape leftTriangle=null;
+        TriangleShape rightTriangle=null;
         String leftString=null;
         String rightString =null;
 
@@ -348,7 +349,7 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
         Identifier page=null;
         LeafNode ln = null;
         for(Map.Entry<String,Identifier> p: s){
-            Triangle t = triangleEncoder.parse(p.getKey());
+            TriangleShape t = triangleEncoder.parse(p.getKey());
             if(Geom2DSuits.contains(t,i.getLowerBound(),i.getUpperBound())){
                 ln = readNode(p.getValue());
                 return  new Pair<String,LeafNode>(p.getKey(),ln);
@@ -371,7 +372,7 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
         //2. there is no leaf node that contains i, scan the emptyNodes only when the insertion is running
         int k=0;
         for(String str: emptyNodes){
-            Triangle t = triangleEncoder.parse(str);
+            TriangleShape t = triangleEncoder.parse(str);
             if(Geom2DSuits.contains(t,i.getLowerBound(),i.getUpperBound())){
                 String sss = emptyNodes.remove(k);
                 ln = new LeafNode();
@@ -424,34 +425,68 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
      * @param i
      * @return
      */
-    public int delete (T i){
-        constructedRDD.set(false);
-        return 0;
+    public boolean delete (T i){
+        Pair<String,LeafNode> ln = chooseNode(i);
+        if(ln==null) return false;
+        if(ln.first()==null || ln.second()==null)
+            return false;
+
+        int r = ln.getSecond().delete((Interval)i);
+        if(r==1) {//成功删除
+            if(ln.second().size==0){//如果叶子节点为空
+                //回收该节点和页面
+                emptyNodes.add(ln.first());
+                Identifier page = leafInfos.get(ln.first());
+                try{
+                    if(page.longValue()!=-1L)
+                        storageManager.deleteByteArray(page);
+                }
+                catch (IOException e){
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+            else{//重写该节点
+                Identifier page = null;
+                if(ln.second().size==1)
+                    page = CommonSuits.createIdentifier(-1);
+                else
+                    page = leafInfos.get(ln.first());
+
+                //rewrite the node to page
+                page=writeNode(ln.second(),page);
+                leafInfos.put(ln.first(),page);
+            }
+
+            constructedRDD.set(false);
+            return true;
+        }
+        return false;
     }
     /**
      * 叶子节点类
      */
     class LeafNode  implements gtl.io.Serializable{
 
-        Triangle        triangle;
+        TriangleShape triangle;
         Interval []     intervals;
         int             size;
         public LeafNode(){
             intervals = new Interval [leafNodeCapacity];
-            triangle =(Triangle) baseTriangle.clone();
+            triangle =(TriangleShape) baseTriangle.clone();
             size=0;
         }
 
         public LeafNode(String identifier, Interval[] intervals, int size) {
-            triangle =(Triangle) triangleEncoder.parse(identifier);
+            triangle =(TriangleShape) triangleEncoder.parse(identifier);
             this.intervals = new Interval[leafNodeCapacity];
             this.size = size>leafNodeCapacity? leafNodeCapacity:size;
             for(int i=0;i<this.size;++i)
                 this.intervals[i] = intervals[i];
         }
 
-        public LeafNode(Triangle t, Interval[] intervals, int size) {
-            triangle =(Triangle) t.clone();
+        public LeafNode(TriangleShape t, Interval[] intervals, int size) {
+            triangle =(TriangleShape) t.clone();
             this.intervals = new Interval[leafNodeCapacity];
             this.size = size>leafNodeCapacity? leafNodeCapacity:size;
             for(int i=0;i<this.size;++i)
@@ -469,7 +504,7 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
             LeafNode ln = new LeafNode();
             LeafNode rn = new LeafNode();
 
-            Triangle lnTriangle = triangle.leftTriangle();
+            TriangleShape lnTriangle = triangle.leftTriangle();
             int t=0;
             for(int i=0;i<size;++i){
                 t = test(lnTriangle,intervals[i]);
@@ -516,6 +551,34 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
             }
         }
 
+        /**
+         *
+         * @param i
+         * @return
+         * *如果返回1，表示删除成功
+         * 如果返回0，表示在三角形的外面；删除失败
+         * 如果返回-1，表示在三角形里面，但是没有找到相等的Interval
+         */
+        public int delete(Interval i){
+            if(size==0) return -1;
+            int r = test(triangle, i);
+            /*
+            * 如果返回0，表示在三角形的外面；
+            * 如果返回1，表示在基准三角形的左子三角形里面或边上
+            * 如果返回2，则表示在基准三角形的右子三角形里面或边上；
+             */
+            if(r==0)
+                return 0;
+            for(int it=0;it<size;++it) {
+                if(i.equals(intervals[it])){
+                    for(int k=it;k<size-1;++k)
+                        intervals[k]=intervals[k+1];
+                    size-=1;
+                    return 1;
+                }
+            }
+            return -1;
+        }
         @Override
         public Object clone() {
             LeafNode ln =  new LeafNode(this.triangle,this.intervals,this.size);
@@ -527,7 +590,7 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
         @Override
         public void copyFrom(Object leafNode) {
             LeafNode ln =   (LeafNode)leafNode;
-            this.triangle = (Triangle) ln.triangle.clone();
+            this.triangle = (TriangleShape) ln.triangle.clone();
             this.size = ln.size;
             for(int i=0;i<this.size;++i)
                 this.intervals[i] =(Interval) ln.intervals[i].clone();
@@ -543,7 +606,7 @@ public class TDTree<T extends Interval> extends BaseTriangleTree<T> {
                     in.readFully(bs,0,len);
                     ByteArrayInputStream bais = new ByteArrayInputStream(bs);
                     ObjectInputStream ois = new ObjectInputStream(bais);
-                    triangle = (Triangle) ois.readObject();
+                    triangle = (TriangleShape) ois.readObject();
                     ois.close();
                 }
                 size = in.readInt();

@@ -2,15 +2,12 @@ package gtl.index.itree;
 
 import gtl.common.CommonSuits;
 import gtl.common.Identifier;
-import gtl.common.Pair;
 import gtl.geom.*;
-import gtl.index.shape.IsoscelesRightTriangleShape;
-import gtl.index.shape.RegionShape;
+import gtl.index.shape.TriangleShape;
 import gtl.io.storage.StorageManager;
 import org.apache.spark.api.java.JavaSparkContext;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TITree <T extends Interval> extends TDTree<T> {
@@ -18,7 +15,7 @@ public class TITree <T extends Interval> extends TDTree<T> {
     private static final long serialVersionUID = 1L;
 
 
-    public TITree(Triangle root, int leafCapacity, StorageManager sm, JavaSparkContext jsc){
+    public TITree(TriangleShape root, int leafCapacity, StorageManager sm, JavaSparkContext jsc){
         super(root,leafCapacity,sm,jsc);
     }
 
@@ -37,7 +34,7 @@ public class TITree <T extends Interval> extends TDTree<T> {
      * @return
      */
     void extend(T i) {
-        IsoscelesRightTriangleShape newBaseTriangle = this.baseTriangle;
+        TriangleShape newBaseTriangle = this.baseTriangle;
         Vector V0;
         while (test(this.baseTriangle, i) == 0) {
             V0 = this.baseTriangle.getVertex(0);
@@ -60,7 +57,7 @@ public class TITree <T extends Interval> extends TDTree<T> {
      */
     void leftExtension( ) {
         //triangle ABC
-        Triangle ABC = this.baseTriangle;
+        TriangleShape ABC = this.baseTriangle;
 
         Vector[] vertices = this.baseTriangle.getClockwiseVertices();
         Vector V0 = new VectorImpl(vertices[0].getX() - (vertices[2].getX() - vertices[0].getX()),
@@ -70,16 +67,16 @@ public class TITree <T extends Interval> extends TDTree<T> {
                 V0.getY() - 2 * (vertices[0].getY() - vertices[1].getY()), 0.0);
 
         //triangle GCK
-        Triangle GCK = new IsoscelesRightTriangleShape(V0, V1, V2);
+        TriangleShape GCK = new TriangleShape(V0, V1, V2);
         //triangle BKG
-        Triangle BKG= GCK.leftTriangle();
+        TriangleShape BKG= GCK.leftTriangle();
         //triangle BGC
-        Triangle BGC = GCK.rightTriangle();
+        TriangleShape BGC = GCK.rightTriangle();
         //triangle ABG
-        Triangle ABG = BGC.rightTriangle();
+        TriangleShape ABG = BGC.rightTriangle();
 
         //1.reset the base triangle
-        this.baseTriangle = new IsoscelesRightTriangleShape(GCK.getVertices());
+        this.baseTriangle = new TriangleShape(GCK.getVertices());
         //2.reset QueryShapeGenerator
         this.queryShapeGenerator.reset(baseTriangle);
         //3.reset TriangleEncoder
@@ -108,7 +105,7 @@ public class TITree <T extends Interval> extends TDTree<T> {
      */
     void rightExtension( ) {
         //triangle ABC
-        Triangle ABC = this.baseTriangle;
+        TriangleShape ABC = this.baseTriangle;
 
         Vector[] vertices = ABC.getVertices();
         Vector V0 = new VectorImpl(vertices[0].getX(),
@@ -118,16 +115,16 @@ public class TITree <T extends Interval> extends TDTree<T> {
                 V0.getY(), 0.0);
 
         //triangle DEB
-        Triangle DEB = new IsoscelesRightTriangleShape(V0, V1, V2);
+        TriangleShape DEB = new TriangleShape(V0, V1, V2);
         //triangle CBD
-        Triangle CBD= DEB.leftTriangle();
+        TriangleShape CBD= DEB.leftTriangle();
         //triangle CDE
-        Triangle CDE = DEB.rightTriangle();
+        TriangleShape CDE = DEB.rightTriangle();
         //triangle ADC
-        Triangle ADC = CBD.leftTriangle();
+        TriangleShape ADC = CBD.leftTriangle();
 
         //1.reset the base triangle
-        this.baseTriangle = new IsoscelesRightTriangleShape(DEB.getVertices());
+        this.baseTriangle = new TriangleShape(DEB.getVertices());
         //2.reset QueryShapeGenerator
         this.queryShapeGenerator.reset(baseTriangle);
         //3.reset TriangleEncoder

@@ -12,17 +12,17 @@ class QueryShapeGenerator <T extends Interval> implements java.io.Serializable{
     private static final long serialVersionUID = 1L;
 
     //refer to the tree's base triangle
-    IsoscelesRightTriangleShape baseTriangle;
+    TriangleShape baseTriangle;
 
-    public QueryShapeGenerator(IsoscelesRightTriangleShape baseTriangle) {
+    public QueryShapeGenerator(TriangleShape baseTriangle) {
         this.baseTriangle = baseTriangle;
     }
 
     public QueryShapeGenerator(Triangle baseTriangle) {
-        this.baseTriangle = new IsoscelesRightTriangleShape(baseTriangle);
+        this.baseTriangle = new TriangleShape(baseTriangle);
     }
 
-    public void reset(IsoscelesRightTriangleShape baseTriangle) {
+    public void reset(TriangleShape baseTriangle) {
         this.baseTriangle = baseTriangle;
     }
 

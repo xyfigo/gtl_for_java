@@ -28,12 +28,13 @@ import java.util.List;
  * transform(String word)
  * Transforms a word to its vector representation
  */
+
 public class JavaWord2Vec {
     public static void main(String[] args) {
         SparkSession spark = SparkSession
                 .builder()
                 .appName("JavaWord2Vec")
-                .master("local")
+                .master("local[*]")
                 .getOrCreate();
         // Input data: Each row is a bag of words from a sentence or document.
         List<Row> data = Arrays.asList(
